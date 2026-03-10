@@ -34,7 +34,7 @@ jobs:
       - name: Setup Pages
         run: |
           mkdir output
-          docker run --user=$(id -u) --rm -v `pwd`:/showroom/repo --mount 'type=tmpfs,dst=/showroom/repo/.cache' --entrypoint antora -w /showroom/repo ghcr.io/rhpds/showroom-content:latest --to-dir=output default-site.yml
+          docker run --user=$(id -u) --rm -v `pwd`:/showroom/repo --mount 'type=tmpfs,dst=/showroom/repo/.cache' --entrypoint antora -w /showroom/repo ghcr.io/rhpds/showroom-content:latest --to-dir=output site.yml
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
