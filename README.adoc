@@ -1,6 +1,21 @@
 # Migration Toolkit for Applications
 
-=== Getting Started
+=== Getting Started (Recommended)
+
+. Create a git repo from this template (suggested naming: `<lab-name>-showroom`)
+. Clone your new repo and preview locally:
++
+[source,sh]
+----
+podman run --rm --name antora -v $PWD:/antora -p 8080:8080 -i -t ghcr.io/juliaaano/antora-viewer
+----
++
+On SELinux systems, append `:z` to the volume mount.
+. Edit content in `content/modules/ROOT/pages/`
+
+See the https://rhpds.github.io/showroom_template_nookbag/[Content Repository docs] for directory layout, Podman Compose with live reload, dev mode, and more.
+
+=== Getting Started (Legacy)
 
 . Create a git repo from this template
 . Clone the repo and `cd` into it
