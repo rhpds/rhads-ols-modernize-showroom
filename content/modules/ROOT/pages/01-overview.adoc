@@ -1,0 +1,39 @@
+= Workshop overview
+:imagesdir: ../assets/images/
+
+== Business scenario
+
+As part of the digital transformation and cloud adoption initiative of a large organization, the Development and DevOps teams embarked upon a journey to modernize their existing siloed services running on virtual machines.
+
+The organization needs to assess their current application portfolio, identify migration risks, and systematically modernize applications to run on OpenShift with cloud-native architectures.
+
+== Learning objectives
+
+By the end of this workshop, you will be able to:
+
+* Navigate the MTA application inventory and understand application profiles
+* Classify applications using tags and archetypes
+* Complete application assessments using questionnaires
+* Analyze application source code to identify migration issues
+* Understand MTA analysis reports and issue remediation
+* Refactor legacy applications to remove cloud anti-patterns
+* Deploy modernized applications to OpenShift
+
+== Expected outcomes
+
+After completing this workshop, you will have:
+
+* Assessed a Spring application using MTA questionnaires
+* Analyzed source code to identify configuration and dependency issues
+* Refactored code to replace legacy libraries with cloud-native alternatives
+* Successfully deployed a modernized application to OpenShift
+* Gained hands-on experience with the complete MTA workflow
+
+== Workshop flow
+
+This workshop consists of two main modules:
+
+1. **Assessment and Analysis** -- Learn to use MTA's inventory, assessment, and analysis capabilities to identify migration issues
+2. **Refactor and Deploy** -- Fix identified issues, modernize the application, and deploy to OpenShift
+
+Estimated time: 2-3 hours

@@ -1,0 +1,81 @@
+= Conclusion
+:imagesdir: ../assets/images/
+
+== Workshop summary
+
+Congratulations on completing the Migration Toolkit for Applications workshop!
+
+In this workshop, you have:
+
+* Explored the MTA application inventory and learned about application profiles, tags, and archetypes
+* Completed an assessment questionnaire to identify migration risks
+* Analyzed application source code to identify specific issues and estimate effort
+* Refactored legacy code to use Spring framework standards
+* Removed corporate library dependencies
+* Re-ran analysis to verify issue resolution
+* Built and deployed a modernized application to OpenShift
+* Tested the deployed application to confirm successful migration
+
+== Key takeaways
+
+=== MTA workflow
+
+The complete MTA workflow consists of:
+
+1. **Inventory** -- Organize and classify your application portfolio
+2. **Assessment** -- Evaluate applications using questionnaires
+3. **Analysis** -- Scan source code or binaries for migration issues
+4. **Remediation** -- Fix identified issues following MTA recommendations
+5. **Verification** -- Re-analyze to confirm issues are resolved
+6. **Deployment** -- Deploy modernized applications to OpenShift
+
+=== Best practices
+
+* Use archetypes to manage applications at scale
+* Complete assessments before analysis to understand high-level risks
+* Leverage custom rules to identify organization-specific anti-patterns
+* Follow MTA recommendations for issue remediation
+* Re-analyze after fixes to verify resolution
+* Use binary builds for quick deployment iterations
+
+== Next steps
+
+=== Continue learning
+
+* Explore MTA custom questionnaires for organization-specific assessments
+* Create custom rules to detect additional anti-patterns
+* Analyze additional applications in the portfolio
+* Experiment with different transformation targets
+
+=== Production readiness
+
+Before using MTA in production:
+
+* Integrate MTA into your CI/CD pipeline
+* Develop custom rules for your organization's specific needs
+* Create reusable archetypes for common application patterns
+* Establish governance processes for assessment and analysis
+* Train team members on MTA workflows
+
+=== Additional resources
+
+* https://developers.redhat.com/products/mta/overview[Migration Toolkit for Applications Product Page^]
+* https://access.redhat.com/documentation/en-us/migration_toolkit_for_applications/7.0[MTA 7.0 Documentation^]
+* https://developers.redhat.com/products/mta/use-cases[MTA Use Cases^]
+* https://access.redhat.com/documentation/en-us/migration_toolkit_for_applications/7.0/html/user_interface_guide/assessing-and-analyzing-applications[Assessment and Analysis Guide^]
+* https://access.redhat.com/documentation/en-us/migration_toolkit_for_applications/7.0/html-single/user_interface_guide/index#mta-custom-questionnaire_user-interface-guide[Custom Questionnaire Guide^]
+
+== References
+
+This workshop used the following Red Hat documentation and resources:
+
+* https://access.redhat.com/documentation/en-us/migration_toolkit_for_applications/7.0/html-single/introduction_to_the_migration_toolkit_for_applications/index#new-mta-features_getting-started-guide[MTA Features and Capabilities^]
+* https://access.redhat.com/documentation/en-us/openshift_container_platform/4.11/html-single/cicd/index#builds-binary-source_creating-build-inputs[OpenShift Binary Build Documentation^]
+
+== Feedback
+
+We value your feedback! Please share your thoughts on this workshop to help us improve future iterations.
+
+== Thank you!
+
+Thank you for participating in this Migration Toolkit for Applications workshop. We hope you found it valuable and that you can apply these skills to your modernization initiatives.

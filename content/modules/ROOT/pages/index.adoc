@@ -1,9 +1,38 @@
 = {lab_name}
 
-`Migration Toolkit for Applications` is the ultimate Open Source toolkit to help organizations safely migrate and modernize their application portfolio to leverage OpenShift and other Red Hat technologies, providing differential value on each stage of the adoption process.
+Welcome to the Migration Toolkit for Applications workshop!
+
+== What you'll learn
+
+Migration Toolkit for Applications is the ultimate Open Source toolkit to help organizations safely migrate and modernize their application portfolio to leverage OpenShift and other Red Hat technologies, providing differential value on each stage of the adoption process.
+
+In this workshop, you will:
+
+* Understand the MTA application inventory and assessment process
+* Learn to assess applications using questionnaires and archetypes
+* Analyze application source code to identify migration issues
+* Refactor legacy applications to be cloud-native
+* Deploy modernized applications to OpenShift
+
+== Who this is for
+
+This workshop is designed for developers, architects, and platform engineers who want to learn how to assess, analyze, and modernize applications for OpenShift using Migration Toolkit for Applications.
+
+== Workshop environment
+
+Your workshop environment includes:
+
+* OpenShift cluster with MTA installed
+* Gitea source code repository
+* OpenShift DevSpaces for code editing
+* Sample legacy application to modernize
+
+== Let's get started!
 
 The goal for the tool is to provide as much insight as possible for the adoption leads to make informed decisions and give migrators guidance and some degree of automation for the adaptations that might be required on applications.
 
 The rationale behind the approach of the tools is very straightforward: reduce risks and make the migration and modernization process measurable and predictable.
 
 In this lab we will learn the essentials of MTA by assessing and analyzing the current application portfolio from an organization and identifying potential issues and risks for implementing advanced cloud-native architectures with application modernization.
+
+Click on the next section to begin the workshop.

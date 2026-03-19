@@ -9,6 +9,8 @@ asciidoc:
     lab_name: Migration Toolkit for Applications
     release-version: main
     page-pagination: true
+    # Include shared attributes file
+    page-attributes: attributes.adoc
 
   extensions:
   - ./content/lib/tab-block.js

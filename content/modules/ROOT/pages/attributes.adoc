@@ -1,0 +1,18 @@
+// Standard Workshop Attributes
+:lab_name: Migration Toolkit for Applications
+
+// Version placeholders - will be replaced at deployment
+:ocp_version: 4.18
+:mta_version: 7.0
+
+// User info placeholders - Showroom replaces these at runtime
+// DO NOT hardcode actual values - they come from deployment
+:openshift_console_url: REPLACE_WITH_USERINFO
+:openshift_cluster_user_name: REPLACE_WITH_USERINFO
+:openshift_cluster_user_password: REPLACE_WITH_USERINFO
+:mta_url: REPLACE_WITH_USERINFO
+:gitea_console_url: REPLACE_WITH_USERINFO
+:gitea_user: REPLACE_WITH_USERINFO
+:gitea_password: REPLACE_WITH_USERINFO
+:codeserver_url: REPLACE_WITH_USERINFO
+:codeserver_password: REPLACE_WITH_USERINFO

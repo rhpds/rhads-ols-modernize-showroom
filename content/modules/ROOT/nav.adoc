@@ -1,2 +1,6 @@
-* xref:module-mta-analyze-instructions.adoc[Assessment and Analysis]
-// * xref:module-mta-refactor-instructions.adoc[Refactor]
+* xref:index.adoc[Welcome]
+* xref:01-overview.adoc[Workshop overview]
+* xref:02-details.adoc[Workshop details]
+* xref:03-module-01-analyze.adoc[Module 1: Assessment and analysis]
+* xref:04-module-02-refactor.adoc[Module 2: Refactor and deploy]
+* xref:05-conclusion.adoc[Conclusion]
