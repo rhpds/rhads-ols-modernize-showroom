@@ -1,38 +1,50 @@
-= {lab_name}
+= Accelerating Application Modernization With AI: Red Hat Developer Lightspeed
 
-Welcome to the Migration Toolkit for Applications workshop!
+Welcome to the AI-powered application modernization workshop!
 
 == What you'll learn
 
-Migration Toolkit for Applications is the ultimate Open Source toolkit to help organizations safely migrate and modernize their application portfolio to leverage OpenShift and other Red Hat technologies, providing differential value on each stage of the adoption process.
-
 In this workshop, you will:
 
-* Understand the MTA application inventory and assessment process
-* Learn to assess applications using questionnaires and archetypes
-* Analyze application source code to identify migration issues
-* Refactor legacy applications to be cloud-native
-* Deploy modernized applications to OpenShift
+* Analyze legacy applications using Migration Toolkit for Applications (MTA) with AI-powered risk assessment
+* Generate modernized code using Red Hat Developer Lightspeed with AI assistance
+* Automate collection of best practices and company policies for code generation
+* Deploy modernized applications to Red Hat OpenShift
 
 == Who this is for
 
-This workshop is designed for developers, architects, and platform engineers who want to learn how to assess, analyze, and modernize applications for OpenShift using Migration Toolkit for Applications.
+This workshop is designed for developers, architects, and platform engineers who want to learn how to migrate legacy applications to OpenShift using AI-infused Developer Lightspeed for MTA.
+
+**Experience level**: Intermediate
+
+== Prerequisites
+
+Before starting this workshop, you should have:
+
+* Basic understanding of Java application development
+* Familiarity with containerization concepts
+* Basic knowledge of OpenShift or Kubernetes
+* Experience with Git and version control
 
 == Workshop environment
 
-Your workshop environment includes:
+You will have access to a pre-configured environment with:
 
-* OpenShift cluster with MTA installed
-* Gitea source code repository
-* OpenShift DevSpaces for code editing
-* Sample legacy application to modernize
+* OpenShift cluster: {openshift_console_url}
+* Migration Toolkit for Applications: {mta_url}
+* Red Hat OpenShift Dev Spaces: {devspaces_url}
+* Gitea repository: {gitea_url}
+* Username: {user}
+* Password: {password}
+
+NOTE: All environment details and credentials are available in the lab interface.
+
+== Estimated time
+
+This workshop will take approximately **90 minutes** to complete.
+
+You can work at your own pace.
 
 == Let's get started!
 
-The goal for the tool is to provide as much insight as possible for the adoption leads to make informed decisions and give migrators guidance and some degree of automation for the adaptations that might be required on applications.
-
-The rationale behind the approach of the tools is very straightforward: reduce risks and make the migration and modernization process measurable and predictable.
-
-In this lab we will learn the essentials of MTA by assessing and analyzing the current application portfolio from an organization and identifying potential issues and risks for implementing advanced cloud-native architectures with application modernization.
-
-Click on the next section to begin the workshop.
+Click on **Workshop Overview** in the navigation to begin your learning journey.

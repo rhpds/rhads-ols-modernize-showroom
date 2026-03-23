@@ -1,33 +1,37 @@
 ---
 site:
-  title: Migration Toolkit for Applications
+  title: Accelerating Application Modernization With AI - Red Hat Developer Lightspeed
+  url: https://github.com/dbrugger946/rhdls-showroom-summit26
   start_page: modules::index.adoc
 
 content:
   sources:
-  - url: .
-    start_path: content
+    - url: .
+      start_path: content
 
 ui:
   bundle:
     url: https://github.com/rhpds/rhdp_showroom_theme/releases/download/rh-summit-2025/ui-bundle.zip
-    # Themes can be found at https://github.com/rhpds/rhdp_showroom_theme
-    # Using Summit 2025 theme for Summit 2026 compatibility
     snapshot: true
   supplemental_files:
     - path: ./content/supplemental-ui
-    - path: ./content/lib
-    - path: .nojekyll
-    - path: ui.yml
-      contents: "static_files: [ .nojekyll ]"
-
-runtime:
-  cache_dir: ./.cache/antora
 
 antora:
   extensions:
-  - require: ./content/lib/dev-mode.js
-    enabled: true
+    - '@sntke/antora-mermaid-extension'
+
+asciidoc:
+  attributes:
+    experimental: true
+    page-pagination: true
+    showroom-collection-version: v1.5.6
+    guid: abc123
+    bastion_public_hostname: bastion.abc123.ocpv00.rhdp.net
+    bastion_ssh_user_name: lab-user
+    bastion_ssh_password: password
+    ssh_user: lab-user
+    openshift_console_url: https://console-openshift-console.apps.cluster-abc123.ocpv00.rhdp.net
+    openshift_cluster_ingress_domain: apps.cluster-abc123.ocpv00.rhdp.net
 
 output:
   dir: ./www

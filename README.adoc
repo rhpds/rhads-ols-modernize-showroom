@@ -1,8 +1,20 @@
-# Migration Toolkit for Applications
+= Showroom Template
 
-=== Getting Started (Recommended)
+A template for creating Red Hat Showroom lab guides and demo content, built with https://antora.org[Antora].
 
-. Create a git repo from this template (suggested naming: `<lab-name>-showroom`)
+* 0% cruft
+* Red Hat Demo Platform UI Bundle default
+* Dev Mode extension that displays the asciidoc attributes you have to work with
+
+== Documentation
+
+Full documentation — getting started, content structure, configuration, local development, and AI-assisted content creation — is available at:
+
+https://rhpds.github.io/showroom_template_nookbag/
+
+== Quick Start
+
+. https://github.com/rhpds/showroom_template_nookbag/generate[Create a repo from this template] (suggested naming: `<lab-name>-showroom`)
 . Clone your new repo and preview locally:
 +
 [source,sh]
@@ -11,61 +23,12 @@ podman run --rm --name antora -v $PWD:/antora -p 8080:8080 -i -t ghcr.io/juliaaa
 ----
 +
 On SELinux systems, append `:z` to the volume mount.
+
 . Edit content in `content/modules/ROOT/pages/`
+. See the https://rhpds.github.io/showroom_template_nookbag/modules/content-repo.html[Content Repository] docs for directory layout, Podman Compose with live reload, dev mode, and more.
 
-See the https://rhpds.github.io/showroom_template_nookbag/[Content Repository docs] for directory layout, Podman Compose with live reload, dev mode, and more.
+== Create Content with AI
 
-=== Getting Started (Legacy)
+The https://github.com/rhpds/rhdp-skills-marketplace[RHDP Skills Marketplace] provides skills for Cursor IDE and Claude Code that generate labs, demos, and validate content against Red Hat standards.
 
-. Create a git repo from this template
-. Clone the repo and `cd` into it
-. Run ./utilities/lab-serve
-. Open http://localhost:8443 in your browser
-. Run ./utilities/lab-build to build your html
-
-Now you are ready to go!  You can start editing the files in the `content/modules/ROOT/pages/` directory.
-
-**Today** you have to run `./utilites/build` to rebuild your html but *very shortly* we will be adding live updating.
-I.E. on every save the lab will re-build in real time.
-In addition, many modern editors such as Visual Studio Code offer live Asciidoc Preview extensions.
-
-=== Understanding the Basic Template Directory Structure
-
-[source,sh]
-----
-./content/modules/ROOT/
-├── assets
-│   └── images                       # Images used in your content
-│       └── example-image.png
-├── examples                         # You can add downloadable assets here
-│   └── example-bash-script.sh       # e.g. an example bash script
-├── nav.adoc                         # Navigation for your lab
-├── pages                            # Your content goes here
-│   ├── index.adoc                   # First page of your lab, e.g. overview etc
-│   ├── module-02.adoc
-│   └── module-03.adoc               # Sample lab has 3 modules including index.adoc
-└── partials                         # You can add partials here, reusable content inserted inline into your modules
-    └── example_partial.adoc
-----
-
-=== Development Cycle
-
-. Edit your content in `content/modules/ROOT/pages/`
-. Run `./utilities/build` to build your html
-. Use `git` to branch and commit your work
-. Push your work to your repo
-.. You should use `git tags` or `git branches` in production
-.. However development items default to the head of `main`
-
-=== Configuring your Lab
-
-Project Zero Lab repos have 3 *yaml* files that control the build and deployment of your lab.
-However _typically_ you will only need to only make very few edits
-
-[source,sh]
-----
-├── content
-│   └── antora.yml                  # You can add "inline vars" here to render within your content
-├── zero-touch-config.yml            #
-└── zero-touch-site.yml
-----
+See the https://rhpds.github.io/showroom_template_nookbag/modules/content-repo.html#_creating_content_with_ai_tools[AI Tools documentation] for details.

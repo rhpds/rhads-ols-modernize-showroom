@@ -1,39 +1,91 @@
 = Workshop overview
-:imagesdir: ../assets/images/
+:toc:
+:toc-placement: preamble
+:icons: font
 
-== Business scenario
+== Your role and mission
 
-As part of the digital transformation and cloud adoption initiative of a large organization, the Development and DevOps teams embarked upon a journey to modernize their existing siloed services running on virtual machines.
+You're a senior developer at ACME Corp, and you've been assigned to evaluate AI-assisted application modernization for an urgent business initiative.
 
-The organization needs to assess their current application portfolio, identify migration risks, and systematically modernize applications to run on OpenShift with cloud-native architectures.
+ACME Corp is expanding their product portfolio and needs to quickly migrate a large number of legacy applications onto more scalable and secure Red Hat OpenShift clusters. Your manager has explained: "We have dozens of legacy Java applications that need to be containerized and deployed to OpenShift within the next quarter to support our expansion plans."
 
-== Learning objectives
+**Your assignment**: Evaluate Red Hat Developer Lightspeed for MTA and determine if AI-powered tools can accelerate the migration process while maintaining code quality and incorporating company best practices.
 
-By the end of this workshop, you will be able to:
+**The objective**: Demonstrate whether AI-assisted modernization can reduce migration time from weeks to days while ensuring code quality meets ACME's standards.
 
-* Navigate the MTA application inventory and understand application profiles
-* Classify applications using tags and archetypes
-* Complete application assessments using questionnaires
-* Analyze application source code to identify migration issues
-* Understand MTA analysis reports and issue remediation
-* Refactor legacy applications to remove cloud anti-patterns
-* Deploy modernized applications to OpenShift
+== Success criteria for your mission
 
-== Expected outcomes
+By the end of this workshop, you'll have practical AI-assisted modernization skills to address ACME's migration challenges:
 
-After completing this workshop, you will have:
+* Analyze legacy applications using MTA with AI-powered risk assessment → **identify migration opportunities and risks quickly**
+* Generate modernized code using Developer Lightspeed with AI assistance → **accelerate code transformation while reducing manual effort**
+* Automate collection of best practices and company policies → **ensure consistency across migration waves**
+* Deploy modernized applications to OpenShift → **prove end-to-end migration workflow**
 
-* Assessed a Spring application using MTA questionnaires
-* Analyzed source code to identify configuration and dependency issues
-* Refactored code to replace legacy libraries with cloud-native alternatives
-* Successfully deployed a modernized application to OpenShift
-* Gained hands-on experience with the complete MTA workflow
+**Technical outcome**: Hands-on experience with AI-powered application modernization that directly applies to ACME's migration initiative.
 
-== Workshop flow
+**Business benefit**: Proven approach that reduces migration time and ensures consistent application of company standards across large-scale modernization efforts.
 
-This workshop consists of two main modules:
+== Target audience
 
-1. **Assessment and Analysis** -- Learn to use MTA's inventory, assessment, and analysis capabilities to identify migration issues
-2. **Refactor and Deploy** -- Fix identified issues, modernize the application, and deploy to OpenShift
+This workshop is designed for:
 
-Estimated time: 2-3 hours
+* Developers who want to accelerate application modernization with AI
+* Architects looking to evaluate AI-assisted migration tooling
+* Platform engineers planning large-scale application migrations
+* Anyone interested in hands-on experience with Developer Lightspeed for MTA
+
+== Prerequisites
+
+You should have:
+
+* Basic understanding of Java application development -- you've worked with Java applications
+* Familiarity with containerization concepts -- you understand Docker/Podman basics
+* Basic knowledge of OpenShift or Kubernetes -- you've deployed applications to container platforms
+* Experience with Git and version control -- you use Git for code management
+
+== ACME Corp's modernization challenges
+
+**The situation**: ACME Corp is expanding their product portfolio and needs to quickly migrate a large number of legacy applications onto more scalable and secure Red Hat OpenShift clusters to support growth.
+
+**Project timeline**: Complete evaluation and proof of concept within current quarter, with full migration waves planned for the following six months.
+
+**Current challenges** (operational pain points):
+
+* **Manual migration overhead**: Traditional code modernization takes weeks per application → slows down business expansion plans
+* **Inconsistent approaches**: Different developers use different patterns → creates maintenance challenges and technical debt
+* **Knowledge silos**: Best practices and tribal knowledge not systematically captured → risks are repeated across projects
+* **Scale challenges**: Dozens of applications need migration → manual approaches don't scale to portfolio size
+
+**The opportunity**: AI-powered Developer Lightspeed for MTA can address these challenges, and you've been selected to evaluate its capability for ACME's migration initiative.
+
+**Technical perspective**: "AI-assisted tools have shown promise in accelerating development, but I need to evaluate how they work with our specific applications and whether they can maintain our code quality standards."
+
+== Your vision of success
+
+If AI-assisted modernization proves effective for ACME's use case, here's the potential impact:
+
+**Immediate improvements** (within quarter):
+* **Faster analysis**: Reduce application assessment time from days to hours → accelerate migration planning
+* **Code generation**: Automate repetitive modernization tasks → free developers for complex challenges
+
+**Strategic benefits** (6-12 months):
+* **Migration velocity**: Increase throughput from 2-3 apps/month to 10-15 apps/month → meet business expansion timeline
+* **Quality consistency**: Systematically apply best practices → reduce technical debt and maintenance costs
+* **Knowledge capture**: Codify tribal knowledge into reusable patterns → improve team scalability and onboarding
+
+**Success metric**: A demonstrable reduction in migration time-per-application that can be presented to stakeholders as a viable approach for the full portfolio migration.
+
+== Common questions
+
+**"Can AI really understand our legacy code well enough to modernize it?"**
+→ Module 1 demonstrates MTA's AI-powered analysis capabilities on real legacy applications
+
+**"How do we ensure AI-generated code meets our quality standards?"**
+→ Module 2 shows validation workflows and how to review AI-generated changes
+
+**"Can we teach the AI our company-specific patterns and policies?"**
+→ Module 3 covers Developer Lightspeed Solution Server for capturing organizational knowledge
+
+**"What's the end-to-end workflow from legacy code to production?"**
+→ Module 4 demonstrates complete modernization and deployment to OpenShift

@@ -1,6 +1,11 @@
-* xref:index.adoc[Welcome]
-* xref:01-overview.adoc[Workshop overview]
-* xref:02-details.adoc[Workshop details]
-* xref:03-module-01-analyze.adoc[Module 1: Assessment and analysis]
-* xref:04-module-02-refactor.adoc[Module 2: Refactor and deploy]
-* xref:05-conclusion.adoc[Conclusion]
+* xref:index.adoc[Workshop Welcome]
+
+.Workshop Guide
+* xref:01-overview.adoc[Workshop Overview]
+* xref:02-details.adoc[Workshop Details]
+
+.Lab Modules
+* xref:03-module-01-mta-analysis.adoc[Module 1: Analyzing Legacy Applications with MTA]
+* xref:04-module-02-developer-lightspeed.adoc[Module 2: AI-Assisted Code Modernization]
+* xref:05-module-03-solution-server.adoc[Module 3: Incorporating Policy and Tribal Knowledge]
+* xref:06-module-04-deploy-openshift.adoc[Module 4: Deploying to OpenShift]

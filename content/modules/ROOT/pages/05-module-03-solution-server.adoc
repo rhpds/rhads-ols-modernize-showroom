@@ -1,0 +1,580 @@
+= Module 3: Incorporating policy and tribal knowledge with Solution Server
+:source-highlighter: rouge
+:toc: macro
+:toclevels: 1
+
+Back at ACME Corp, you've successfully demonstrated AI-accelerated code modernization. Your manager is impressed but has a concern: "This looks great, but how do we ensure the AI follows our company's coding standards? We have specific patterns we use across all applications."
+
+ACME needs to scale modernization across dozens of applications while maintaining consistency with company-specific policies and best practices. You've heard that Developer Lightspeed Solution Server can learn organizational knowledge, but you need to see how it works.
+
+In this module, you'll experience how Solution Server captures company policies, learns tribal knowledge, and accelerates major migration waves by teaching AI your organization's specific patterns.
+
+== Learning objectives
+
+By the end of this module, you'll be able to:
+
+* Understand Developer Lightspeed Solution Server architecture and capabilities
+* Configure Solution Server to learn company coding standards
+* Teach the AI system organizational best practices and policies
+* Apply learned patterns consistently across migration projects
+* Demonstrate how Solution Server accelerates large-scale migration waves
+
+== Exercise 1: Introduction to Developer Lightspeed Solution Server
+
+You need to understand what Solution Server is and how it enables organizational knowledge capture for AI-assisted development.
+
+You prepare to explore Solution Server's capabilities and architecture.
+
+. Understand Solution Server's role:
++
+Developer Lightspeed Solution Server acts as an organizational knowledge repository that:
++
+* Captures company-specific coding patterns and standards
+* Learns from existing codebase examples
+* Stores best practices and policy rules
+* Provides context to AI models for consistent code generation
+* Enables knowledge sharing across development teams
+
+. Review the Solution Server architecture:
++
+Solution Server sits between developers and AI models:
++
+----
+Developer → Developer Lightspeed Extension → Solution Server → AI Models
+                                                    ↓
+                                            Knowledge Base
+                                            (Policies, Patterns, Examples)
+----
++
+This architecture ensures all AI-generated code reflects organizational standards.
+
+. Explore key Solution Server capabilities:
++
+* **Policy enforcement**: Define rules that AI must follow
+* **Pattern recognition**: Learn from existing code examples
+* **Context injection**: Automatically include relevant organizational knowledge in AI requests
+* **Consistency**: Ensure all team members get AI assistance aligned with company standards
+* **Knowledge evolution**: Continuously improve as more patterns are added
+
+. Consider ACME's use cases:
++
+ACME can use Solution Server for:
++
+* Standardized error handling patterns
+* Logging conventions and formats
+* Security policies and requirements
+* Configuration management approaches
+* Testing standards and patterns
+* Documentation requirements
+
+=== Verify
+
+Confirm you understand Solution Server's purpose:
+
+✓ Solution Server captures organizational knowledge
+✓ It provides context to AI models for better code generation
+✓ Policies and patterns are applied consistently
+✓ Teams share knowledge through centralized patterns
+
+== Exercise 2: Experience Solution Server learning company policies
+
+Now you'll see how Solution Server learns from ACME's existing codebases and documentation to understand company standards.
+
+=== Prerequisites
+* Access to Dev Spaces workspace
+* Understanding of ACME's coding requirements
+
+=== Steps
+
+. Define ACME's coding policies:
++
+Create a policy document that describes ACME's standards:
++
+[source,bash]
+----
+# In Dev Spaces terminal, create a policies directory
+mkdir -p .devlightspeed/policies
+----
+
+. Create a logging policy:
++
+[source,bash]
+----
+cat > .devlightspeed/policies/logging-standard.md << 'EOF'
+# ACME Corp Logging Standard
+
+## Policy
+All application logs must use SLF4J with Logback.
+
+## Requirements
+- Use SLF4J Logger interface, not System.out or printStackTrace()
+- Include correlation IDs in all log statements
+- Use appropriate log levels: ERROR, WARN, INFO, DEBUG
+- Include context information (user, request ID, operation)
+
+## Example
+```java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+private static final Logger logger = LoggerFactory.getLogger(MyClass.class);
+
+public void processRequest(String requestId, String userId) {
+    logger.info("Processing request - requestId: {}, userId: {}", requestId, userId);
+    try {
+        // business logic
+        logger.debug("Request processed successfully - requestId: {}", requestId);
+    } catch (Exception e) {
+        logger.error("Failed to process request - requestId: {}, error: {}",
+                     requestId, e.getMessage(), e);
+    }
+}
+```
+
+## Anti-patterns to avoid
+- System.out.println() - never use in production code
+- e.printStackTrace() - use logger.error() instead
+- Missing context - always include requestId and userId
+EOF
+----
+
+. Create a configuration policy:
++
+[source,bash]
+----
+cat > .devlightspeed/policies/configuration-standard.md << 'EOF'
+# ACME Corp Configuration Standard
+
+## Policy
+All configuration must be externalized for OpenShift deployment.
+
+## Requirements
+- Use Spring Boot @ConfigurationProperties
+- Never hardcode URLs, credentials, or environment-specific values
+- Support environment variable override
+- Provide sensible defaults for development
+
+## Example
+```java
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@ConfigurationProperties(prefix = "acme.app")
+public class AcmeAppConfig {
+
+    private String apiEndpoint = "http://localhost:8080"; // default
+    private int timeout = 30;
+    private String environment = "dev";
+
+    // getters and setters
+}
+```
+
+## OpenShift Deployment
+```yaml
+env:
+  - name: ACME_APP_API_ENDPOINT
+    value: "https://api.production.acme.com"
+  - name: ACME_APP_TIMEOUT
+    value: "60"
+  - name: ACME_APP_ENVIRONMENT
+    value: "production"
+```
+EOF
+----
+
+. Create a security policy:
++
+[source,bash]
+----
+cat > .devlightspeed/policies/security-standard.md << 'EOF'
+# ACME Corp Security Standard
+
+## Policy
+All applications must follow secure coding practices.
+
+## Requirements
+- Never log sensitive data (passwords, tokens, PII)
+- Validate all user input
+- Use parameterized queries (never string concatenation for SQL)
+- Encrypt data in transit and at rest
+- Follow principle of least privilege
+
+## Example: Input Validation
+```java
+import org.springframework.util.StringUtils;
+
+public void processUserInput(String input) {
+    if (!StringUtils.hasText(input)) {
+        throw new IllegalArgumentException("Input cannot be empty");
+    }
+
+    if (input.length() > 255) {
+        throw new IllegalArgumentException("Input exceeds maximum length");
+    }
+
+    // Validate format (e.g., email, phone number)
+    if (!input.matches("^[a-zA-Z0-9_-]+$")) {
+        throw new IllegalArgumentException("Input contains invalid characters");
+    }
+
+    // Process validated input
+}
+```
+
+## What NOT to do
+```java
+// NEVER DO THIS - SQL Injection vulnerability
+String query = "SELECT * FROM users WHERE name = '" + userName + "'";
+
+// NEVER DO THIS - Logging sensitive data
+logger.info("User login: username={}, password={}", username, password);
+```
+EOF
+----
+
+. Register policies with Solution Server:
++
+In the Developer Lightspeed extension:
++
+* Open **Solution Server** panel
+* Click **Add Policy Source**
+* Select directory: `.devlightspeed/policies`
+* Click **Index Policies**
++
+Solution Server will analyze the policy documents and learn ACME's standards.
+
+. Verify policies are loaded:
++
+[source,bash]
+----
+# List indexed policies
+ls -la .devlightspeed/policies/
+----
+
+=== Verify
+
+Confirm Solution Server has learned the policies:
+
+✓ Policy documents created in .devlightspeed/policies/
+✓ Solution Server indexed the policies
+✓ Policies appear in Solution Server panel
+✓ Each policy includes requirements and examples
+
+== Exercise 3: Apply learned patterns to code generation
+
+With ACME's policies loaded, you'll now test how Solution Server applies these organizational standards to AI-generated code.
+
+=== Steps
+
+. Create a new Java class that needs proper logging:
++
+[source,bash]
+----
+# Create a simple service class
+cat > src/main/java/org/springframework/samples/petclinic/service/OrderService.java << 'EOF'
+package org.springframework.samples.petclinic.service;
+
+public class OrderService {
+
+    public void processOrder(String orderId, String userId) {
+        // TODO: Implement order processing with proper logging
+    }
+}
+EOF
+----
+
+. Ask Developer Lightspeed to implement the method:
++
+* Open the `OrderService.java` file
+* Select the `processOrder` method
+* Right-click → **Developer Lightspeed** → **Implement Method**
+* Provide prompt: "Implement order processing following ACME logging standards"
+
+. Review the AI-generated code:
++
+Solution Server should guide the AI to generate code that:
++
+* Uses SLF4J Logger (not System.out)
+* Includes requestId and userId in log statements
+* Uses appropriate log levels
+* Includes try-catch with proper error logging
+* Follows the pattern from ACME's logging policy
+
+. Verify policy compliance:
++
+Check that the generated code matches ACME's logging standard:
++
+[source,java]
+----
+private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
+
+public void processOrder(String orderId, String userId) {
+    logger.info("Processing order - orderId: {}, userId: {}", orderId, userId);
+    try {
+        // business logic here
+        logger.debug("Order processed successfully - orderId: {}", orderId);
+    } catch (Exception e) {
+        logger.error("Failed to process order - orderId: {}, error: {}",
+                     orderId, e.getMessage(), e);
+    }
+}
+----
+
+. Test configuration policy compliance:
++
+Create a configuration class:
++
+* Ask Developer Lightspeed: "Create a configuration class for API settings following ACME standards"
+* Verify it uses @ConfigurationProperties
+* Check that it supports environment variable override
+* Confirm no hardcoded values
+
+. Test security policy compliance:
++
+Ask Developer Lightspeed to create an input validation method:
++
+* Prompt: "Create a method to validate user email input following ACME security standards"
+* Verify it includes validation
+* Check that it doesn't log sensitive data
+* Confirm it throws appropriate exceptions
+
+=== Verify
+
+Test that all AI-generated code follows ACME policies:
+
+[source,bash]
+----
+# Compile to ensure code is syntactically correct
+./mvnw compile
+
+# Run checkstyle or code analysis if available
+./mvnw checkstyle:check
+----
+
+✓ AI-generated code uses SLF4J logging per policy
+✓ Configuration follows externalization standards
+✓ Security validation is implemented correctly
+✓ All code matches ACME's documented patterns
+
+image::solution-server-policy-application.png[Solution Server Policy Application,link=self,window=blank,width=700]
+
+// TODO: Capture screenshot showing AI-generated code following ACME policies
+
+== Exercise 4: Review how Solution Server accelerates migration waves
+
+Now that Solution Server understands ACME's standards, you'll see how this accelerates large-scale migration efforts across multiple applications.
+
+=== Steps
+
+. Consider the migration wave scenario:
++
+ACME has identified 15 applications in Wave 1 that all need similar modernization:
++
+* Add health check endpoints
+* Externalize configuration
+* Update logging to company standards
+* Apply security best practices
+
+. Calculate traditional effort:
++
+**Without Solution Server**:
++
+* Each application requires manual coding standard enforcement
+* Developers must reference policy documents repeatedly
+* Inconsistencies arise between applications
+* Code review catches policy violations late
+* Estimated: 5-7 days per application × 15 apps = 75-105 days
+
+. Calculate AI-accelerated effort with Solution Server:
++
+**With Solution Server**:
++
+* AI automatically applies ACME patterns consistently
+* Policies are enforced during code generation
+* No manual reference to policy documents needed
+* Consistency is automatic across all applications
+* Estimated: 1-2 days per application × 15 apps = 15-30 days
+
+. Understand the velocity improvement:
++
+* **Traditional approach**: 75-105 days
+* **AI with Solution Server**: 15-30 days
+* **Acceleration**: 5-7x faster
+* **Time saved**: 45-90 days for Wave 1 alone
+
+. Consider the quality benefits:
++
+Beyond speed, Solution Server provides:
++
+* **Consistency**: All 15 apps follow identical patterns
+* **Maintainability**: Standardized code is easier to support
+* **Onboarding**: New developers learn ACME patterns through examples
+* **Compliance**: Policy enforcement is automated, not manual
+
+. Document the business case:
++
+Create a summary for ACME's stakeholders:
++
+[source,bash]
+----
+cat > migration-wave-analysis.md << 'EOF'
+# ACME Corp Migration Wave 1 Analysis
+
+## Scope
+- 15 legacy applications requiring modernization
+- Target: OpenShift containerization
+- Standards: ACME coding policies and best practices
+
+## Approach Comparison
+
+### Traditional Manual Approach
+- Developer manually codes each modernization
+- References policy documents repeatedly
+- Code review ensures compliance
+- **Estimated time**: 75-105 days
+- **Risk**: Inconsistencies between applications
+
+### AI-Accelerated with Solution Server
+- AI generates code following ACME policies automatically
+- Solution Server ensures consistency
+- Policies embedded in code generation
+- **Estimated time**: 15-30 days
+- **Quality**: Guaranteed consistency across all apps
+
+## Business Impact
+- **Time savings**: 45-90 days
+- **Cost reduction**: 60-85% less developer effort
+- **Quality improvement**: Zero policy violations
+- **Scalability**: Approach proven for future waves
+
+## Recommendation
+Adopt Developer Lightspeed with Solution Server for all migration waves.
+EOF
+----
+
+=== Verify
+
+Review the business case for Solution Server:
+
+[source,bash]
+----
+cat migration-wave-analysis.md
+----
+
+✓ Velocity improvement is quantified (5-7x faster)
+✓ Quality benefits are documented
+✓ Business case is clear for stakeholders
+✓ Approach is scalable to future waves
+
+== Troubleshooting
+
+**Issue**: Solution Server doesn't seem to apply policies to generated code
+**Solution**: Verify policies are properly indexed:
+[source,bash]
+----
+# Check that policy files exist
+ls -la .devlightspeed/policies/
+
+# Verify policy format is correct (Markdown with examples)
+cat .devlightspeed/policies/logging-standard.md
+
+# Re-index policies in Developer Lightspeed panel
+# Solution Server → Refresh Policy Index
+----
+
+**Issue**: AI generates code that violates ACME security standards
+**Solution**: Make policy requirements more explicit in the policy document:
+[source,markdown]
+----
+## MUST DO
+- Validate all user input before processing
+- Never concatenate SQL queries
+
+## NEVER DO
+- System.out.println() in production
+- Log passwords or tokens
+----
+Provide clear examples of both correct and incorrect patterns.
+
+**Issue**: Policies conflict with each other
+**Solution**: Review all policies for consistency:
+[source,bash]
+----
+# List all policies
+find .devlightspeed/policies/ -name "*.md"
+
+# Review for conflicts
+# Resolve by updating policy priority or merging related policies
+----
+
+**Issue**: Solution Server performance is slow with many policies
+**Solution**: Organize policies hierarchically:
+[source,bash]
+----
+# Structure policies by topic
+.devlightspeed/policies/
+  ├── logging/
+  │   └── logging-standard.md
+  ├── configuration/
+  │   └── config-standard.md
+  └── security/
+      └── security-standard.md
+
+# Index only relevant policies for specific tasks
+----
+
+**Issue**: New team members don't know policies exist
+**Solution**: Document Solution Server usage in onboarding:
+[source,markdown]
+----
+# ACME Developer Onboarding
+
+## Coding Standards
+All code must follow ACME policies:
+- Stored in: .devlightspeed/policies/
+- Automatically applied by Developer Lightspeed
+- Review policies before starting development
+
+## How to Use
+1. Use Developer Lightspeed for all code generation
+2. AI automatically follows ACME standards
+3. Review generated code to learn patterns
+----
+
+== Learning outcomes checkpoint
+
+Before moving forward, confirm you can:
+
+* [ ] Explain what Developer Lightspeed Solution Server is and its purpose
+* [ ] Create policy documents that capture organizational standards
+* [ ] Configure Solution Server to learn company-specific patterns
+* [ ] Verify that AI-generated code follows organizational policies
+* [ ] Demonstrate how Solution Server accelerates migration waves
+* [ ] Quantify business benefits of organizational knowledge capture
+* [ ] Understand scalability advantages for large migration portfolios
+
+If you can check all these boxes, you're ready to proceed. If not, review the exercises where you need more practice.
+
+== Module summary
+
+You've successfully demonstrated how Solution Server captures organizational knowledge and accelerates large-scale migration efforts.
+
+**What you accomplished for ACME:**
+* Created comprehensive policy documents for logging, configuration, and security
+* Configured Solution Server to learn ACME's organizational standards
+* Verified that AI-generated code automatically follows company policies
+* Quantified 5-7x velocity improvement for migration waves
+
+**Business impact realized:**
+* **Consistency**: All applications follow identical patterns and standards
+* **Velocity**: Migration waves accelerate from 75-105 days to 15-30 days
+* **Quality**: Policy compliance is automated, not manual
+* **Scalability**: Proven approach works across entire application portfolio
+
+**Your journey progress:**
+You now understand how to scale AI-assisted modernization across ACME's entire organization by teaching the AI your company's specific standards and best practices.
+
+**Next steps:**
+Module 4 will complete the migration journey by deploying your modernized application to OpenShift, proving the end-to-end workflow from legacy code to production-ready container.

@@ -1,0 +1,755 @@
+= Module 4: Deploying to OpenShift
+:source-highlighter: rouge
+:toc: macro
+:toclevels: 1
+
+You've demonstrated the complete AI-assisted modernization workflow to your manager at ACME Corp. She's impressed: "This looks promising, but we need to see it actually running in OpenShift. Can you deploy the modernized application and prove the end-to-end process works?"
+
+ACME needs confidence that AI-modernized applications successfully deploy and run on OpenShift. The final validation is seeing the containerized application running in production.
+
+In this module, you'll experience the complete deployment workflow from containerized application to running on OpenShift.
+
+== Learning objectives
+
+By the end of this module, you'll be able to:
+
+* Containerize modernized applications using best practices
+* Create Kubernetes manifests for OpenShift deployment
+* Deploy applications to OpenShift cluster
+* Verify application functionality in the container environment
+* Demonstrate complete legacy-to-cloud transformation
+
+== Exercise 1: Containerize the modernized application
+
+You need to create a container image from the AI-modernized application code. This proves the modernization work actually produces deployable artifacts.
+
+You prepare to build a container image following cloud-native best practices.
+
+. Review the modernized application structure:
++
+[source,bash]
+----
+# In Dev Spaces terminal, verify application builds
+cd /projects/spring-petclinic
+./mvnw clean package
+
+# Verify the JAR file was created
+ls -lh target/*.jar
+----
+
+. Create a Containerfile (Dockerfile) for the application:
++
+[source,bash]
+----
+cat > Containerfile << 'EOF'
+# Multi-stage build for optimal image size
+FROM registry.access.redhat.com/ubi9/openjdk-17:latest AS builder
+
+# Copy source code
+WORKDIR /workspace
+COPY pom.xml .
+COPY src ./src
+
+# Build application
+RUN mvn clean package -DskipTests
+
+# Runtime stage - minimal image
+FROM registry.access.redhat.com/ubi9/openjdk-17-runtime:latest
+
+# Copy only the built artifact
+COPY --from=builder /workspace/target/*.jar /deployments/app.jar
+
+# Application configuration
+ENV JAVA_OPTS="-Dserver.port=8080"
+
+# Health check endpoint
+HEALTHCHECK --interval=30s --timeout=3s \
+  CMD curl -f http://localhost:8080/actuator/health || exit 1
+
+# Run as non-root user (OpenShift requirement)
+USER 185
+
+# Expose application port
+EXPOSE 8080
+
+# Start application
+CMD ["java", "-jar", "/deployments/app.jar"]
+EOF
+----
+
+. Build the container image:
++
+[source,bash]
+----
+# Build using Podman in Dev Spaces
+podman build -t petclinic-app:latest -f Containerfile .
+----
++
+This creates a container image following OpenShift best practices:
++
+* Multi-stage build for smaller image size
+* Red Hat Universal Base Image (UBI) for security and support
+* Non-root user for security
+* Health check endpoint for monitoring
+
+. Verify the image was created:
++
+[source,bash]
+----
+# List images
+podman images | grep petclinic-app
+----
+
+. Test the container locally:
++
+[source,bash]
+----
+# Run container locally to verify it works
+podman run -d --name petclinic-test -p 8080:8080 petclinic-app:latest
+
+# Wait a few seconds for startup
+sleep 10
+
+# Test the application
+curl http://localhost:8080/actuator/health
+----
+
+. Stop the test container:
++
+[source,bash]
+----
+# Clean up test container
+podman stop petclinic-test
+podman rm petclinic-test
+----
+
+=== Verify
+
+Confirm the container image is ready for deployment:
+
+[source,bash]
+----
+# Check image details
+podman inspect petclinic-app:latest | grep -A 5 "Config"
+----
+
+Expected result:
+
+✓ Container image built successfully
+✓ Image uses Red Hat UBI base
+✓ Application runs correctly in container
+✓ Health check endpoint responds
+✓ Non-root user configuration
+
+== Exercise 2: Push image to OpenShift registry
+
+To deploy on OpenShift, you need to push the container image to a registry accessible by the cluster.
+
+=== Prerequisites
+* Container image built from Exercise 1
+* Access to OpenShift cluster
+
+=== Steps
+
+. Log in to OpenShift from the terminal:
++
+[source,bash]
+----
+# Login to OpenShift cluster
+oc login --server={openshift_api_url} \
+  --username={user} \
+  --password={password} \
+  --insecure-skip-tls-verify=true
+----
+
+. Create an OpenShift project for the application:
++
+[source,bash]
+----
+# Create a new project namespace
+oc new-project petclinic-{user}
+
+# Verify you're in the correct project
+oc project
+----
+
+. Get the OpenShift internal registry URL:
++
+[source,bash]
+----
+# Get internal registry route
+REGISTRY=$(oc get route default-route -n openshift-image-registry \
+  --template='{{ .spec.host }}')
+
+echo "Registry URL: $REGISTRY"
+----
+
+. Tag the image for the OpenShift registry:
++
+[source,bash]
+----
+# Tag image with registry path
+podman tag petclinic-app:latest \
+  $REGISTRY/petclinic-{user}/petclinic-app:latest
+----
+
+. Log in to the OpenShift registry:
++
+[source,bash]
+----
+# Get OpenShift token for registry authentication
+TOKEN=$(oc whoami -t)
+
+# Login to registry using Podman
+podman login -u {user} -p $TOKEN $REGISTRY --tls-verify=false
+----
+
+. Push the image to OpenShift registry:
++
+[source,bash]
+----
+# Push image
+podman push $REGISTRY/petclinic-{user}/petclinic-app:latest --tls-verify=false
+----
++
+This may take a minute to upload the image layers.
+
+. Verify the image is in the registry:
++
+[source,bash]
+----
+# List images in OpenShift registry
+oc get imagestream
+----
+
+=== Verify
+
+Confirm the image is available in OpenShift:
+
+[source,bash]
+----
+# Check imagestream details
+oc describe imagestream petclinic-app
+----
+
+Expected output:
+
+----
+Name:               petclinic-app
+Namespace:          petclinic-{user}
+...
+latest
+  tagged from ...petclinic-app:latest
+----
+
+✓ Image successfully pushed to OpenShift registry
+✓ ImageStream created in project namespace
+✓ Image is accessible for deployment
+
+== Exercise 3: Create Kubernetes manifests for deployment
+
+Now you'll create the Kubernetes resources needed to deploy and expose your application on OpenShift.
+
+=== Steps
+
+. Create a Deployment manifest:
++
+[source,bash]
+----
+cat > deployment.yaml << 'EOF'
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: petclinic-app
+  labels:
+    app: petclinic
+    app.kubernetes.io/name: petclinic
+    app.kubernetes.io/part-of: acme-modernization
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: petclinic
+  template:
+    metadata:
+      labels:
+        app: petclinic
+        version: v1
+    spec:
+      containers:
+      - name: petclinic
+        image: image-registry.openshift-image-registry.svc:5000/petclinic-{user}/petclinic-app:latest
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+        - name: JAVA_OPTS
+          value: "-Xmx256m -Xms128m"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+EOF
+----
+
+. Create a Service manifest:
++
+[source,bash]
+----
+cat > service.yaml << 'EOF'
+apiVersion: v1
+kind: Service
+metadata:
+  name: petclinic-app
+  labels:
+    app: petclinic
+spec:
+  selector:
+    app: petclinic
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  type: ClusterIP
+EOF
+----
+
+. Create a Route manifest to expose the application:
++
+[source,bash]
+----
+cat > route.yaml << 'EOF'
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: petclinic-app
+  labels:
+    app: petclinic
+spec:
+  to:
+    kind: Service
+    name: petclinic-app
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+EOF
+----
+
+. Review the manifests:
++
+[source,bash]
+----
+# Verify all manifests are created
+ls -la *.yaml
+
+# Review deployment configuration
+cat deployment.yaml
+----
+
+=== Verify
+
+Confirm all Kubernetes manifests are ready:
+
+[source,bash]
+----
+# Validate YAML syntax
+oc apply --dry-run=client -f deployment.yaml
+oc apply --dry-run=client -f service.yaml
+oc apply --dry-run=client -f route.yaml
+----
+
+✓ Deployment manifest includes resource limits and health checks
+✓ Service manifest correctly targets application pods
+✓ Route manifest enables external access with TLS
+✓ All YAML files are syntactically valid
+
+== Exercise 4: Deploy application to OpenShift
+
+With all resources defined, you'll now deploy the modernized application to OpenShift and verify it runs successfully.
+
+=== Steps
+
+. Apply the Kubernetes manifests:
++
+[source,bash]
+----
+# Deploy the application
+oc apply -f deployment.yaml
+oc apply -f service.yaml
+oc apply -f route.yaml
+----
+
+. Monitor the deployment progress:
++
+[source,bash]
+----
+# Watch pods being created
+oc get pods -w
+----
++
+Press Ctrl+C after pods show "Running" status.
+
+. Check deployment status:
++
+[source,bash]
+----
+# View deployment details
+oc get deployment petclinic-app
+
+# Check pod status
+oc get pods -l app=petclinic
+
+# View deployment events
+oc describe deployment petclinic-app
+----
+
+. Get the application URL:
++
+[source,bash]
+----
+# Get the external route URL
+oc get route petclinic-app -o jsonpath='{.spec.host}'
+
+# Store URL in variable
+APP_URL=$(oc get route petclinic-app -o jsonpath='{.spec.host}')
+echo "Application URL: https://$APP_URL"
+----
+
+. Access the application:
++
+Open the URL in your browser or test via curl:
++
+[source,bash]
+----
+# Test the application endpoint
+curl -k https://$APP_URL/actuator/health
+
+# Test the main application page
+curl -k https://$APP_URL/
+----
+
+. View application logs:
++
+[source,bash]
+----
+# Get logs from the application pods
+oc logs -l app=petclinic --tail=50
+----
+
+. Test application functionality:
++
+Click the application URL or use the browser to:
++
+* Navigate through the PetClinic interface
+* Test different features (Owners, Veterinarians, etc.)
+* Verify all functionality works in the containerized environment
+
+=== Verify
+
+Confirm the application is running successfully on OpenShift:
+
+[source,bash]
+----
+# Check pod health
+oc get pods -l app=petclinic
+
+# Verify readiness and liveness probes
+oc describe pod -l app=petclinic | grep -A 5 "Liveness\|Readiness"
+
+# Test health endpoint
+curl -k https://$APP_URL/actuator/health | jq .
+----
+
+Expected output:
+
+----
+{
+  "status": "UP",
+  "groups": ["liveness", "readiness"]
+}
+----
+
+✓ Deployment shows 2/2 replicas ready
+✓ Pods are in "Running" status
+✓ Health checks pass successfully
+✓ Application is accessible via HTTPS route
+✓ Application functionality works correctly
+
+image::openshift-deployment.png[OpenShift Deployment,link=self,window=blank,width=700]
+
+// TODO: Capture screenshot of OpenShift console showing running application
+
+== Exercise 5: Review modernization results
+
+You've completed the end-to-end modernization journey. Now review what ACME has accomplished and the business value delivered.
+
+=== Steps
+
+. View the complete application topology in OpenShift console:
++
+* Click the **OpenShift Console** tab
+* Navigate to **Topology** view
+* Select project: `petclinic-{user}`
+* View the application components (Deployment, Pods, Service, Route)
+
+. Review the deployment metrics:
++
+[source,bash]
+----
+# Check resource usage
+oc adm top pods -l app=petclinic
+
+# View deployment statistics
+oc get deployment petclinic-app -o wide
+----
+
+. Compare legacy vs modernized approach:
++
+Create a comparison document:
++
+[source,bash]
+----
+cat > modernization-results.md << 'EOF'
+# ACME Corp Modernization Results
+
+## Legacy Application Characteristics
+- Deployment: Manual installation on VMs
+- Scaling: Vertical (bigger VMs)
+- Configuration: Hardcoded in application
+- Monitoring: Limited visibility
+- Deployment time: Hours to days
+- Recovery: Manual intervention
+
+## Modernized Application on OpenShift
+- Deployment: Automated Kubernetes manifests
+- Scaling: Horizontal (more pods)
+- Configuration: Externalized via environment variables
+- Monitoring: Built-in health checks and probes
+- Deployment time: Minutes
+- Recovery: Automatic (Kubernetes self-healing)
+
+## Modernization Workflow
+1. MTA analysis: 1-2 hours (AI-powered)
+2. Code modernization: 1-2 days (Developer Lightspeed)
+3. Policy application: Automatic (Solution Server)
+4. Containerization: 2-4 hours
+5. Deployment: 15-30 minutes
+
+## Total Time
+- Traditional approach: 15-30 days
+- AI-accelerated approach: 3-5 days
+- **Improvement: 5-6x faster**
+
+## Quality Benefits
+- Consistent coding standards (Solution Server)
+- Comprehensive testing (AI-validated)
+- Security best practices (automated scanning)
+- Cloud-native patterns (Kubernetes manifests)
+EOF
+
+cat modernization-results.md
+----
+
+. Calculate the business impact for ACME's full migration:
++
+[source,bash]
+----
+cat >> modernization-results.md << 'EOF'
+
+## Scaling to Full Portfolio
+
+### ACME's Migration Portfolio
+- Total applications: 50 legacy Java apps
+- Migration waves: 5 waves of 10 apps each
+
+### Traditional Approach
+- Time per app: 15-30 days
+- Total time: 750-1500 days
+- Team size: 8 developers
+- Cost: $2.4M - $4.8M (@ $200k/dev/year)
+
+### AI-Accelerated Approach
+- Time per app: 3-5 days
+- Total time: 150-250 days
+- Team size: 4 developers
+- Cost: $0.4M - $0.7M
+
+### Business Value
+- **Time savings**: 600-1250 days (80-85%)
+- **Cost reduction**: $2M - $4M (65-85%)
+- **Quality improvement**: Consistent standards
+- **Risk reduction**: Automated compliance
+- **Team satisfaction**: Less repetitive work
+
+### ROI
+Investment in Developer Lightspeed and Solution Server pays for itself in the first migration wave.
+EOF
+
+cat modernization-results.md
+----
+
+. Present the results:
++
+You now have a complete business case for ACME's leadership showing:
++
+* End-to-end workflow validation
+* Quantified time and cost savings
+* Quality and consistency benefits
+* Scalability to full portfolio
+
+=== Verify
+
+Review your accomplishments:
+
+✓ Application successfully deployed to OpenShift
+✓ Complete migration workflow validated
+✓ Business case documented with metrics
+✓ Scalability proven for full portfolio
+
+== Troubleshooting
+
+**Issue**: Pod fails to start with ImagePullBackOff error
+**Solution**: Verify image is in the correct registry and project:
+[source,bash]
+----
+# Check imagestream exists
+oc get imagestream
+
+# Verify deployment references correct image
+oc describe deployment petclinic-app | grep Image
+
+# Fix image reference if needed
+oc set image deployment/petclinic-app \
+  petclinic=image-registry.openshift-image-registry.svc:5000/petclinic-{user}/petclinic-app:latest
+----
+
+**Issue**: Pods are running but health checks fail
+**Solution**: Verify health check endpoints are configured correctly:
+[source,bash]
+----
+# Check pod logs for startup errors
+oc logs -l app=petclinic --tail=100
+
+# Test health endpoint directly
+POD=$(oc get pod -l app=petclinic -o jsonpath='{.items[0].metadata.name}')
+oc exec $POD -- curl http://localhost:8080/actuator/health
+
+# Update health check paths if needed
+oc edit deployment petclinic-app
+----
+
+**Issue**: Cannot access application via route
+**Solution**: Verify route and service configuration:
+[source,bash]
+----
+# Check route status
+oc get route petclinic-app
+
+# Verify service endpoints
+oc get endpoints petclinic-app
+
+# Test service internally
+oc run test-pod --image=registry.access.redhat.com/ubi9/ubi-minimal:latest \
+  --rm -it --restart=Never -- curl http://petclinic-app:8080/actuator/health
+----
+
+**Issue**: Application runs but functionality broken
+**Solution**: Check configuration and environment variables:
+[source,bash]
+----
+# View pod environment variables
+oc set env deployment/petclinic-app --list
+
+# Check application logs for errors
+oc logs -l app=petclinic --tail=200 | grep ERROR
+
+# Verify configuration is externalized correctly
+oc exec $POD -- env | grep ACME
+----
+
+**Issue**: Resource quota exceeded, pods pending
+**Solution**: Check resource limits and quotas:
+[source,bash]
+----
+# View resource quotas for project
+oc describe quota
+
+# Check pod resource requests
+oc describe deployment petclinic-app | grep -A 10 Requests
+
+# Reduce resource requests if needed
+oc set resources deployment/petclinic-app \
+  --requests=cpu=100m,memory=128Mi \
+  --limits=cpu=500m,memory=512Mi
+----
+
+== Learning outcomes checkpoint
+
+Before completing the workshop, confirm you can:
+
+* [ ] Containerize modernized applications using best practices
+* [ ] Build container images with Red Hat UBI base images
+* [ ] Push images to OpenShift internal registry
+* [ ] Create Kubernetes deployment manifests with health checks
+* [ ] Deploy applications to OpenShift successfully
+* [ ] Configure services and routes for application access
+* [ ] Verify application functionality in containerized environment
+* [ ] Quantify business value of AI-accelerated modernization
+
+If you can check all these boxes, congratulations! If not, review the exercises where you need more practice.
+
+== Module summary
+
+You've successfully completed the entire AI-accelerated application modernization journey for ACME Corp.
+
+**What you accomplished for ACME:**
+* Containerized the AI-modernized application with cloud-native best practices
+* Deployed successfully to OpenShift with automated health monitoring
+* Proved end-to-end workflow from legacy code to production container
+* Quantified 5-6x acceleration and 65-85% cost reduction for full portfolio
+
+**Business impact realized:**
+* **Deployment success**: Application runs successfully on OpenShift
+* **Workflow validation**: Complete legacy-to-cloud process proven
+* **Business case**: Documented ROI for leadership decision-making
+* **Portfolio scalability**: Approach ready for 50-application migration
+
+**Your journey progress:**
+You've demonstrated mastery of AI-assisted application modernization using Red Hat Developer Lightspeed, MTA, and OpenShift. You can now present a complete, validated solution to ACME's leadership.
+
+**Final accomplishments:**
+* **Module 1**: Analyzed applications with AI-powered MTA risk assessment
+* **Module 2**: Generated modernized code with Developer Lightspeed
+* **Module 3**: Captured organizational knowledge with Solution Server
+* **Module 4**: Deployed successfully to OpenShift
+
+**Next steps for ACME:**
+* Present business case to leadership
+* Secure budget for full portfolio migration
+* Begin Wave 1 migrations using proven workflow
+* Expand Solution Server with additional company policies
+* Train development team on AI-assisted modernization tools
+
+**Continue your learning:**
+* Explore advanced MTA custom rules
+* Investigate Developer Lightspeed custom models
+* Learn OpenShift GitOps for automated deployments
+* Study OpenShift Pipelines for CI/CD integration

@@ -2,23 +2,27 @@
 type: showroom
 
 # Set the left column width to 30%
-default_width: 40
+default_width: 30
 # Persist the URL state so browser refresh doesn't reset the UI
 persist_url_state: true
 
-# Enable split view mode (Summit 2026 format)
 view_switcher:
   enabled: true
   default_mode: split
 
 tabs:
-- name: OpenShift Console
-  url: 'https://console-openshift-console.${DOMAIN}'
-- name: Migration Toolkit for Applications
-  url: 'https://mta-${USER}-mta.${DOMAIN}'
-- name: OpenShift DevSpaces
-  url: 'https://devspaces.${DOMAIN}'
-- name: Gitea
-  url: 'https://gitea-${USER}-gitea.${DOMAIN}/${USER}/kai-coolstore'
-- name: OpenShift Gitops
-  url: 'https://openshift-gitops-server-openshift-gitops.${DOMAIN}'
+  # OpenShift Console
+  - name: OpenShift Console
+    url: '{openshift_console_url}'
+
+  # Migration Toolkit for Applications
+  - name: MTA
+    url: 'https://mta-{openshift_cluster_ingress_domain}'
+
+  # Red Hat OpenShift Dev Spaces
+  - name: Dev Spaces
+    url: 'https://devspaces-{openshift_cluster_ingress_domain}'
+
+  # Gitea
+  - name: Gitea
+    url: 'https://gitea-{openshift_cluster_ingress_domain}'

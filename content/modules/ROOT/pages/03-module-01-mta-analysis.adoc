@@ -1,0 +1,266 @@
+= Module 1: Analyzing legacy applications with MTA
+:source-highlighter: rouge
+:toc: macro
+:toclevels: 1
+
+Your manager at ACME Corp just assigned you to lead the application modernization initiative. "We need to migrate dozens of legacy Java applications to OpenShift," she says. "Start by analyzing what we're dealing with -- I need to know the risks and effort required."
+
+ACME needs to understand the scope and complexity of their legacy application portfolio before committing to migration timelines. You've heard that Migration Toolkit for Applications can provide AI-powered analysis, but you need to experience it firsthand to understand its capabilities.
+
+In this module, you'll experience how MTA provides comprehensive risk assessment and migration recommendations powered by AI.
+
+== Learning objectives
+
+By the end of this module, you'll be able to:
+
+* Configure and run MTA analysis on legacy Java applications
+* Interpret AI-powered risk assessments and migration recommendations
+* Identify technical debt and modernization opportunities
+* Organize applications into migration waves based on complexity
+
+== Exercise 1: Access and explore Migration Toolkit for Applications
+
+You need to familiarize yourself with the MTA environment and understand what analysis capabilities it provides for ACME's modernization project.
+
+You prepare to access the MTA console and explore its features.
+
+. Open the MTA console by clicking the **MTA** tab in the workshop interface, or navigate to:
++
+{mta_url}
+
+. Log in to MTA using your OpenShift credentials:
++
+* Username: `{user}`
+* Password: `{password}`
+
+. Once logged in, explore the MTA dashboard:
++
+You should see the main navigation showing Applications, Analysis, Reports, and Administration sections.
+
+. Review the Applications inventory:
++
+Click on **Applications** in the left navigation to see the application catalog where you'll register legacy applications for analysis.
+
+=== Verify
+
+Confirm you can access the MTA console and see the main dashboard.
+
+✓ MTA console loads successfully
+✓ Authentication works with provided credentials
+✓ Main navigation sections are visible
+
+== Exercise 2: Import a legacy application for analysis
+
+Now you need to import one of ACME's legacy Java applications into MTA for analysis. This application represents a typical monolithic Java application that needs to be assessed for containerization.
+
+=== Prerequisites
+* MTA console access confirmed from Exercise 1
+* Gitea repository contains sample legacy application
+
+=== Steps
+
+. In the MTA console, navigate to **Applications** → **Application inventory**.
+
+. Click **Create new** to add a new application.
+
+. Fill in the application details:
++
+* **Name**: `petclinic-app`
+* **Description**: `ACME Corp legacy Spring PetClinic application`
+* **Business service**: Leave default or create new business service "ACME Legacy Apps"
+* **Tags**: Add tags like `java`, `spring`, `legacy`
+
+. For the source code, configure the Git repository:
++
+* **Repository type**: Git
+* **Source repository**: `{gitea_url}/{user}/spring-petclinic.git`
+* **Branch**: `main`
+
+. Click **Create** to save the application to the inventory.
+
+. Verify the application appears in your Applications list.
+
+=== Verify
+
+Navigate to the Applications inventory and confirm:
+
+✓ Application "petclinic-app" is listed
+✓ Repository URL is correctly configured
+✓ Application status shows as "Ready for analysis"
+
+== Exercise 3: Run MTA risk assessment
+
+With the application registered, you'll now run an AI-powered analysis to understand migration complexity and identify risks.
+
+=== Steps
+
+. From the Applications inventory, select the `petclinic-app` application.
+
+. Click **Analyze** to start the analysis wizard.
+
+. Configure the analysis targets:
++
+* **Target platform**: Select `Containerization`
+* **Additional targets**: Select `OpenShift` and `Cloud readiness`
++
+This tells MTA to analyze the application for containerization and OpenShift deployment readiness.
+
+. Configure advanced options:
++
+* **Source mode**: `Source code`
+* **Enable automated tagging**: Checked
+* **Include known libraries**: Checked
+
+. Review the analysis settings and click **Run analysis**.
+
+. Monitor the analysis progress:
++
+The analysis will take a few minutes to complete. You can see real-time progress as MTA examines the source code, dependencies, and configuration files.
+
+. Wait for the analysis to complete -- the status will change to "Completed" when ready.
+
+=== Verify
+
+Check the analysis status:
+
+[source,bash]
+----
+# You can also check via MTA API
+curl -k {mta_api_url}/hub/applications
+----
+
+Expected result:
+
+✓ Analysis status shows "Completed"
+✓ Analysis report is available
+✓ No errors during analysis execution
+
+== Exercise 4: Review analysis and recommendations
+
+Now comes the crucial part -- understanding what MTA discovered about ACME's legacy application and what actions are needed for successful migration.
+
+=== Steps
+
+. Click on the completed analysis to open the **Analysis report**.
+
+. Review the **Risk assessment summary**:
++
+MTA categorizes findings by risk level (Low, Medium, High). Each risk level indicates the effort required to resolve issues.
++
+* **Low risk**: Simple changes, minimal effort
+* **Medium risk**: Moderate refactoring needed
+* **High risk**: Significant code changes or architectural decisions required
+
+. Explore the **Issues** section:
++
+Click through the different issue categories to see specific findings. MTA provides:
++
+* Description of the issue
+* Affected files and line numbers
+* Recommended remediation actions
+* Effort estimation
+
+. Review **Technologies detected**:
++
+MTA identifies all frameworks, libraries, and technologies used in the application. This helps understand dependencies and potential compatibility issues.
+
+. Examine the **Dependencies** analysis:
++
+Check for outdated libraries, security vulnerabilities, or components that need updating for OpenShift compatibility.
+
+. Note the **Story points** estimate:
++
+MTA provides an effort estimation in story points. This helps ACME plan migration timelines and resource allocation.
++
+Record the total story points for this application -- you'll use this for migration wave planning.
+
+=== Verify
+
+Confirm you understand the analysis results:
+
+✓ Risk assessment shows categorized findings
+✓ Issues are clearly documented with remediation guidance
+✓ Story points provide effort estimation
+✓ You can navigate to specific code locations with issues
+
+image::mta-analysis-report.png[MTA Analysis Report,link=self,window=blank,width=700]
+
+// TODO: Capture screenshot of MTA analysis report showing risk summary
+
+== Exercise 5: Identify migration wave opportunities
+
+Based on the analysis results, you'll now organize applications into migration waves. This strategic planning is crucial for ACME's large-scale modernization effort.
+
+=== Steps
+
+. Return to the **Applications** inventory.
+
+. Review the risk and story points for analyzed applications.
+
+. Create migration waves based on complexity:
++
+* **Wave 1 (Quick wins)**: Low-risk applications with minimal story points -- prove the process works
+* **Wave 2 (Moderate complexity)**: Medium-risk applications -- build team expertise
+* **Wave 3 (Complex migrations)**: High-risk applications -- tackle after gaining experience
+
+. In MTA, you can tag applications to organize them:
++
+. Select `petclinic-app` and add tags:
++
+* Add tag: `migration-wave-1` if low risk
+* Add tag: `migration-wave-2` if medium risk
+* Add tag: `migration-wave-3` if high risk
+
+. Document your migration wave strategy:
++
+Based on the analysis, note which applications should be migrated first and why. Consider:
++
+* Business criticality
+* Technical complexity
+* Resource dependencies
+* Team expertise available
+
+=== Verify
+
+Your migration wave planning is complete when:
+
+✓ Applications are categorized by migration complexity
+✓ Tags organize applications into logical waves
+✓ Migration sequence is based on data-driven risk assessment
+✓ Effort estimates inform project planning
+
+== Learning outcomes checkpoint
+
+Before moving forward, confirm you can:
+
+* [ ] Access and navigate the Migration Toolkit for Applications console
+* [ ] Import legacy applications from Git repositories into MTA
+* [ ] Configure and run AI-powered risk assessments
+* [ ] Interpret analysis results and understand risk levels
+* [ ] Identify specific code issues and remediation recommendations
+* [ ] Estimate migration effort using story points
+* [ ] Organize applications into strategic migration waves
+
+If you can check all these boxes, you're ready to proceed. If not, review the exercises where you need more practice.
+
+== Module summary
+
+You've successfully demonstrated MTA's AI-powered analysis capabilities and can now confidently present migration planning insights to your manager.
+
+**What you accomplished for ACME:**
+* Analyzed legacy Java application using AI-powered risk assessment
+* Identified specific technical issues and modernization opportunities
+* Generated data-driven effort estimates for migration planning
+* Organized applications into strategic migration waves
+
+**Business impact realized:**
+* **Planning acceleration**: Reduced assessment time from days to hours
+* **Risk visibility**: Clear understanding of migration complexity and effort
+* **Data-driven decisions**: Quantified estimates replace guesswork
+* **Strategic sequencing**: Optimized migration approach based on complexity
+
+**Your journey progress:**
+You now have comprehensive analysis data for ACME's applications and understand the migration landscape. This data-driven foundation enables confident project planning and resource allocation.
+
+**Next steps:**
+Module 2 will show you how to use Red Hat Developer Lightspeed to accelerate the actual code modernization, transforming MTA recommendations into implementation.

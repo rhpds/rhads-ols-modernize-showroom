@@ -1,17 +1,5 @@
 name: modules
-title: Migration Toolkit for Applications
+title: Showroom Collection
 version: ~
 nav:
-- modules/ROOT/nav.adoc
-
-asciidoc:
-  attributes:
-    lab_name: Migration Toolkit for Applications
-    release-version: main
-    page-pagination: true
-    # Include shared attributes file
-    page-attributes: attributes.adoc
-
-  extensions:
-  - ./content/lib/tab-block.js
-  - ./content/lib/remote-include-processor.js
+  - modules/ROOT/nav.adoc

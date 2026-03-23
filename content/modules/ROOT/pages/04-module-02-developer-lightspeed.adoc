@@ -1,0 +1,490 @@
+= Module 2: AI-assisted code modernization
+:source-highlighter: rouge
+:toc: macro
+:toclevels: 1
+
+Armed with MTA's analysis results, you return to your desk at ACME Corp. Your manager stops by: "Great work on the analysis. Now I need to see if we can actually modernize this code faster than our traditional approach. We can't afford weeks per application."
+
+ACME needs proof that AI-assisted development can accelerate the actual code transformation work. You've heard about Red Hat Developer Lightspeed's AI capabilities, but you need hands-on experience to understand how it accelerates modernization.
+
+In this module, you'll experience how Developer Lightspeed uses AI to generate modernized code, validate changes, and scale migration work through Agent Mode.
+
+== Learning objectives
+
+By the end of this module, you'll be able to:
+
+* Set up Red Hat Developer Lightspeed extension in Dev Spaces
+* Run AI-powered code analysis to identify modernization opportunities
+* Generate modernized code using AI assistance
+* Review and validate AI-generated code changes
+* Expand migration work across entire projects using Agent Mode
+
+== Exercise 1: Access Dev Spaces and configure Developer Lightspeed
+
+You need to set up your development environment with AI capabilities to start modernizing ACME's applications.
+
+You prepare to launch Dev Spaces and configure the Developer Lightspeed extension.
+
+. Open Red Hat OpenShift Dev Spaces by clicking the **Dev Spaces** tab in the workshop interface, or navigate to:
++
+{devspaces_url}
+
+. Log in to Dev Spaces using your OpenShift credentials:
++
+* Username: `{user}`
+* Password: `{password}`
+
+. Create a new workspace from the legacy application repository:
++
+* Click **Create Workspace**
+* Enter Git repository URL: `{gitea_url}/{user}/spring-petclinic.git`
+* Click **Create & Open**
+
+. Wait for the workspace to initialize:
++
+Dev Spaces will clone the repository and prepare your development environment. This takes 1-2 minutes.
+
+. Once the workspace loads, verify the Developer Lightspeed extension is installed:
++
+* Look for the Developer Lightspeed icon in the left sidebar (typically a lightbulb or AI icon)
+* If not visible, check **Extensions** view and search for "Red Hat Developer Lightspeed"
+
+. Configure the AI model connection:
++
+* Open Developer Lightspeed settings
+* Set Model Endpoint: `{litellm_api_endpoint}`
+* Set API Key: `{litellm_virtual_key}`
+* Select Model: `{litellm_available_models_list}` (choose first available)
+
+=== Verify
+
+Confirm your development environment is ready:
+
+[source,bash]
+----
+# In the Dev Spaces terminal, verify repository is cloned
+ls -la
+pwd
+----
+
+Expected output:
+
+----
+/projects/spring-petclinic
+----
+
+✓ Dev Spaces workspace is running
+✓ Repository is cloned and accessible
+✓ Developer Lightspeed extension is installed and configured
+✓ AI model connection is established
+
+== Exercise 2: Run AI-powered code analysis
+
+Before making changes, you'll use Developer Lightspeed to analyze the legacy code and identify specific modernization opportunities.
+
+=== Prerequisites
+* Dev Spaces workspace running with Developer Lightspeed configured
+* Repository successfully cloned
+
+=== Steps
+
+. Open the main application class:
++
+[source,bash]
+----
+# Navigate to the main application file
+code src/main/java/org/springframework/samples/petclinic/PetClinicApplication.java
+----
+
+. Invoke Developer Lightspeed analysis:
++
+* Right-click in the editor
+* Select **Developer Lightspeed** → **Analyze for Modernization**
+* Or use keyboard shortcut: `Ctrl+Shift+L` (Linux/Windows) or `Cmd+Shift+L` (Mac)
+
+. Review the AI analysis results:
++
+Developer Lightspeed will identify:
++
+* Deprecated APIs that need updating
+* Configuration patterns that should be modernized
+* Container-readiness issues
+* OpenShift-specific optimizations
+
+. Examine specific recommendations:
++
+Click on each finding to see:
++
+* Description of the issue
+* Why it matters for containerization
+* Suggested code changes
+* Impact on application behavior
+
+. Take note of high-priority items:
++
+Focus on changes marked as:
++
+* **Critical**: Must fix for successful containerization
+* **Recommended**: Should fix for best practices
+* **Optional**: Nice-to-have improvements
+
+=== Verify
+
+Confirm the analysis provides actionable insights:
+
+✓ Developer Lightspeed identified modernization opportunities
+✓ Findings are categorized by priority
+✓ Specific code locations are highlighted
+✓ Remediation suggestions are provided
+
+== Exercise 3: Generate modernized code using AI
+
+Now you'll use Developer Lightspeed to automatically generate code changes based on the analysis. This is where AI acceleration becomes real for ACME.
+
+=== Steps
+
+. Select a modernization task from the analysis results:
++
+Start with a critical or recommended finding that has clear remediation guidance.
+
+. Invoke AI code generation:
++
+* Click on the finding
+* Select **Apply AI Fix** or **Generate Solution**
+* Developer Lightspeed will generate the modernized code
+
+. Review the proposed changes:
++
+Developer Lightspeed will show you:
++
+* Original code (before)
+* Generated code (after)
+* Explanation of what changed and why
+* Impact assessment
+
+. Examine the generated code quality:
++
+Check that the AI-generated code:
++
+* Follows Java best practices
+* Maintains application functionality
+* Uses modern APIs and patterns
+* Includes appropriate error handling
+* Contains helpful comments
+
+. Accept the AI-generated changes:
++
+If the code looks correct:
++
+* Click **Accept Changes**
+* The file will be updated with the modernized code
+
+. Verify the changes compile:
++
+[source,bash]
+----
+# Build the application to confirm no syntax errors
+./mvnw clean compile
+----
+
+. Repeat for additional findings:
++
+Select another modernization opportunity and repeat the AI generation process. This builds confidence in the AI's capabilities.
+
+=== Verify
+
+Test that the modernized code works correctly:
+
+[source,bash]
+----
+# Run application tests
+./mvnw test
+----
+
+Expected result:
+
+----
+[INFO] Tests run: XX, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+----
+
+✓ AI generated valid, compilable code
+✓ Changes maintain application functionality
+✓ Tests pass with modernized code
+✓ Code quality meets standards
+
+image::developer-lightspeed-code-gen.png[Developer Lightspeed Code Generation,link=self,window=blank,width=700]
+
+// TODO: Capture screenshot of Developer Lightspeed showing before/after code comparison
+
+== Exercise 4: Review and validate AI-generated changes
+
+Before committing AI-generated code to ACME's repository, you need to thoroughly review and validate the changes. This ensures quality control in the modernization process.
+
+=== Steps
+
+. Open the Git diff view to see all changes:
++
+[source,bash]
+----
+# View all modified files
+git status
+
+# See detailed changes
+git diff
+----
+
+. Review each modified file:
++
+For each file with AI-generated changes:
++
+* Understand what changed and why
+* Verify the logic is correct
+* Confirm it aligns with MTA recommendations
+* Check for any unintended side effects
+
+. Run comprehensive tests:
++
+[source,bash]
+----
+# Run full test suite
+./mvnw verify
+
+# Check code coverage if available
+./mvnw test jacoco:report
+----
+
+. Perform manual testing:
++
+* Start the application locally
+* Test key functionality
+* Verify containerization-related changes
+* Confirm configuration is correct
+
+. Commit validated changes to version control:
++
+[source,bash]
+----
+# Stage the changes
+git add .
+
+# Commit with descriptive message
+git commit -m "Modernize application for containerization using AI assistance
+
+- Updated deprecated APIs to modern equivalents
+- Applied containerization best practices
+- Improved configuration for cloud deployment
+- Generated with Red Hat Developer Lightspeed"
+
+# Push to Gitea
+git push origin main
+----
+
+=== Verify
+
+Confirm your changes are properly validated:
+
+[source,bash]
+----
+# Verify commit was successful
+git log -1
+
+# Confirm push to remote
+git remote -v
+----
+
+✓ All AI-generated changes reviewed and understood
+✓ Tests pass successfully
+✓ Changes committed to version control
+✓ Code is ready for next phase
+
+== Exercise 5: Expand migration with Agent Mode
+
+For ACME's large-scale migration, you need to modernize entire projects, not just individual files. Developer Lightspeed's Agent Mode enables AI to work autonomously across the codebase.
+
+=== Steps
+
+. Activate Developer Lightspeed Agent Mode:
++
+* Open Developer Lightspeed panel
+* Click **Agent Mode** toggle
+* Confirm activation
+
+. Define the migration scope:
++
+Provide instructions to the AI agent:
++
+[source,text]
+----
+Modernize this Spring application for containerization on OpenShift:
+1. Update all deprecated Spring Boot APIs to latest versions
+2. Apply container-ready configuration patterns
+3. Add health check endpoints
+4. Externalize configuration for cloud environments
+5. Update dependencies to container-compatible versions
+----
+
+. Let the Agent work:
++
+Developer Lightspeed Agent Mode will:
++
+* Analyze the entire project structure
+* Identify all files needing changes
+* Generate modernization code across multiple files
+* Apply changes systematically
+* Provide progress updates
+
+. Monitor the Agent's progress:
++
+Watch as the Agent:
++
+* Scans project files
+* Makes decisions about changes
+* Applies transformations
+* Validates its own work
+
+. Review the Agent's complete work:
++
+Once the Agent finishes:
++
+[source,bash]
+----
+# See all files modified by Agent Mode
+git status
+
+# Review the comprehensive changes
+git diff --stat
+----
+
+. Test the Agent-modernized code:
++
+[source,bash]
+----
+# Compile everything
+./mvnw clean compile
+
+# Run full test suite
+./mvnw test
+
+# Package the application
+./mvnw package
+----
+
+=== Verify
+
+Validate that Agent Mode successfully modernized the project:
+
+[source,bash]
+----
+# Verify build success
+ls -lh target/*.jar
+
+# Check test results
+./mvnw test | grep "Tests run"
+----
+
+Expected result:
+
+----
+[INFO] Tests run: XX, Failures: 0, Errors: 0, Skipped: 0
+----
+
+✓ Agent Mode completed project-wide modernization
+✓ Multiple files updated systematically
+✓ Build succeeds with all changes
+✓ Tests pass across entire codebase
+
+image::agent-mode-progress.png[Agent Mode Progress,link=self,window=blank,width=700]
+
+// TODO: Capture screenshot of Agent Mode showing multiple file modifications
+
+== Troubleshooting
+
+**Issue**: Developer Lightspeed extension not responding
+**Solution**: Verify AI model endpoint is accessible:
+[source,bash]
+----
+curl -k {litellm_api_endpoint}/health
+----
+If endpoint is down, check with workshop instructor. If accessible, try restarting the extension or workspace.
+
+**Issue**: AI generates incorrect code that breaks tests
+**Solution**: Review the AI-generated changes carefully. Use git to revert specific changes:
+[source,bash]
+----
+# Revert to previous version
+git checkout -- <file-name>
+
+# Try a more specific prompt to the AI
+# Be explicit about constraints and requirements
+----
+
+**Issue**: Agent Mode makes too many changes at once
+**Solution**: Provide more specific, constrained instructions:
+[source,text]
+----
+Focus only on updating Spring Boot dependencies in pom.xml
+Do not modify application logic or configuration files yet
+----
+
+**Issue**: Build fails after AI modifications
+**Solution**: Check compiler errors and resolve step-by-step:
+[source,bash]
+----
+# See specific compilation errors
+./mvnw compile 2>&1 | grep error
+
+# Fix errors one file at a time
+# Ask Developer Lightspeed to fix specific compilation errors
+----
+
+**Issue**: Cannot push to Gitea repository
+**Solution**: Verify Git credentials and remote configuration:
+[source,bash]
+----
+# Check remote URL
+git remote -v
+
+# Verify Gitea credentials
+# Username: {user}
+# Password: {password}
+
+# Push with explicit credentials if needed
+git push https://{user}:{password}@<gitea-host>/<repo>.git main
+----
+
+== Learning outcomes checkpoint
+
+Before moving forward, confirm you can:
+
+* [ ] Set up and configure Red Hat Developer Lightspeed in Dev Spaces
+* [ ] Run AI-powered code analysis on legacy applications
+* [ ] Generate modernized code using AI assistance
+* [ ] Review and validate AI-generated code changes
+* [ ] Use version control to manage AI-assisted modifications
+* [ ] Leverage Agent Mode for project-wide modernization
+* [ ] Test and verify AI-generated code meets quality standards
+
+If you can check all these boxes, you're ready to proceed. If not, review the exercises where you need more practice.
+
+== Module summary
+
+You've successfully demonstrated AI-accelerated code modernization and can now show ACME how to dramatically reduce migration time.
+
+**What you accomplished for ACME:**
+* Configured AI-powered development environment
+* Generated production-quality modernized code using AI assistance
+* Validated AI changes through proper testing and review
+* Scaled modernization work using Agent Mode across entire projects
+
+**Business impact realized:**
+* **Development velocity**: Reduced code modernization time from days to hours
+* **Consistency**: AI applies patterns uniformly across codebase
+* **Quality**: Automated testing validates all changes
+* **Scalability**: Agent Mode enables project-level transformations
+
+**Your journey progress:**
+You now have hands-on experience with AI-assisted code modernization and understand how Developer Lightspeed accelerates the transformation from legacy to cloud-native applications.
+
+**Next steps:**
+Module 3 will show you how to incorporate ACME's specific coding standards and best practices into the AI's knowledge using Developer Lightspeed Solution Server, ensuring consistency across all migration waves.

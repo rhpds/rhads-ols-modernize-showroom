@@ -1,69 +1,113 @@
 = Workshop details
-:imagesdir: ../assets/images/
+:toc:
+:toc-placement: preamble
+:icons: font
 
-== Module breakdown
+== Timing and schedule
 
-=== Module 1: Assessment and analysis (60-90 minutes)
+=== Full workshop (90 minutes)
+* **Module 1**: Analyzing Legacy Applications with MTA (20-25 minutes)
+* **Module 2**: AI-Assisted Code Modernization (25-30 minutes)
+* **Module 3**: Incorporating Policy and Tribal Knowledge with Solution Server (20-25 minutes)
+* **Module 4**: Deploying to OpenShift (15-20 minutes)
 
-In this module you will:
-
-* Explore the MTA application inventory
-* Learn about application profiles, tags, and archetypes
-* Complete an assessment questionnaire for an archetype
-* Analyze application source code using MTA
-* Review analysis reports including effort estimates, issues, and dependencies
-
-=== Module 2: Refactor and deploy (60-90 minutes)
-
-In this module you will:
-
-* Identify and fix migration issues in source code
-* Refactor legacy configuration code to use Spring standards
-* Update database connection properties
-* Re-run MTA analysis to verify fixes
-* Build and deploy the modernized application to OpenShift
-* Test the deployed application
+=== Abbreviated workshop (60 minutes)
+* **Module 1**: Analyzing Legacy Applications with MTA (15 minutes)
+* **Module 2**: AI-Assisted Code Modernization (20 minutes)
+* **Module 3**: Incorporating Policy and Tribal Knowledge with Solution Server (15 minutes)
+* **Module 4**: Deploying to OpenShift (10 minutes)
 
 == Technical requirements
 
+=== Software versions
+* Red Hat OpenShift {ocp_version} or later
+* Migration Toolkit for Applications {mta_version} or later
+* Red Hat Developer Lightspeed {rhdls_version} or later
+* Red Hat OpenShift Dev Spaces (latest)
+* Web browser (Chrome, Firefox, Safari, Edge)
+
 === Environment access
+Participants need access to:
 
-You will have access to:
+* Red Hat OpenShift cluster (provided during workshop)
+* Migration Toolkit for Applications web console
+* Red Hat OpenShift Dev Spaces with Developer Lightspeed extension
+* Gitea source code repository
+* LiteLLM AI model endpoint
 
-* **OpenShift cluster** -- Running OpenShift {ocp_version}
-* **Migration Toolkit for Applications** -- Version {mta_version}
-* **Gitea** -- Source code repository
-* **OpenShift DevSpaces** -- Web-based IDE for code editing
-* **PostgreSQL database** -- Running on OpenShift
+=== Network requirements
+* Internet connectivity for AI model access
+* Access to OpenShift cluster APIs and web consoles
+* Gitea repository access for source code management
 
-=== Technologies covered
+== Environment setup
 
-* Migration Toolkit for Applications (MTA)
-* OpenShift Container Platform
-* Spring Framework applications
-* JBoss Web Server / Tomcat
-* PostgreSQL database
-* OpenShift binary builds
-* Git source control
+=== Pre-workshop checklist
+□ **OpenShift cluster access confirmed** - Test login credentials
+□ **MTA console accessible** - Verify URL and authentication
+□ **Dev Spaces workspace created** - Confirm Developer Lightspeed extension installed
+□ **Gitea repository accessible** - Test repository clone and push
+□ **AI model endpoint configured** - Verify LiteLLM connectivity
 
-== Access information
+=== Setup validation
+Participants should verify access to these resources:
 
-Your environment is pre-configured with:
+```bash
+# Verify OpenShift CLI access
+oc whoami
 
-* OpenShift Console: {openshift_console_url}
-* MTA Console: {mta_url}
-* OpenShift DevSpaces: Access via console
-* Gitea: {gitea_console_url}
+# Verify cluster connectivity
+oc version
 
-Login credentials will be provided in the workshop exercises.
+# Check MTA API endpoint
+curl -k {mta_api_url}/hub
 
-== Prerequisites
+# Test Gitea access
+curl -k {gitea_url}
+```
 
-This workshop assumes:
+== Troubleshooting guide
 
-* Basic understanding of Java and Spring Framework
-* Familiarity with OpenShift or Kubernetes concepts
-* Basic command-line skills
-* Understanding of application modernization concepts
+=== Common setup issues
 
-No prior MTA experience is required.
+**Problem**: "Cannot access OpenShift console"
+→ **Solution**: Verify you're using the correct URL from the workshop environment: {openshift_console_url}
+
+**Problem**: "MTA console shows authentication error"
+→ **Solution**: Use OpenShift credentials to log in to MTA. Username: {user}, Password: {password}
+
+**Problem**: "Dev Spaces workspace won't start"
+→ **Solution**: Check OpenShift resource quotas and verify Dev Spaces operator is running
+
+**Problem**: "Developer Lightspeed extension not responding"
+→ **Solution**: Verify LiteLLM endpoint is accessible and API key is configured correctly
+
+=== During workshop support
+* Encourage participants to help each other
+* Use embedded consoles for troubleshooting
+* Instructor can share screen for complex issues
+* Gitea provides version control safety net for code experiments
+
+== Follow-up resources
+
+=== Next steps for participants
+* link:https://developers.redhat.com/products/mta/overview[Migration Toolkit for Applications Documentation^]
+* link:https://developers.redhat.com/products/openshift-dev-spaces/overview[Red Hat OpenShift Dev Spaces Documentation^]
+* link:https://developers.redhat.com/[Red Hat Developer Portal^]
+* link:https://learn.openshift.com/[OpenShift Interactive Learning Portal^]
+
+=== Additional learning paths
+* **Intermediate**: Advanced MTA analysis and custom rules
+* **Advanced**: Developer Lightspeed Solution Server administration and custom model training
+* **Certification**: Red Hat Certified Specialist in Containers and Kubernetes
+
+== Authors and contributors
+
+**Primary Author**: Red Hat Technical Training Team
+**Last Updated**: March 2026
+**Workshop Version**: 1.0
+
+**Contact Information**:
+* Workshop feedback: Submit issues via workshop repository
+* Technical questions: Red Hat Developer support channels
+* Content updates: Submit pull requests to workshop repository
