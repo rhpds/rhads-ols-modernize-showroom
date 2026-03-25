@@ -55,6 +55,8 @@ CAUTION: If you see a message that says you need to authenticate again, just Cli
 . Wait for the workspace to initialize and open:
 +
 Your **kai-coolstore** gitea repository will load in DevSpaces and your development environment will be setup.
++
+The workspace will open in a new tab in your browser.  The workspace tab is a VSCode GUI environment served up by DevSpaces
 
 . Once the workspace loads, verify the Developer Lightspeed extension, which is named Migration toolkit for applications, is installed:
 +
@@ -76,7 +78,7 @@ TIP:  If you ever accidently close the MTA Analysis View screen, just click on t
 * For Target Technologies:
 * Click dropdown arrow and type or scroll to **quarkus3** and click to select it
 * Source Technologies:
-* Click dropdown arrow and type or scroll to **javaee** and **openjdk8**
+* Click dropdown arrow and type or scroll to **java-ee** and **openjdk8**
 * Leave __Use Default Rules__ selected
 * Click on **Select Custom Rules...**
 * A __Select Custom Rules__ input box will appear at the top of the screen
@@ -84,6 +86,7 @@ TIP:  If you ever accidently close the MTA Analysis View screen, just click on t
 * The profile auto-saves as you enter and make changes.
 // We need to prebuild the provider-settings.yaml file and remove this following step/section
 // configuration file to be updated is: /checode/remote/data/User/globalStorage/redhat.mta-vscode-extension/settings/provider-settings.yaml
+// Until then here are the steps
 . Configure the AI model connection for MTA Developer Lightspeed:
 +
 * Click on the **MTA Analysis View** tab
@@ -131,9 +134,9 @@ Confirm your DevSpaces and MTA (Developer Lightspeed for MTA) Extension is setup
 
 Before making changes, you'll use Developer Lightspeed MTA extension to analyze the legacy code and identify specific modernization opportunities.
 
-In this exercise the Developer Lightspeed for MTA extension will run a static code analysis against all the source code in the cloned repository, including the custom ACME specific company policy code rules. This provides an efficient starting point focused on identifying migration issues that were highlighted during the risk analysis in the last module.
+In this exercise the Developer Lightspeed for MTA extension will run a static code analysis against all the source code in the cloned repository. The static code rules are provided by Red Hat to help focus on rapid identification of issues, and customer rules can also be written and included.In this case we are including the custom ACME specific company policy code rules. This provides an efficient starting point focused on identifying migration issues that were highlighted during the risk analysis in the last module.
 
-Later on the analysis results will be used with the LLM for generating code fixes.
+Later on the analysis results will be used to prompt the LLM for generating code fixes.
 
 === Prerequisites
 * Dev Spaces workspace running with Developer Lightspeed extension configured
@@ -151,238 +154,157 @@ Later on the analysis results will be used with the LLM for generating code fixe
 . Invoke Developer Lightspeed analysis:
 +
 * In the right side of the screen click on the **Run Analysis** button.
-
++
+[NOTE]
+====
+In this scenario the lead developer is migrating a legacy JavaEE monlithic application into a cloud native Quarkus application to run on OpenShift. +
+They want to understand the level of effort needed to migrate a representative application for a "wave" of JavaEE apps to be migrated.
+====
++
 . Review the AI analysis results:
++
+You will see the **Analysis Results** as a listing grouped by __Issues__
 +
 Developer Lightspeed will identify:
 +
+* Required changes to migrate to new frameworks and standards
 * Deprecated APIs that need updating
 * Configuration patterns that should be modernized
 * Container-readiness issues
 * OpenShift-specific optimizations
++
+. Examine a specific recommendation:
++
+Let's review the result: **@MessageDriven - EJBs are not supported in Quarkus** +
++
+* __If this is NOT the first result in the listing do the following:__
+** Type __OrderServiceMDB__ in the Search box at the top of the Analysis Results listing
+* Click on the **>** arrow on the left of the result and view the details
+* You will see a short statement giving more context as to what the issue is and some basic guidance
+* You will also see a link to the file itself that has the issue.
+* In the next exercise we will use AI capabilities as Developer Lightspeed has an interactive conversation with an LLM to generate code fixes, prompting it with information from rules. This is a RAG style approach, as it is creating enriched prompts
 
-. Examine specific recommendations:
-+
-Click on each finding to see:
-+
-* Description of the issue
-* Why it matters for containerization
-* Suggested code changes
-* Impact on application behavior
-
-. Take note of high-priority items:
-+
-Focus on changes marked as:
-+
-* **Critical**: Must fix for successful containerization
-* **Recommended**: Should fix for best practices
-* **Optional**: Nice-to-have improvements
+[NOTE]
+====
+For the Lead Developer this is a major issue, newer Java frameworks like Quarkus don't support legacy JavaEE EJB (Enterprise Java Bean) approaches.  Especially when working with messaging solutions legacy EJB approaches need to be removed and modern  __MicroProfile__ approaches need to injected into the code.  This also directly reflects the risk assessment reviewed in the first module, where legacy monolithic applications using JavaEE frameworks were a major concern.
+====
 
 === Verify
 
 Confirm the analysis provides actionable insights:
 
-✓ Developer Lightspeed identified modernization opportunities
-✓ Findings are categorized by priority
-✓ Specific code locations are highlighted
+✓ Developer Lightspeed for MTA extension identified migration issues with the codebase
+✓ Findings are grouped by default by Issues
+✓ Links to code files are included in analysis results
 ✓ Remediation suggestions are provided
 
-== Exercise 3: Generate modernized code using AI
+== Exercise 3: Generate code fixes using AI
 
 Now you'll use Developer Lightspeed to automatically generate code changes based on the analysis. This is where AI acceleration becomes real for ACME.
 
 === Steps
 
-. Select a modernization task from the analysis results:
+. Ensure the Issue: **@MessageDriven - EJBs are not supported in Quarkus** is visible in the results listing in the MTA Analysis View tab
 +
-Start with a critical or recommended finding that has clear remediation guidance.
+* If necessary, type __OrderServiceMDB__ in the Search box at the top of the Analysis Results listing, with __Group by: Issues__
+* Click on the **>** arrow on the left of the result and view the details
 
-. Invoke AI code generation:
+. Invoke AI solution generation:
 +
-* Click on the finding
-* Select **Apply AI Fix** or **Generate Solution**
-* Developer Lightspeed will generate the modernized code
+* Click on one of the wrench icons down arrows to the right of the screen for the issue.
+* Click on Get Solution from the drop down menu.
+* NOTE:  If the wrench icon itself was clicked that will also directly run Get Solution
+* Notice the MTA Resolution Details tab now opens and an interactive conversation occurs between the MTA extension and the LLM.
+* Scroll through the __Generative AI Results__ screen and observe how Developer Lightspeed for MTA extension has an interactive conversation with the LLM, prompting it with information from rules.
+* Note how LLM via the **mta-vscode-extension AI** respondant provides reasoning, change suggestions, and a fully converted Quarkus code approach to replace the existing approach.
+* Notice that it then pauses and asks if the developer wants to **Review Changes** or just accept, or reject what the AI powered MTA extension suggested. 
 
 . Review the proposed changes:
 +
-Developer Lightspeed will show you:
-+
-* Original code (before)
-* Generated code (after)
-* Explanation of what changed and why
-* Impact assessment
-
-. Examine the generated code quality:
-+
-Check that the AI-generated code:
-+
-* Follows Java best practices
-* Maintains application functionality
-* Uses modern APIs and patterns
-* Includes appropriate error handling
-* Contains helpful comments
+* Click on **Review Changes**
+* A new code editor pane will open to the right and show the OrderServiceMDB.java file
+** Original code that doesn't need changes will not be highlighted
+** Red highlighted code is what needs to be removed
+** Green highlighted code is what needs to be added
 
 . Accept the AI-generated changes:
 +
-If the code looks correct:
-+
-* Click **Accept Changes**
-* The file will be updated with the modernized code
+* At the top of the file is a prompt/link to **Accept All Changes or Reject All Changes**
+* Scrolling through the file shows that each highlighted code block can be accepted or rejected individually
+* Scroll to the top of the file and Click **Accept All Changes**
+* Developer Lightspeed will now apply all the corrective changes and rerun the analysis to show it has been resolved
+* In the **MTA Resolution Details** tab click the Continue button and this will return focus to the **MTA Analysis View**
+* Close the **MTA Resolution Details** and fixed **OrderServiceMDB.java** panes by clicking **X** on their tabs
 
-. Verify the changes compile:
-+
-[source,bash]
-----
-# Build the application to confirm no syntax errors
-./mvnw clean compile
-----
-
-. Repeat for additional findings:
-+
-Select another modernization opportunity and repeat the AI generation process. This builds confidence in the AI's capabilities.
 
 === Verify
 
-Test that the modernized code works correctly:
-
-[source,bash]
-----
-# Run application tests
-./mvnw test
-----
-
-Expected result:
-
-----
-[INFO] Tests run: XX, Failures: 0, Errors: 0, Skipped: 0
-[INFO] BUILD SUCCESS
-----
+Confirm that the **@MessageDriven - EJBs are not supported in Quarkus** is no longer listed in the 
 
 ✓ AI generated valid, compilable code
 ✓ Changes maintain application functionality
-✓ Tests pass with modernized code
 ✓ Code quality meets standards
 
-image::developer-lightspeed-code-gen.png[Developer Lightspeed Code Generation,link=self,window=blank,width=700]
 
-// TODO: Capture screenshot of Developer Lightspeed showing before/after code comparison
-
-== Exercise 4: Review and validate AI-generated changes
-
-Before committing AI-generated code to ACME's repository, you need to thoroughly review and validate the changes. This ensures quality control in the modernization process.
-
-=== Steps
-
-. Open the Git diff view to see all changes:
-+
-[source,bash]
-----
-# View all modified files
-git status
-
-# See detailed changes
-git diff
-----
-
-. Review each modified file:
-+
-For each file with AI-generated changes:
-+
-* Understand what changed and why
-* Verify the logic is correct
-* Confirm it aligns with MTA recommendations
-* Check for any unintended side effects
-
-. Run comprehensive tests:
-+
-[source,bash]
-----
-# Run full test suite
-./mvnw verify
-
-# Check code coverage if available
-./mvnw test jacoco:report
-----
-
-. Perform manual testing:
-+
-* Start the application locally
-* Test key functionality
-* Verify containerization-related changes
-* Confirm configuration is correct
-
-. Commit validated changes to version control:
-+
-[source,bash]
-----
-# Stage the changes
-git add .
-
-# Commit with descriptive message
-git commit -m "Modernize application for containerization using AI assistance
-
-- Updated deprecated APIs to modern equivalents
-- Applied containerization best practices
-- Improved configuration for cloud deployment
-- Generated with Red Hat Developer Lightspeed"
-
-# Push to Gitea
-git push origin main
-----
-
-=== Verify
-
-Confirm your changes are properly validated:
-
-[source,bash]
-----
-# Verify commit was successful
-git log -1
-
-# Confirm push to remote
-git remote -v
-----
-
-✓ All AI-generated changes reviewed and understood
-✓ Tests pass successfully
-✓ Changes committed to version control
-✓ Code is ready for next phase
-
-== Exercise 5: Expand migration with Agent Mode
+== Exercise 4: Expand migration with Agent Mode
 
 For ACME's large-scale migration, you need to modernize entire projects, not just individual files. Developer Lightspeed's Agent Mode enables AI to work autonomously across the codebase.
+
+[NOTE]
+====
+In our scenario the Developer could one by one go through all the the Analysis Results and invoke AI solution generation for each issue individually.  
+
+However, to speed migration and modernization, once they have checked how effective a few AI generated code fixes are, they could run in Developer Lightspeed **Agent Mode** and have it work with the LLM to generate cascading fixes across the project
+====
 
 === Steps
 
 . Activate Developer Lightspeed Agent Mode:
 +
-* Open Developer Lightspeed panel
-* Click **Agent Mode** toggle
-* Confirm activation
+* Switch to the **MTA Analysis View** tab in the Developer Lightspeed for MTA extension
+* Ensure in the uppper right __Server Status__ is **Running**
+* Click **Agent Mode** toggle to turn it on
 
-. Define the migration scope:
+. Start another Analyis run
 +
-Provide instructions to the AI agent:
+This Analysis run will use Agent Mode
 +
-[source,text]
-----
-Modernize this Spring application for containerization on OpenShift:
-1. Update all deprecated Spring Boot APIs to latest versions
-2. Apply container-ready configuration patterns
-3. Add health check endpoints
-4. Externalize configuration for cloud environments
-5. Update dependencies to container-compatible versions
-----
+* Click the **Run Analysis** button, which is to the right side partway down the view
+* The Analyis will run again
+* __At this point in the exercises one can choose to see how Agent Mode can migrate a cascading fix across a code base by doing the following optional step OR move to the **Let the Agent work** Step and watch it fix all the issues.__
 
+. Selectively focus on a specific issue Theme (Optional)
++
+In ACME'S scenario the lead developer is very concerned about a major Java framework issue **Adopt Quarkus Maven plugin** and they want to see how Developer Lighspeed can cascade changes across files based on fixing this major issue, using __Agent Mode__.
++
+* Scroll down the Analysis Results listing to **Adopt Quarkus Maven plugin**
+* Open the issue by clicking on the **>** arrow
+* Observe the pom.xml file will need to be changed and as the Java developer knows this will cause cascading changes across the codebase for imported libraries and code approaches
+* Click the wrench icon to the right of the issue, inorder to initiate the AI solution resolution
+* Developer Lightspeed extension will scroll through the Generative AI Results, which was covered in detail previously
+* Click **Accept All** suggested changes
+* Developer Lightspeed fixes the issue, and **Agent Mode** continues to look for all impacted code across the project that are affected by this fix.
+* Agent Mode offers to __continue fixing them__
+* Choose **Yes**
+* The screen may appear to lockup but notice that the **Generative AI Results** title at the top of the pane now has 3 bouncing ***** balls after it
+* Soon the results stream will report that it fixed all the dependent files and list a summary of the number of fixed files.
+* Click **Run Analysis** again.
++
 . Let the Agent work:
 +
-Developer Lightspeed Agent Mode will:
+Developer Lightspeed Agent Mode will now fix all the remaining issues
 +
-* Analyze the entire project structure
-* Identify all files needing changes
-* Generate modernization code across multiple files
-* Apply changes systematically
-* Provide progress updates
+* Scroll the screen so you are looking at the beginning of the __Analyis Results__ listing
+* Click the down arrow next the wrench icon directly opposite the __Analyis Results__ title
+* Notice it offers to **Get solution for xx incidents**  -- meaning all the incidents
+* Either click the wrench icon or the either of the **Get solution for xx incidents** options
+* Agent Mode will now fix all the remaining issues
+* This means it will:
+** Analyze the entire project structure
+** Identify all files needing changes based upon the rule violations identified in the Analysis
+** Generate modernization code across multiple files
+** Apply changes systematically
+** Provide progress updates
 
 . Monitor the Agent's progress:
 +
