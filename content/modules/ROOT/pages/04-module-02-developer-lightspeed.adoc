@@ -14,93 +14,143 @@ In this module, you'll experience how Developer Lightspeed uses AI to generate m
 By the end of this module, you'll be able to:
 
 * Set up Red Hat Developer Lightspeed extension in Dev Spaces
-* Run AI-powered code analysis to identify modernization opportunities
+* Run a static code analysis to identify modernization opportunities
 * Generate modernized code using AI assistance
 * Review and validate AI-generated code changes
 * Expand migration work across entire projects using Agent Mode
 
-== Exercise 1: Access Dev Spaces and configure Developer Lightspeed
+== Exercise 1: Access DevSpaces and configure Developer Lightspeed for MTA
+
+[IMPORTANT]
+====
+The next 2 modules make use of the Developer Lightspeed MTA extension running in a DevSpaces environment that provides a VSCode based GUI env.
+
+You may notice that the Developer Lightspeed MTA extension is sometimes referred to as just Developer Lightspeed, Migration Toolkit for Applications extension, or just the MTA extension  -- In all cases it is referring to the same thing.
+====
 
 You need to set up your development environment with AI capabilities to start modernizing ACME's applications.
 
-You prepare to launch Dev Spaces and configure the Developer Lightspeed extension.
+You prepare to launch DevSpaces and configure the Developer Lightspeed extension.
 
-. Open Red Hat OpenShift Dev Spaces by clicking the **Dev Spaces** tab in the workshop interface, or navigate to:
-+
-{devspaces_url}
+. Switch to Red Hat OpenShift DevSpaces by clicking the **OpenShift DevSpaces** tab in the workshop interface.  
 
 . Log in to Dev Spaces using your OpenShift credentials:
++
+NOTE: You will be initially taken to the Keycloak SSO login page
 +
 * Username: `{user}`
 * Password: `{password}`
 
-. Create a new workspace from the legacy application repository:
+. After logging in, if prompted to __Authorize Access__
 +
-* Click **Create Workspace**
-* Enter Git repository URL: `{gitea_url}/{user}/spring-petclinic.git`
-* Click **Create & Open**
+* Click **Allow selected permissions**
+* The workspace listing will open up and show the user-{user}-workspace entry
++
+CAUTION: If you see a message that says you need to authenticate again, just Click on the  **OpenShift DevSpaces** tab and it should let you into the workspace listing.
 
-. Wait for the workspace to initialize:
+. Open the user-{user}-workspace 
 +
-Dev Spaces will clone the repository and prepare your development environment. This takes 1-2 minutes.
+* Click on the **Open** link on the right side of workspace listing
 
-. Once the workspace loads, verify the Developer Lightspeed extension is installed:
+. Wait for the workspace to initialize and open:
 +
-* Look for the Developer Lightspeed icon in the left sidebar (typically a lightbulb or AI icon)
-* If not visible, check **Extensions** view and search for "Red Hat Developer Lightspeed"
+Your **kai-coolstore** gitea repository will load in DevSpaces and your development environment will be setup.
 
-. Configure the AI model connection:
+. Once the workspace loads, verify the Developer Lightspeed extension, which is named Migration toolkit for applications, is installed:
 +
-* Open Developer Lightspeed settings
-* Set Model Endpoint: `{litellm_api_endpoint}`
-* Set API Key: `{litellm_virtual_key}`
-* Select Model: `{litellm_available_models_list}` (choose first available)
+* Look for the Developer Lightspeed **MTA** icon in the left sidebar (it is the bottom icon)
+* If not visible, check **Extensions** view and search for "Migration toolkit for applications"
+
+. Configure the Developer Lightspeed MTA extension **Profile**
++
+* Click on the **MTA** Extension icon on the left side of the screen
+* You will now see the MTA Analysis View tab
++
+TIP:  If you ever accidently close the MTA Analysis View screen, just click on the MTA Extension icon and click on the reading pages icon in the pane just to the right, at the top.
++
+* Click **Manage Profiles** on the screen
+* This will open the MTA Manage Profiles tab
+* Click **New Profile**
++
+* Enter Profile Name:  **{user} coolstore profile**
+* For Target Technologies:
+* Click dropdown arrow and type or scroll to **quarkus3** and click to select it
+* Source Technologies:
+* Click dropdown arrow and type or scroll to **javaee** and **openjdk8**
+* Leave __Use Default Rules__ selected
+* Click on **Select Custom Rules...**
+* A __Select Custom Rules__ input box will appear at the top of the screen
+* Enter the following path: `/projects/kai-coolstore/rules`
+* The profile auto-saves as you enter and make changes.
+// We need to prebuild the provider-settings.yaml file and remove this following step/section
+// configuration file to be updated is: /checode/remote/data/User/globalStorage/redhat.mta-vscode-extension/settings/provider-settings.yaml
+. Configure the AI model connection for MTA Developer Lightspeed:
++
+* Click on the **MTA Analysis View** tab
++
+NOTE: You will notice a yellow warning about a connection issue, we will resolve this, and you will see a message about Generative AI being enabled this is related to other features in the next module and you can ignore this message.
++
+* Click on the gear icon, on the right side of the screen.
+* The Get Ready to Analyze pane will open on the right hand side of the screen
+* Click on the __Configure GenAI Settings__ link in the bottom message box
+* Replace/Update the first **models:** entry with the following
++
+[source,yaml]
+----
+models:
+  OpenAI: &active
+    environment:
+      OPENAI_API_KEY: "{litellm_virtual_key}" # Required
+    provider: ChatOpenAI
+    args:
+      model: llama-scout-17b # Required
+      configuration:
+        baseURL: "{litellm_api_base_url}"
+----
 
 === Verify
 
-Confirm your development environment is ready:
+Confirm your DevSpaces and MTA (Developer Lightspeed for MTA) Extension is setup correctly
 
-[source,bash]
-----
-# In the Dev Spaces terminal, verify repository is cloned
-ls -la
-pwd
-----
 
-Expected output:
 
-----
-/projects/spring-petclinic
-----
+. Confirm MTA Extension is setup correctly
+* When you clicked on the MTA extension icon, and are on the MTA Analysis View Tab:
+* Click on the gear icon on the right side of the screen
+* The **Get Ready to Analyze** pane will open on the right hand side of the screen
+* There should be green check marks in all four of the message boxes and each should be listed as completed
 
-✓ Dev Spaces workspace is running
-✓ Repository is cloned and accessible
-✓ Developer Lightspeed extension is installed and configured
-✓ AI model connection is established
+. Confirm the DevSpaces workspace is pointing to the correct gitea repository 
+* Click on the file icon on the left side of the DevSpaces environment
+* You should see in the File _EXPLORER_ the **kai-coolstore** directory listing
+* You may have to click on the file explorer arrows to open the directories.
 
-== Exercise 2: Run AI-powered code analysis
 
-Before making changes, you'll use Developer Lightspeed to analyze the legacy code and identify specific modernization opportunities.
+
+== Exercise 2: Run an initial static code analysis
+
+Before making changes, you'll use Developer Lightspeed MTA extension to analyze the legacy code and identify specific modernization opportunities.
+
+In this exercise the Developer Lightspeed for MTA extension will run a static code analysis against all the source code in the cloned repository, including the custom ACME specific company policy code rules. This provides an efficient starting point focused on identifying migration issues that were highlighted during the risk analysis in the last module.
+
+Later on the analysis results will be used with the LLM for generating code fixes.
 
 === Prerequisites
-* Dev Spaces workspace running with Developer Lightspeed configured
-* Repository successfully cloned
+* Dev Spaces workspace running with Developer Lightspeed extension configured
+* Repository **kai-coolstore** successfully cloned
 
 === Steps
 
-. Open the main application class:
+. Start the Analysis Server
 +
-[source,bash]
-----
-# Navigate to the main application file
-code src/main/java/org/springframework/samples/petclinic/PetClinicApplication.java
-----
+* Navigate to the **MTA Analysis View**
+* In the center of the screen make sure the profile selected is the **{user} coolstore profile**
+* At the top right of the screen, ensure the __Server Status__ is **Started**
+** Click the **Start** button if it isn't and wait till the Server Status is **Started**
 
 . Invoke Developer Lightspeed analysis:
 +
-* Right-click in the editor
-* Select **Developer Lightspeed** → **Analyze for Modernization**
-* Or use keyboard shortcut: `Ctrl+Shift+L` (Linux/Windows) or `Cmd+Shift+L` (Mac)
+* In the right side of the screen click on the **Run Analysis** button.
 
 . Review the AI analysis results:
 +
