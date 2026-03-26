@@ -98,7 +98,7 @@ NOTE: You will notice a yellow warning about a connection issue, we will resolve
 * Click on the __Configure GenAI Settings__ link in the bottom message box
 * Replace/Update the first **models:** entry with the following
 +
-[source,yaml]
+[source,yaml,role="execute", subs="attributes"]
 ----
 models:
   OpenAI: &active
@@ -374,7 +374,7 @@ image::agent-mode-progress.png[Agent Mode Progress,link=self,window=blank,width=
 
 **Issue**: Developer Lightspeed extension not responding
 **Solution**: Verify AI model endpoint is accessible:
-[source,bash]
+[source,bash,role="execute", subs="attributes"]
 ----
 curl -k {litellm_api_endpoint}/health
 ----
