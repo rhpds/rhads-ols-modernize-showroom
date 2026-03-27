@@ -66,35 +66,42 @@ The workspace will open in a new tab in your browser.  The workspace tab is a VS
 . Configure the Developer Lightspeed MTA extension **Profile**
 +
 * Click on the **MTA** Extension icon on the left side of the screen
-* You will now see the MTA Analysis View tab
+* If you see an **Install Extension Pack** message just reload the page
+* Click **Open Analysis Panel**
 +
-TIP:  If you ever accidently close the MTA Analysis View screen, just click on the MTA Extension icon and click on the reading pages icon in the pane just to the right, at the top.
+TIP:  If you ever accidently close the MTA Analysis View panel, just click on the MTA Extension icon and click on the reading pages icon in the pane just to the right, at the top.
 +
 * Click **Manage Profiles** on the screen
-* This will open the MTA Manage Profiles tab
+* This will open the MTA Manage Profiles panel
 * Click **New Profile**
 +
-* Enter Profile Name:  **{user} coolstore profile**
+* Enter Profile Name:  **{user} coolstore**
 * For Target Technologies:
-* Click dropdown arrow and type or scroll to **quarkus3** and click to select it
+** Click dropdown arrow and type or scroll to **quarkus3** and **click it** to select it
+** Click dropdown arrow and type or scroll to **quarkus** and **click it** to select it
 * Source Technologies:
-* Click dropdown arrow and type or scroll to **java-ee** and **openjdk8**
+** Click dropdown arrow and type or scroll to **java-ee** and **openjdk8** , clicking each one to set them.
 * Leave __Use Default Rules__ selected
-* Click on **Select Custom Rules...**
-* A __Select Custom Rules__ input box will appear at the top of the screen
-* Enter the following path: `/projects/kai-coolstore/rules`
-* The profile auto-saves as you enter and make changes.
+// for now we will skip custom rules and put those into the Solution Server module
+// * Click on **Select Custom Rules...**
+// * A __Select Custom Rules__ input box will appear at the top of the screen
+// * Enter the following path: `/projects/kai-coolstore/rules`
+// * The profile auto-saves as you enter and make changes.
++
 // We need to prebuild the provider-settings.yaml file and remove this following step/section
 // configuration file to be updated is: /checode/remote/data/User/globalStorage/redhat.mta-vscode-extension/settings/provider-settings.yaml
 // Until then here are the steps
++
 . Configure the AI model connection for MTA Developer Lightspeed:
 +
 * Click on the **MTA Analysis View** tab
 +
-NOTE: You will notice a yellow warning about a connection issue, we will resolve this, and you will see a message about Generative AI being enabled this is related to other features in the next module and you can ignore this message.
+NOTE: You will notice a yellow warning about a connection issue, we will resolve this in the next step, and you will see a message about Generative AI being enabled, which indicates this exetension has AI capabilities.
 +
 * Click on the gear icon, on the right side of the screen.
 * The Get Ready to Analyze pane will open on the right hand side of the screen
+* Notice most of the settings are already established
+* The **Hub Configuration** is configured and used in the next module.
 * Click on the __Configure GenAI Settings__ link in the bottom message box
 * Replace/Update the first **models:** entry with the following
 +
@@ -110,6 +117,20 @@ models:
       configuration:
         baseURL: "{litellm_api_base_url}"
 ----
++
+* Go to hamburger icon at the top left of the DevSpaces env Click on the menu **File > Save**
++
+[IMPORTANT]
+====
+You need to manually save any changes to files in this workshop. +  
+Don't use Auto Save or you will miss reviewing the reasoning in some later steps.
+====
++
+* Close the provider-settings.yaml file
+* Click on the **MTA Analysis View** tab 
+* Close the **Get Ready to Analyze** pane
+
+
 
 === Verify
 
@@ -146,10 +167,10 @@ Later on the analysis results will be used to prompt the LLM for generating code
 
 . Start the Analysis Server
 +
-* Navigate to the **MTA Analysis View**
-* In the center of the screen make sure the profile selected is the **{user} coolstore profile**
-* At the top right of the screen, ensure the __Server Status__ is **Started**
-** Click the **Start** button if it isn't and wait till the Server Status is **Started**
+* Navigate to the **MTA Analysis View** tab
+* In the center of the screen make sure the profile selected is the **{user} coolstore**
+* At the top right of the screen, ensure the __Server Status__ is **Running**
+** Click the **Start** button if it isn't and wait till the Server Status is **Running**
 
 . Invoke Developer Lightspeed analysis:
 +
@@ -213,10 +234,10 @@ Now you'll use Developer Lightspeed to automatically generate code changes based
 +
 * Click on one of the wrench icons down arrows to the right of the screen for the issue.
 * Click on Get Solution from the drop down menu.
-* NOTE:  If the wrench icon itself was clicked that will also directly run Get Solution
-* Notice the MTA Resolution Details tab now opens and an interactive conversation occurs between the MTA extension and the LLM.
+//* NOTE:  If the wrench icon itself was clicked that will also directly run Get Solution
+* Notice the **MTA Resolution Details** tab now opens and an interactive conversation occurs between the MTA extension and the LLM.
 * Scroll through the __Generative AI Results__ screen and observe how Developer Lightspeed for MTA extension has an interactive conversation with the LLM, prompting it with information from rules.
-* Note how LLM via the **mta-vscode-extension AI** respondant provides reasoning, change suggestions, and a fully converted Quarkus code approach to replace the existing approach.
+* Note how LLM via the **MTA AI** respondant provides reasoning, change suggestions, and a fully converted Quarkus code approach to replace the existing approach.
 * Notice that it then pauses and asks if the developer wants to **Review Changes** or just accept, or reject what the AI powered MTA extension suggested. 
 
 . Review the proposed changes:
@@ -229,10 +250,12 @@ Now you'll use Developer Lightspeed to automatically generate code changes based
 
 . Accept the AI-generated changes:
 +
-* At the top of the file is a prompt/link to **Accept All Changes or Reject All Changes**
+* At the top of the file is a small prompt/link to **Accept All Changes or Reject All Changes**
 * Scrolling through the file shows that each highlighted code block can be accepted or rejected individually
 * Scroll to the top of the file and Click **Accept All Changes**
 * Developer Lightspeed will now apply all the corrective changes and rerun the analysis to show it has been resolved
+* Save the migrated **OrderServiceMDB.java** file
+** Go to hamburger icon at the top left of the DevSpaces env Click on the menu **File > Save**
 * In the **MTA Resolution Details** tab click the Continue button and this will return focus to the **MTA Analysis View**
 * Close the **MTA Resolution Details** and fixed **OrderServiceMDB.java** panes by clicking **X** on their tabs
 
