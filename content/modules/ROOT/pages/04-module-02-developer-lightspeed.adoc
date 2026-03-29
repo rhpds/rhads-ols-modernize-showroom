@@ -44,19 +44,25 @@ NOTE: You will be initially taken to the Keycloak SSO login page
 . After logging in, if prompted to __Authorize Access__
 +
 * Click **Allow selected permissions**
-* The workspace listing will open up and show the user-{user}-workspace entry
++
+image::../assets/images/module-02/login-devspaces.png[]
 +
 CAUTION: If you see a message that says you need to authenticate again, just Click on the  **OpenShift DevSpaces** tab and it should let you into the workspace listing.
 
 . Open the user-{user}-workspace 
 +
+* After logging in he workspace listing will open up and show the user-{user}-workspace entry
 * Click on the **Open** link on the right side of workspace listing
++
+image::../assets/images/module-02/workspace-listing.png[]
 
 . Wait for the workspace to initialize and open:
 +
 Your **kai-coolstore** gitea repository will load in DevSpaces and your development environment will be setup.
 +
 The workspace will open in a new tab in your browser.  The workspace tab is a VSCode GUI environment served up by DevSpaces
++
+image::../assets/images/module-02/vscode-getstarted.png[]
 
 . Once the workspace loads, verify the Developer Lightspeed extension, which is named Migration toolkit for applications, is installed:
 +
@@ -69,11 +75,17 @@ The workspace will open in a new tab in your browser.  The workspace tab is a VS
 * If you see an **Install Extension Pack** message just reload the page
 * Click **Open Analysis Panel**
 +
-TIP:  If you ever accidently close the MTA Analysis View panel, just click on the MTA Extension icon and click on the reading pages icon in the pane just to the right, at the top.
+image::../assets/images/module-02/MTA-extension.png[]
+TIP:  If you ever accidently close the MTA Analysis View panel, just click on the MTA Extension icon and click on the reading pages icon in the pane just to the right, at the top. image:../assets/images/module-02/Open-open-analysis-view.png[250,250]
 +
 * Click **Manage Profiles** on the screen
++
+image::../assets/images/module-02/MTA-analysis-view.png[]
++
 * This will open the MTA Manage Profiles panel
 * Click **New Profile**
++
+image::../assets/images/module-02/MTA-profile-filling.png[]
 +
 * Enter Profile Name:  **{user} coolstore**
 * For Target Technologies:
@@ -82,16 +94,18 @@ TIP:  If you ever accidently close the MTA Analysis View panel, just click on th
 * Source Technologies:
 ** Click dropdown arrow and type or scroll to **java-ee** and **openjdk8** , clicking each one to set them.
 * Leave __Use Default Rules__ selected
++
+image::../assets/images/module-02/MTA-Profile-settings.png[]
++
+
 // for now we will skip custom rules and put those into the Solution Server module
 // * Click on **Select Custom Rules...**
 // * A __Select Custom Rules__ input box will appear at the top of the screen
 // * Enter the following path: `/projects/kai-coolstore/rules`
 // * The profile auto-saves as you enter and make changes.
-+
 // We need to prebuild the provider-settings.yaml file and remove this following step/section
 // configuration file to be updated is: /checode/remote/data/User/globalStorage/redhat.mta-vscode-extension/settings/provider-settings.yaml
 // Until then here are the steps
-+
 . Configure the AI model connection for MTA Developer Lightspeed:
 +
 * Click on the **MTA Analysis View** tab
@@ -103,7 +117,16 @@ NOTE: You will notice a yellow warning about a connection issue, we will resolve
 * Notice most of the settings are already established
 * The **Hub Configuration** is configured and used in the next module.
 * Click on the __Configure GenAI Settings__ link in the bottom message box
-* Replace/Update the first **models:** entry with the following
++
+image::../assets/images/module-02/Analysis-hub.png[]
++
+* The **provider-settings.yaml** file will open on a separate pane
++
+image::../assets/images/module-02/provider-settings.png[]
++
+* Replace/Update from the word **models:** down through the first entry with the following 
++
+CAUTION: This is yaml syntax so ensure to keep the indentions - just copy and paste over existing source
 +
 [source,yaml,role="execute", subs="attributes"]
 ----
@@ -118,13 +141,13 @@ models:
         baseURL: "{litellm_api_base_url}"
 ----
 +
-* Go to hamburger icon at the top left of the DevSpaces env Click on the menu **File > Save**
-+
-[IMPORTANT]
-====
-You need to manually save any changes to files in this workshop. +  
-Don't use Auto Save or you will miss reviewing the reasoning in some later steps.
-====
+//* Go to hamburger icon at the top left of the DevSpaces env Click on the menu **File > Save**
+//+
+// [IMPORTANT]
+// ====
+// You need to manually save any changes to files in this workshop. +  
+// Don't use Auto Save or you will miss reviewing the reasoning in some later steps.
+// ====
 +
 * Close the provider-settings.yaml file
 * Click on the **MTA Analysis View** tab 
@@ -167,7 +190,10 @@ Later on the analysis results will be used to prompt the LLM for generating code
 
 . Start the Analysis Server
 +
-* Navigate to the **MTA Analysis View** tab
+* Navigate to the **MTA Analysis View** pane
++
+TIP:  If you ever accidently close the MTA Analysis View panel, just click on the MTA Extension icon and click on the reading pages icon in the pane just to the right, at the top. image:../assets/images/module-02/reopen-analysis-pane.png[250,250]
++
 * In the center of the screen make sure the profile selected is the **{user} coolstore**
 * At the top right of the screen, ensure the __Server Status__ is **Running**
 ** Click the **Start** button if it isn't and wait till the Server Status is **Running**
@@ -181,6 +207,8 @@ Later on the analysis results will be used to prompt the LLM for generating code
 In this scenario the lead developer is migrating a legacy JavaEE monlithic application into a cloud native Quarkus application to run on OpenShift. +
 They want to understand the level of effort needed to migrate a representative application for a "wave" of JavaEE apps to be migrated.
 ====
++
+image::../assets/images/module-02/Initial-analysis.png[]
 +
 . Review the AI analysis results:
 +
@@ -197,6 +225,8 @@ Developer Lightspeed will identify:
 . Examine a specific recommendation:
 +
 Let's review the result: **@MessageDriven - EJBs are not supported in Quarkus** +
++
+image::../assets/images/module-02/EJB-issue.png[]
 +
 * __If this is NOT the first result in the listing do the following:__
 ** Type __OrderServiceMDB__ in the Search box at the top of the Analysis Results listing
@@ -232,6 +262,8 @@ Now you'll use Developer Lightspeed to automatically generate code changes based
 
 . Invoke AI solution generation:
 +
+image::../assets/images/module-02/EJB-get-solution.png[]
++
 * Click on one of the wrench icons down arrows to the right of the screen for the issue.
 * Click on Get Solution from the drop down menu.
 //* NOTE:  If the wrench icon itself was clicked that will also directly run Get Solution
@@ -239,16 +271,20 @@ Now you'll use Developer Lightspeed to automatically generate code changes based
 * Scroll through the __Generative AI Results__ screen and observe how Developer Lightspeed for MTA extension has an interactive conversation with the LLM, prompting it with information from rules.
 * Note how LLM via the **MTA AI** respondant provides reasoning, change suggestions, and a fully converted Quarkus code approach to replace the existing approach.
 * Notice that it then pauses and asks if the developer wants to **Review Changes** or just accept, or reject what the AI powered MTA extension suggested. 
++
+image::../assets/images/module-02/EJB-GenAI-results.png[]
 
 . Review the proposed changes:
 +
-* Click on **Review Changes**
+* Click on **Review In Editor**
 * A new code editor pane will open to the right and show the OrderServiceMDB.java file
 ** Original code that doesn't need changes will not be highlighted
 ** Red highlighted code is what needs to be removed
 ** Green highlighted code is what needs to be added
 
 . Accept the AI-generated changes:
++
+image::../assets/images/module-02/EJB-review-accept-changes.png[]
 +
 * At the top of the file is a small prompt/link to **Accept All Changes or Reject All Changes**
 * Scrolling through the file shows that each highlighted code block can be accepted or rejected individually
