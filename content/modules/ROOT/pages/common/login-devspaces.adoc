@@ -1,0 +1,37 @@
+. Switch to Red Hat OpenShift DevSpaces by clicking the **OpenShift DevSpaces** tab in the workshop interface.  
+
+. If necessary, Log in to Dev Spaces using your OpenShift credentials:
++
+NOTE: You will be initially taken to the Keycloak SSO login page
++
+* Username: `{user}`
+* Password: `{password}`
+
+. After logging in, if prompted to __Authorize Access__
++
+* Click **Allow selected permissions** button
++
+image::common/login-devspaces.png[DevSpaces Login,link=self,window=blank,title="Logging In"]
++
+CAUTION: If you see a message that says you need to authenticate again, just Click on the  **OpenShift DevSpaces** tab and it should let you into the workspace listing.
+
+. Open the user-{user}-workspace 
++
+* After logging in the workspace listing will open up and show the user-{user}-workspace entry
+* Click on the **Open** link on the right side of workspace listing
++
+image::common/workspace-listing.png[Open Workspace,link=self,window=blank,title="Open Workspace"]
+
+. Wait for the workspace to initialize and open:
++
+Your **kai-coolstore** gitea repository will load in DevSpaces and your development environment will be setup.
++
+The workspace will open in a new tab in your browser.  The workspace tab is a VSCode GUI environment served up by DevSpaces
++
+* If asked __Do you trust the authors of the files in this workspace?__, **click** __Yes, I trust the authors__
+* If shown a layout introductory panel, choose **Light** theme for best contrast later in the exercise and **Mark Done**.
++
+image::common/vscode-getstarted.png[VSCode Tab,link=self,window=blank,title="VSCode Tab"]
+
+
+NOTE: When finished, close this browser tab and return to the Module Instructions Tab.

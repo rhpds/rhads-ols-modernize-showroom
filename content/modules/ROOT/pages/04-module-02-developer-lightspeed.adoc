@@ -62,6 +62,9 @@ Your **kai-coolstore** gitea repository will load in DevSpaces and your developm
 +
 The workspace will open in a new tab in your browser.  The workspace tab is a VSCode GUI environment served up by DevSpaces
 +
+* If asked if you trust the content and providers, acknowledge yes, you do.
+* If shown a layout introductory panel, choose **Light** theme for best contrast later in the exercise and **Mark Done**.
++
 image::module-02/vscode-getstarted.png[VSCode Tab,link=self,window=blank,title="VSCode Tab"]
 
 . Once the workspace loads, verify the Developer Lightspeed extension, which is named Migration toolkit for applications, is installed:

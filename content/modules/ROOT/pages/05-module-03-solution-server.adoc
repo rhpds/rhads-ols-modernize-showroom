@@ -3,11 +3,16 @@
 :toc: macro
 :toclevels: 1
 
-Back at ACME Corp, you've successfully demonstrated AI-accelerated code modernization. Your manager is impressed but has a concern: "This looks great, but how do we ensure the AI follows our company's coding standards? We have specific patterns we use across all applications."
+Back at ACME Corp, you've successfully demonstrated AI-accelerated code modernization. Your manager is impressed but has a concern: "This looks great, but how do we ensure the AI follows our company's coding standards? We have specific patterns we use across all applications. Furthermore, how can we ensure junior software engineers, who will carryout the bulk of the migration efforts, will be guided by AI to follow these company standards and practices."
 
-ACME needs to scale modernization across dozens of applications while maintaining consistency with company-specific policies and best practices. You've heard that Developer Lightspeed Solution Server can learn organizational knowledge, but you need to see how it works.
+ACME needs to scale modernization across dozens of applications while maintaining consistency with company-specific policies and best practices. You've heard that Developer Lightspeed Solution Server can learn organizational knowledge, but you need to see how it works.  You also need to ensure that Developer Lightspeed for MTA enforces these best practices and company standards on migration efforts carried out by junior developers, or recently onboarded developers, or even contractors.
 
 In this module, you'll experience how Solution Server captures company policies, learns tribal knowledge, and accelerates major migration waves by teaching AI your organization's specific patterns.
+
+In this module you move between two different roles. First you will be the senior architect or developer who based on an Archetype grouping of applications we covered in Module 1, works with a representative application, and at certain points adds into the code migration company policy code approaches, or tribal knowledge based upon company code libraries or practices.
+
+
+You will then switch roles and as a junior developer will benefit from AI infused learned best practices.
 
 == Learning objectives
 
@@ -35,9 +40,10 @@ Developer Lightspeed Solution Server acts as an organizational knowledge reposit
 * Provides context to AI models for consistent code generation
 * Enables knowledge sharing across development teams
 
+
 . Review the Solution Server architecture:
 +
-Solution Server sits between developers and AI models:
+Solution Server is an MCP server that sits on top of MTA's OpenShift installation.  It listens and records into a database before and after code changes made by a developer during the migration process. These fixes are then centrally available through solution server for all developers connected to the MTA Hub and Solution Server.  As developers invoke **Analysis** sessions, through the developers MTA Developer Lightspeed extension, and the static code rule enriched prompts are passed to the LLM, the LLM adds in relevant key insights based upon past fixes captured by solution server.  These relevant insights are called __Migration Hints__ and they are molded by the LLM into the returned suggested code fixes.
 +
 ----
 Developer → Developer Lightspeed Extension → Solution Server → AI Models
@@ -75,6 +81,111 @@ Confirm you understand Solution Server's purpose:
 ✓ It provides context to AI models for better code generation
 ✓ Policies and patterns are applied consistently
 ✓ Teams share knowledge through centralized patterns
+
+
+== Exercise 2: Ensure access and configuration
+
+Before you start, setup the module environment
+
+=== Prerequisites
+* Understand Solution Server value and basic architecture
+* Able to access Workshop Application Tabs
+
+=== Steps
+
+. Confirm access to DevSpaces workspace
++
+If you completed Module 2 you probably still have an active DevSpaces workspace browser window open.
++
+If so, navigate to it
++
+If you don't, then **click** on the following linked instructions to initially open or reset your workspace browser window. +
+xref:common/login-devspaces.adoc[Initially login or reestablish DevSpaces workspace,role=resource,window=_blank,title="DevSpaces Login/Workspace"]
+
+. Switch to the Module 3 Git branch
++
+* Create a new terminal window
+* Click on the hamburger icon on the right sidebar, Click on the **Terminal** menu item, click on **New Terminal** 
+* A new terminal window will open at the bottom of the screen
+* Type **git checkout module3** and hit return
+
+
+. Confirm and open MTA VSCode extension (Developer Lightspeed for MTA)
++
+If you completed Module 2 you probably have the extension loaded and ready to work with
++
+If so, navigate to the **Analysis View** panel,
++
+If you don't, or can't locate it **click** on the following link and follow the instructions. +
+xref:common/load-extensions.adoc[Load MTA related VSCode extensions,role=resource,window=_blank,title="Load extensions"]
+
+. Connect to the MTA Hub and confirm access to the LLM
++
+The MTA Hub connection gives access to the Solution Server tooling, which is running as an MPC server
++
+* Confirm you are in the MTA Analysis View 
++
+NOTE: Depending upon your environment you may notice warning messages about connections.  Ignore them for now.
++
+* Click on the configuration gear icon on the upper right of the pane.
+* A side panel will open **Get Ready to Analyze**
+* Notice Hub Configuration is not yet configured and Configure GenAI may not be configured yet also
+* Click on **Configure Hub Settings**
+* The __MTA Hub Configuration__ tab will open
+* In __General Settings__ , click the slider to Enable connection to Konveyor Hub  (MTA Hub)
+* In __Hub URL__ enter {mta_url}
+* Enable/Turn on _Skip SSL certificate verification__
+* Under **Features** towards the bottom Enable **Solution Server**
+* Click **Save**
+* Close the __MTA Hub Configuration__ tab
++
+If the **Configure GenAI** setting is not configured
++
+* Click on __Configure GenAI Settings__
++
+image::module-02/Analysis-hub.png[Configure Generative AI Settings,link=self,window=blank,title="Configure Generative AI Settings"]
++
+* The **provider-settings.yaml** file will open on a separate pane
++
+image::module-02/provider-settings.png[AI Model Settings,link=self,window=blank,title="AI Model Settings"]
++
+* Replace/Update from the word **models:** down through the first entry with the following 
++
+CAUTION: This is yaml syntax so ensure to keep the indentions - just copy and paste over existing source
++
+[source,yaml,role="execute", subs="attributes"]
+----
+models:
+  OpenAI: &active
+    environment:
+      OPENAI_API_KEY: "{litellm_virtual_key}" # Required
+    provider: ChatOpenAI
+    args:
+      model: llama-scout-17b # Required
+      configuration:
+        baseURL: "{litellm_api_base_url}"
+----
++
+* Close the **provider-settings.yaml** file.
+* Navigate to the **MTA Analysis View** tab
+* Ensure that the **Server Status** shows __Running__
+* If it doesn't, click on the **Start** button
+
+
+. Review the Profile Settings
++
+In this module the Active Profile has been prebuilt for you. We will review it here. +
+Normally you would have several profiles for different Analysis Scenarios.  Each profile is specific to a certain type of application migration wave scenario:  defining source technologies and frameworks, target technologies and frameworks, and categories of static rules to run.
++
+NOTE: In this scenario we are working with the same Module 2 monolithic legacy JavaEE application running on OpenJDK 8.  The Senior Architect/Developer is now going to engage Solution Server to capture their changes or adjustments after reviewing the suggested corrections initially generated by Developer Lightspeed. 
++
+* Navigate to the **MTA Analysis View** tab
+
+
+
+
+
+
 
 == Exercise 2: Experience Solution Server learning company policies
 
