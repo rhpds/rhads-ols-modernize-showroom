@@ -58,7 +58,7 @@ def health():
     """Health check endpoint"""
     return jsonify({"status": "healthy"}), 200
 
-@app.route('/solve/<module_name>', methods=['POST'])
+@app.route('/solve/<module_name>', methods=['GET'])
 def solve_module(module_name):
     """Execute solve playbook for a module and stream output"""
 
