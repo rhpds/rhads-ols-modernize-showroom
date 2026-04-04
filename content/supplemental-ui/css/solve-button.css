@@ -1,0 +1,100 @@
+/**
+ * Solve Button Styles
+ */
+.solve-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+}
+
+.solve-controls {
+    margin-bottom: 1rem;
+}
+
+.solve-button,
+.clear-output-button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: 0.5rem;
+}
+
+.solve-button {
+    background: #ee0000;
+    color: white;
+}
+
+.solve-button:hover:not(:disabled) {
+    background: #cc0000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(238, 0, 0, 0.3);
+}
+
+.solve-button:disabled {
+    background: #adb5bd;
+    cursor: not-allowed;
+}
+
+.clear-output-button {
+    background: #6c757d;
+    color: white;
+}
+
+.clear-output-button:hover {
+    background: #5a6268;
+}
+
+.solve-output {
+    margin-top: 1rem;
+    background: #1e1e1e;
+    border-radius: 6px;
+    padding: 1rem;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.solve-output-content {
+    margin: 0;
+    padding: 0;
+    color: #d4d4d4;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Scrollbar styling for output */
+.solve-output::-webkit-scrollbar {
+    width: 8px;
+}
+
+.solve-output::-webkit-scrollbar-track {
+    background: #2d2d2d;
+    border-radius: 4px;
+}
+
+.solve-output::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 4px;
+}
+
+.solve-output::-webkit-scrollbar-thumb:hover {
+    background: #777;
+}
+
+/* Animation for running state */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.solve-button:disabled {
+    animation: pulse 1.5s ease-in-out infinite;
+}

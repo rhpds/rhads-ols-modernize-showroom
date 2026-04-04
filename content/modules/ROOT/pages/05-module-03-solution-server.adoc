@@ -579,6 +579,14 @@ cat migration-wave-analysis.md
 ✓ Business case is clear for stakeholders
 ✓ Approach is scalable to future waves
 
+== Auto-Solve (POC)
+
+Need help completing this module? Click the button below to automatically solve the exercises:
+
+++++
+<div class="solve-button-placeholder" data-module="module-03"></div>
+++++
+
 == Troubleshooting
 
 **Issue**: Solution Server doesn't seem to apply policies to generated code

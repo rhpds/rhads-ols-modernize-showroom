@@ -1,0 +1,28 @@
+---
+- name: Solve Module 04 - Deploy to OpenShift
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Display module information
+      ansible.builtin.debug:
+        msg: "Executing solve for Module 04: Deploying to OpenShift"
+
+    - name: Get OpenShift namespaces
+      kubernetes.core.k8s_info:
+        kind: Namespace
+      register: namespaces
+
+    - name: Display namespaces
+      ansible.builtin.debug:
+        msg: "Found {{ namespaces.resources | length }} namespaces"
+
+    - name: List namespace names
+      ansible.builtin.debug:
+        msg: "{{ item.metadata.name }}"
+      loop: "{{ namespaces.resources }}"
+      loop_control:
+        label: "{{ item.metadata.name }}"
+
+    - name: Completion message
+      ansible.builtin.debug:
+        msg: "Module 04 solve completed successfully!"

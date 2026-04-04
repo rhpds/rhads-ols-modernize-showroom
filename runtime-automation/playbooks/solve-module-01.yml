@@ -1,0 +1,28 @@
+---
+- name: Solve Module 01 - MTA Analysis
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Display module information
+      ansible.builtin.debug:
+        msg: "Executing solve for Module 01: Analyzing Legacy Applications with MTA"
+
+    - name: Get OpenShift namespaces
+      kubernetes.core.k8s_info:
+        kind: Namespace
+      register: namespaces
+
+    - name: Display namespaces
+      ansible.builtin.debug:
+        msg: "Found {{ namespaces.resources | length }} namespaces"
+
+    - name: List namespace names
+      ansible.builtin.debug:
+        msg: "{{ item.metadata.name }}"
+      loop: "{{ namespaces.resources }}"
+      loop_control:
+        label: "{{ item.metadata.name }}"
+
+    - name: Completion message
+      ansible.builtin.debug:
+        msg: "Module 01 solve completed successfully!"

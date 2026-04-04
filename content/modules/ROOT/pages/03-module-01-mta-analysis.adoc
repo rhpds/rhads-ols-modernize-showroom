@@ -49,6 +49,14 @@ Confirm you have completed the strategic assessment:
 
 image::mta-analysis-report.png[MTA Analysis Report,link=self,window=blank,width=700]
 
+== Auto-Solve (POC)
+
+Need help completing this module? Click the button below to automatically solve the exercises:
+
+++++
+<div class="solve-button-placeholder" data-module="module-01"></div>
+++++
+
 == Learning outcomes checkpoint
 
 Before moving forward, confirm you can:

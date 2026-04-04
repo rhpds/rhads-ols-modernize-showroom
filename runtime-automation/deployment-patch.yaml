@@ -1,0 +1,26 @@
+---
+# Patch to add solver sidecar container to showroom deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: showroom
+  namespace: user-sct29-showroom
+spec:
+  template:
+    spec:
+      serviceAccountName: showroom
+      containers:
+      # Solver API sidecar
+      - name: solver
+        image: image-registry.openshift-image-registry.svc:5000/user-sct29-showroom/showroom-solver:latest
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+        env:
+        - name: K8S_AUTH_KUBECONFIG
+          value: /var/run/secrets/kubernetes.io/serviceaccount/token
+        volumeMounts:
+        - name: showroom-files
+          mountPath: /playbooks
+          subPath: repo/runtime-automation/playbooks
+          readOnly: true

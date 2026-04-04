@@ -624,6 +624,14 @@ Review your accomplishments:
 ✓ Business case documented with metrics
 ✓ Scalability proven for full portfolio
 
+== Auto-Solve (POC)
+
+Need help completing this module? Click the button below to automatically solve the exercises:
+
+++++
+<div class="solve-button-placeholder" data-module="module-04"></div>
+++++
+
 == Troubleshooting
 
 **Issue**: Pod fails to start with ImagePullBackOff error

@@ -1,0 +1,8 @@
+// Solve Button Component
+// Usage: include::common/solve-button.adoc[tag=button,module=module-01]
+
+// tag::button[]
+++++
+<div class="solve-button-placeholder" data-module="{module}"></div>
+++++
+// end::button[]

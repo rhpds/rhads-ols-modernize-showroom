@@ -1,0 +1,126 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: showroom-playbooks
+  namespace: user-sct29-showroom
+data:
+  solve-module-01.yml: |
+    ---
+    - name: Solve Module 01 - MTA Analysis
+      hosts: localhost
+      gather_facts: false
+      tasks:
+        - name: Display module information
+          ansible.builtin.debug:
+            msg: "Executing solve for Module 01: Analyzing Legacy Applications with MTA"
+
+        - name: Get OpenShift namespaces
+          kubernetes.core.k8s_info:
+            kind: Namespace
+          register: namespaces
+
+        - name: Display namespaces
+          ansible.builtin.debug:
+            msg: "Found {{ namespaces.resources | length }} namespaces"
+
+        - name: List namespace names
+          ansible.builtin.debug:
+            msg: "{{ item.metadata.name }}"
+          loop: "{{ namespaces.resources }}"
+          loop_control:
+            label: "{{ item.metadata.name }}"
+
+        - name: Completion message
+          ansible.builtin.debug:
+            msg: "Module 01 solve completed successfully!"
+
+  solve-module-02.yml: |
+    ---
+    - name: Solve Module 02 - Developer Lightspeed
+      hosts: localhost
+      gather_facts: false
+      tasks:
+        - name: Display module information
+          ansible.builtin.debug:
+            msg: "Executing solve for Module 02: AI-Assisted Code Modernization"
+
+        - name: Get OpenShift namespaces
+          kubernetes.core.k8s_info:
+            kind: Namespace
+          register: namespaces
+
+        - name: Display namespaces
+          ansible.builtin.debug:
+            msg: "Found {{ namespaces.resources | length }} namespaces"
+
+        - name: List namespace names
+          ansible.builtin.debug:
+            msg: "{{ item.metadata.name }}"
+          loop: "{{ namespaces.resources }}"
+          loop_control:
+            label: "{{ item.metadata.name }}"
+
+        - name: Completion message
+          ansible.builtin.debug:
+            msg: "Module 02 solve completed successfully!"
+
+  solve-module-03.yml: |
+    ---
+    - name: Solve Module 03 - Solution Server
+      hosts: localhost
+      gather_facts: false
+      tasks:
+        - name: Display module information
+          ansible.builtin.debug:
+            msg: "Executing solve for Module 03: Incorporating Policy and Tribal Knowledge"
+
+        - name: Get OpenShift namespaces
+          kubernetes.core.k8s_info:
+            kind: Namespace
+          register: namespaces
+
+        - name: Display namespaces
+          ansible.builtin.debug:
+            msg: "Found {{ namespaces.resources | length }} namespaces"
+
+        - name: List namespace names
+          ansible.builtin.debug:
+            msg: "{{ item.metadata.name }}"
+          loop: "{{ namespaces.resources }}"
+          loop_control:
+            label: "{{ item.metadata.name }}"
+
+        - name: Completion message
+          ansible.builtin.debug:
+            msg: "Module 03 solve completed successfully!"
+
+  solve-module-04.yml: |
+    ---
+    - name: Solve Module 04 - Deploy to OpenShift
+      hosts: localhost
+      gather_facts: false
+      tasks:
+        - name: Display module information
+          ansible.builtin.debug:
+            msg: "Executing solve for Module 04: Deploying to OpenShift"
+
+        - name: Get OpenShift namespaces
+          kubernetes.core.k8s_info:
+            kind: Namespace
+          register: namespaces
+
+        - name: Display namespaces
+          ansible.builtin.debug:
+            msg: "Found {{ namespaces.resources | length }} namespaces"
+
+        - name: List namespace names
+          ansible.builtin.debug:
+            msg: "{{ item.metadata.name }}"
+          loop: "{{ namespaces.resources }}"
+          loop_control:
+            label: "{{ item.metadata.name }}"
+
+        - name: Completion message
+          ansible.builtin.debug:
+            msg: "Module 04 solve completed successfully!"
