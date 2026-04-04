@@ -9,6 +9,8 @@ The automation system adds interactive "Solve Module" and "Validate Module" butt
 - Stream output to an embedded terminal in the browser
 - Help users automatically complete exercises or verify their work
 
+**Graceful Degradation**: The automation container gracefully handles missing `runtime-automation/` folder by sleeping instead of crashing. This allows you to apply the deployment patch first and add automation features incrementally.
+
 ## Prerequisites
 
 - Showroom created from showroom_template_nookbag

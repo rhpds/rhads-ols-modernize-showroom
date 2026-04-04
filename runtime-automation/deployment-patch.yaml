@@ -47,9 +47,17 @@ spec:
             echo "No packages.txt found, skipping DNF package installation"
           fi
 
-          # Add Python libraries to path and run API server
+          # Add Python libraries to path
           export PYTHONPATH="/tmp/pylibs:${PYTHONPATH}"
-          exec python3 /app/api-server.py
+
+          # Start API server (or sleep forever if it doesn't exist)
+          if [ -f /app/api-server.py ]; then
+            echo "Starting automation API server..."
+            python3 /app/api-server.py || sleep infinity
+          else
+            echo "⚠️  runtime-automation not found - automation disabled"
+            sleep infinity
+          fi
         ports:
         - containerPort: 5000
           protocol: TCP

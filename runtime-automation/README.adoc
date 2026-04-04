@@ -9,6 +9,8 @@ The runtime automation system provides two features in the Showroom lab guide:
 
 Both use the same infrastructure and stream output in real-time.
 
+**Note**: The automation container gracefully handles missing `runtime-automation/` folder. If the folder doesn't exist, the container stays running (sleeps) without crashing. This allows the deployment patch to be applied to any showroom without breaking deployments.
+
 == Architecture
 
 * **API Server**: Flask application (`api-server.py`) running in solver sidecar container
