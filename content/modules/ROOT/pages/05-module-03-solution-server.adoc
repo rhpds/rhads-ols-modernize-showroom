@@ -583,7 +583,8 @@ cat migration-wave-analysis.md
 
 Need help completing this module? Click the button below to automatically solve the exercises:
 
-include::common/solve-button.adoc[module-03]
+:module-name: module-03
+include::common/solve-button.adoc[]
 
 == Troubleshooting
 

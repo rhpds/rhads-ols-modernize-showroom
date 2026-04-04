@@ -436,7 +436,8 @@ image::agent-mode-progress.png[Agent Mode Progress,link=self,window=blank,width=
 
 Need help completing this module? Click the button below to automatically solve the exercises:
 
-include::common/solve-button.adoc[module-02]
+:module-name: module-02
+include::common/solve-button.adoc[]
 
 == Troubleshooting
 

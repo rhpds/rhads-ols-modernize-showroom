@@ -79,4 +79,5 @@ Module 2 will show you how to use **Red Hat Developer Lightspeed** to accelerate
 
 Need help completing this module? Click the button below to automatically solve the exercises:
 
-include::common/solve-button.adoc[module-01]
+:module-name: module-01
+include::common/solve-button.adoc[]

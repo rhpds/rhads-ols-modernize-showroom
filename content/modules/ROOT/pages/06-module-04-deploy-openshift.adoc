@@ -628,7 +628,8 @@ Review your accomplishments:
 
 Need help completing this module? Click the button below to automatically solve the exercises:
 
-include::common/solve-button.adoc[module-04]
+:module-name: module-04
+include::common/solve-button.adoc[]
 
 == Troubleshooting
 
