@@ -579,13 +579,6 @@ cat migration-wave-analysis.md
 ✓ Business case is clear for stakeholders
 ✓ Approach is scalable to future waves
 
-== Auto-Solve (POC)
-
-Need help completing this module? Click the button below to automatically solve the exercises:
-
-:module-name: module-03
-include::common/solve-button.adoc[]
-
 == Troubleshooting
 
 **Issue**: Solution Server doesn't seem to apply policies to generated code
@@ -696,3 +689,11 @@ You now understand how to scale AI-assisted modernization across ACME's entire o
 
 **Next steps:**
 Module 4 will complete the migration journey by deploying your modernized application to OpenShift, proving the end-to-end workflow from legacy code to production-ready container.
+
+
+== Auto-Solve (POC)
+
+Need help completing this module? Click the button below to automatically solve the exercises:
+
+:module-name: module-03
+include::common/solve-button.adoc[]

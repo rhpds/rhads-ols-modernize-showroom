@@ -624,13 +624,6 @@ Review your accomplishments:
 ✓ Business case documented with metrics
 ✓ Scalability proven for full portfolio
 
-== Auto-Solve (POC)
-
-Need help completing this module? Click the button below to automatically solve the exercises:
-
-:module-name: module-04
-include::common/solve-button.adoc[]
-
 == Troubleshooting
 
 **Issue**: Pod fails to start with ImagePullBackOff error
@@ -760,3 +753,11 @@ You've demonstrated mastery of AI-assisted application modernization using Red H
 * Investigate Developer Lightspeed custom models
 * Learn OpenShift GitOps for automated deployments
 * Study OpenShift Pipelines for CI/CD integration
+
+
+== Auto-Solve (POC)
+
+Need help completing this module? Click the button below to automatically solve the exercises:
+
+:module-name: module-04
+include::common/solve-button.adoc[]

@@ -432,13 +432,6 @@ image::agent-mode-progress.png[Agent Mode Progress,link=self,window=blank,width=
 
 // TODO: Capture screenshot of Agent Mode showing multiple file modifications
 
-== Auto-Solve (POC)
-
-Need help completing this module? Click the button below to automatically solve the exercises:
-
-:module-name: module-02
-include::common/solve-button.adoc[]
-
 == Troubleshooting
 
 **Issue**: Developer Lightspeed extension not responding
@@ -529,3 +522,11 @@ You now have hands-on experience with AI-assisted code modernization and underst
 
 **Next steps:**
 Module 3 will show you how to incorporate ACME's specific coding standards and best practices into the AI's knowledge using Developer Lightspeed Solution Server, ensuring consistency across all migration waves.
+
+
+== Auto-Solve (POC)
+
+Need help completing this module? Click the button below to automatically solve the exercises:
+
+:module-name: module-02
+include::common/solve-button.adoc[]
