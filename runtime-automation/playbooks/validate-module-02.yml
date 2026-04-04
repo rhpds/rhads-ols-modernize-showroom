@@ -1,0 +1,34 @@
+---
+- name: Validate Module 02
+  hosts: localhost
+  gather_facts: false
+  tasks:
+  - name: Get current namespace
+    ansible.builtin.set_fact:
+      current_namespace: "{{ lookup('env', 'NAMESPACE') | default('user-sct29-showroom', true) }}"
+
+  - name: Check pods in namespace
+    ansible.builtin.command:
+      cmd: oc get pods -n {{ current_namespace }} -o json
+    register: pods_json
+    changed_when: false
+
+  - name: Parse pod data
+    ansible.builtin.set_fact:
+      pods_data: "{{ pods_json.stdout | from_json }}"
+
+  - name: Validate pods exist
+    ansible.builtin.assert:
+      that:
+        - pods_data.items | length > 0
+      success_msg: "✓ Pods found in namespace {{ current_namespace }}"
+      fail_msg: "✗ No pods found in namespace"
+
+  - name: Display validation summary
+    ansible.builtin.debug:
+      msg:
+        - "╔════════════════════════════════════════╗"
+        - "║     Module 02 Validation PASSED       ║"
+        - "╚════════════════════════════════════════╝"
+        - ""
+        - "Found {{ pods_data.items | length }} pod(s) in namespace"

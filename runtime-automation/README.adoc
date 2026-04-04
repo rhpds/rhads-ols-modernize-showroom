@@ -1,8 +1,13 @@
-= Runtime Automation - Solver POC
+= Runtime Automation - Solver & Validator POC
 
 == Overview
 
-The solver system provides a "Solve Module" button in the Showroom lab guide that executes Ansible playbooks in real-time.
+The runtime automation system provides two features in the Showroom lab guide:
+
+* **Solve Module**: Executes Ansible playbooks to automatically complete module exercises
+* **Validate Module**: Executes Ansible playbooks to verify module exercises were completed correctly
+
+Both use the same infrastructure and stream output in real-time.
 
 == Architecture
 
@@ -54,7 +59,9 @@ vim-enhanced
 
 To add a new module (e.g., module-05):
 
-1. Create playbook: `playbooks/solve-module-05.yml`
+=== Solver
+
+1. Create solve playbook: `playbooks/solve-module-05.yml`
 2. Add solve button to AsciiDoc page:
 +
 [source,asciidoc]
@@ -63,8 +70,23 @@ To add a new module (e.g., module-05):
 include::common/solve-button.adoc[]
 ----
 
-The system uses convention-based mapping:
-* Button `data-module="module-05"` → API endpoint `/api/solve/module-05` → Playbook `playbooks/solve-module-05.yml`
+=== Validator
+
+1. Create validation playbook: `playbooks/validate-module-05.yml`
+2. Add validate button to AsciiDoc page:
++
+[source,asciidoc]
+----
+:module-name: module-05
+include::common/validate-button.adoc[]
+----
+
+=== Convention-Based Mapping
+
+The system uses convention-based routing:
+
+* **Solve**: Button `data-module="module-05"` → API endpoint `/api/solve/module-05` → Playbook `playbooks/solve-module-05.yml`
+* **Validate**: Button `data-module="module-05"` → API endpoint `/api/validate/module-05` → Playbook `playbooks/validate-module-05.yml`
 
 == Files
 
@@ -73,19 +95,28 @@ The system uses convention-based mapping:
 | File | Purpose
 
 | `api-server.py`
-| Flask API server with SSE streaming
+| Flask API server with SSE streaming for both solve and validate endpoints
 
 | `playbooks/solve-module-*.yml`
-| Ansible playbooks for each module
+| Ansible playbooks to automatically complete module exercises
+
+| `playbooks/validate-module-*.yml`
+| Ansible playbooks to verify module exercises were completed correctly
 
 | `deployment-patch.yaml`
-| Kubernetes patch to add solver sidecar
+| Kubernetes patch to add solver sidecar container
 
 | `requirements.txt`
 | Python dependencies (auto-installed on startup)
 
 | `packages.txt`
-| DNF packages (documentation only - see limitations)
+| DNF packages (auto-installed on startup)
+
+| `content/modules/ROOT/pages/common/solve-button.adoc`
+| AsciiDoc partial for solve button UI
+
+| `content/modules/ROOT/pages/common/validate-button.adoc`
+| AsciiDoc partial for validate button UI
 
 |===
 

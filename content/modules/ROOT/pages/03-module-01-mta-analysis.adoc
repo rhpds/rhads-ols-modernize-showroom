@@ -81,3 +81,10 @@ Need help completing this module? Click the button below to automatically solve 
 
 :module-name: module-01
 include::common/solve-button.adoc[]
+
+== Validate (POC)
+
+Want to verify you completed the exercises correctly? Click the button below to validate your work:
+
+:module-name: module-01
+include::common/validate-button.adoc[]

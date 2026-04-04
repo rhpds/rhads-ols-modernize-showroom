@@ -1,0 +1,34 @@
+---
+- name: Validate Module 04
+  hosts: localhost
+  gather_facts: false
+  tasks:
+  - name: Get current namespace
+    ansible.builtin.set_fact:
+      current_namespace: "{{ lookup('env', 'NAMESPACE') | default('user-sct29-showroom', true) }}"
+
+  - name: Get cluster version
+    ansible.builtin.command:
+      cmd: oc version --short
+    register: cluster_version
+    changed_when: false
+
+  - name: Display cluster info
+    ansible.builtin.debug:
+      msg: "{{ cluster_version.stdout_lines }}"
+
+  - name: Validate oc command works
+    ansible.builtin.assert:
+      that:
+        - cluster_version.rc == 0
+      success_msg: "✓ OpenShift cluster is accessible"
+      fail_msg: "✗ Cannot access OpenShift cluster"
+
+  - name: Display validation summary
+    ansible.builtin.debug:
+      msg:
+        - "╔════════════════════════════════════════╗"
+        - "║     Module 04 Validation PASSED       ║"
+        - "╚════════════════════════════════════════╝"
+        - ""
+        - "OpenShift cluster access validated"

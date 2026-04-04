@@ -89,6 +89,37 @@ def solve_module(module_name):
 
     return Response(generate(), mimetype='text/event-stream')
 
+@app.route('/validate/<module_name>', methods=['GET'])
+def validate_module(module_name):
+    """Execute validate playbook for a module and stream output"""
+
+    def generate():
+        output_queue = queue.Queue()
+
+        # Start playbook execution in background thread
+        thread = threading.Thread(
+            target=run_playbook,
+            args=(f"validate-{module_name}", output_queue)
+        )
+        thread.daemon = True
+        thread.start()
+
+        # Stream output as Server-Sent Events
+        yield f"data: Starting validation playbook for {module_name}...\n\n"
+
+        while True:
+            try:
+                line = output_queue.get(timeout=0.1)
+                if line == "__DONE__":
+                    break
+                # Send as SSE format
+                yield f"data: {json.dumps(line)}\n\n"
+            except queue.Empty:
+                # Send keepalive
+                yield f": keepalive\n\n"
+
+    return Response(generate(), mimetype='text/event-stream')
+
 @app.route('/playbooks', methods=['GET'])
 def list_playbooks():
     """List available playbooks"""
