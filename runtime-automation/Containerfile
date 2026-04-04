@@ -1,25 +1,21 @@
-FROM registry.access.redhat.com/ubi9/python-311:latest
+FROM quay.io/agnosticd/ee-multicloud:chained-2026-04-01
 
 USER root
 
-# Install OpenShift CLI
-RUN curl -sL https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz | \
-    tar xzf - -C /usr/local/bin oc kubectl && \
-    chmod +x /usr/local/bin/oc /usr/local/bin/kubectl
-
-# Copy requirements and install Python dependencies
-COPY requirements.txt /tmp/
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
+# Install Flask and Flask-CORS for the API server
+RUN /usr/local/bin/pip3 install \
+    flask==3.0.0 \
+    flask-cors==4.0.0
 
 # Copy API server
 COPY api-server.py /app/
 RUN chmod +x /app/api-server.py
 
-# Create playbooks directory
+# Create playbooks directory (will be mounted from volume)
 RUN mkdir -p /playbooks
 
-# Switch to non-root user
-USER 1001
+# Switch to non-root user (EE image uses runner user)
+USER 1000
 
 WORKDIR /app
 

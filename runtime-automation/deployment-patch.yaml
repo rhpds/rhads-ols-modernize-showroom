@@ -13,6 +13,7 @@ spec:
       # Solver API sidecar
       - name: solver
         image: image-registry.openshift-image-registry.svc:5000/user-sct29-showroom/showroom-solver:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
           protocol: TCP
