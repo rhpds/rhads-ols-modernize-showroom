@@ -17,18 +17,14 @@
       ansible.builtin.set_fact:
         pods_data: "{{ pods_output.stdout | from_json }}"
 
-    - name: Extract pod items
-      ansible.builtin.set_fact:
-        pods: "{{ pods_data.items }}"
-
     - name: Display pod count
       ansible.builtin.debug:
-        msg: "Found {{ pods | length }} pods in namespace user-sct29-showroom"
+        msg: "Found {{ pods_data['items'] | length }} pods in namespace user-sct29-showroom"
 
     - name: List pod names and status
       ansible.builtin.debug:
         msg: "Pod: {{ item.metadata.name }} - Status: {{ item.status.phase }}"
-      loop: "{{ pods }}"
+      loop: "{{ pods_data['items'] }}"
       loop_control:
         label: "{{ item.metadata.name }}"
 
