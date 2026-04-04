@@ -20,7 +20,7 @@
   - name: Validate pods exist
     ansible.builtin.assert:
       that:
-        - pods_data.items | length > 0
+        - pods_data['items'] | length > 0
       success_msg: "✓ Pods found in namespace {{ current_namespace }}"
       fail_msg: "✗ No pods found in namespace"
 
@@ -31,4 +31,4 @@
         - "║     Module 02 Validation PASSED       ║"
         - "╚════════════════════════════════════════╝"
         - ""
-        - "Found {{ pods_data.items | length }} pod(s) in namespace"
+        - "Found {{ pods_data['items'] | length }} pod(s) in namespace"

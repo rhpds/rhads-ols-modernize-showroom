@@ -20,14 +20,14 @@
   - name: Validate showroom pod exists
     ansible.builtin.assert:
       that:
-        - pods_data.items | selectattr('metadata.name', 'search', 'showroom') | list | length > 0
+        - pods_data['items'] | selectattr('metadata.name', 'search', 'showroom') | list | length > 0
       success_msg: "✓ Showroom pod found"
       fail_msg: "✗ Showroom pod not found"
 
   - name: Validate showroom pod is running
     ansible.builtin.assert:
       that:
-        - pods_data.items | selectattr('metadata.name', 'search', 'showroom') | map(attribute='status.phase') | list | first == 'Running'
+        - pods_data['items'] | selectattr('metadata.name', 'search', 'showroom') | map(attribute='status.phase') | list | first == 'Running'
       success_msg: "✓ Showroom pod is running"
       fail_msg: "✗ Showroom pod is not in Running state"
 
