@@ -59,14 +59,31 @@ vim-enhanced
 
 To add a new module (e.g., module-05):
 
-1. Create solve playbook: `playbooks/solve-module-05.yml`
-2. Create validation playbook: `playbooks/validate-module-05.yml`
-3. Add automation buttons to AsciiDoc page:
-+
+1. Create playbooks as needed:
+   - Solve: `playbooks/solve-module-05.yml`
+   - Validate: `playbooks/validate-module-05.yml`
+
+2. Add button(s) to AsciiDoc page - choose one of three options:
+
+**Option 1: Both buttons (recommended)**
 [source,asciidoc]
 ----
 :module-name: module-05
 include::common/automation-buttons.adoc[]
+----
+
+**Option 2: Only solve button**
+[source,asciidoc]
+----
+:module-name: module-05
+include::common/solve-button.adoc[]
+----
+
+**Option 3: Only validate button**
+[source,asciidoc]
+----
+:module-name: module-05
+include::common/validate-button.adoc[]
 ----
 
 === Convention-Based Mapping
@@ -100,8 +117,14 @@ The system uses convention-based routing:
 | `packages.txt`
 | DNF packages (auto-installed on startup)
 
+| `content/modules/ROOT/pages/common/solve-button.adoc`
+| AsciiDoc partial for solve button only (green)
+
+| `content/modules/ROOT/pages/common/validate-button.adoc`
+| AsciiDoc partial for validate button only (blue)
+
 | `content/modules/ROOT/pages/common/automation-buttons.adoc`
-| AsciiDoc partial with both solve and validate buttons
+| AsciiDoc partial with both solve and validate buttons side-by-side
 
 |===
 
