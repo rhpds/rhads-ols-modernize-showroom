@@ -10,10 +10,21 @@ spec:
     spec:
       serviceAccountName: showroom
       containers:
-      # Solver API sidecar
+      # Solver API sidecar using AgnosticD EE directly
       - name: solver
-        image: image-registry.openshift-image-registry.svc:5000/user-sct29-showroom/showroom-solver:latest
-        imagePullPolicy: Always
+        image: quay.io/agnosticd/ee-multicloud:chained-2026-04-01
+        imagePullPolicy: IfNotPresent
+        command:
+        - /bin/bash
+        - -c
+        - |
+          # Create directory for Flask
+          mkdir -p /tmp/pylibs
+          # Install Flask to /tmp/pylibs
+          /usr/local/bin/pip3 install --target=/tmp/pylibs flask==3.0.0 flask-cors==4.0.0
+          # Add to PYTHONPATH and run
+          export PYTHONPATH="/tmp/pylibs:${PYTHONPATH}"
+          exec python3 /app/api-server.py
         ports:
         - containerPort: 5000
           protocol: TCP
@@ -24,4 +35,8 @@ spec:
         - name: showroom-files
           mountPath: /playbooks
           subPath: repo/runtime-automation/playbooks
+          readOnly: true
+        - name: showroom-files
+          mountPath: /app
+          subPath: repo/runtime-automation
           readOnly: true
