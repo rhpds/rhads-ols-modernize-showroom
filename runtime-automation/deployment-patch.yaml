@@ -14,15 +14,40 @@ spec:
       - name: solver
         image: quay.io/agnosticd/ee-multicloud:chained-2026-04-01
         imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: 0
+          runAsNonRoot: false
         command:
         - /bin/bash
         - -c
         - |
-          # Create directory for Flask
+          # Create directory for Python libraries
           mkdir -p /tmp/pylibs
-          # Install Flask to /tmp/pylibs
-          /usr/local/bin/pip3 install --target=/tmp/pylibs flask==3.0.0 flask-cors==4.0.0
-          # Add to PYTHONPATH and run
+
+          # Install Python packages from requirements.txt if it exists
+          if [ -f /app/requirements.txt ]; then
+            echo "Installing Python packages from requirements.txt..."
+            /usr/local/bin/pip3 install --target=/tmp/pylibs -r /app/requirements.txt
+          else
+            echo "No requirements.txt found, skipping Python package installation"
+          fi
+
+          # DNF packages from packages.txt (running as root)
+          if [ -f /app/packages.txt ]; then
+            echo "Installing DNF packages from packages.txt..."
+            # Extract non-comment, non-empty lines
+            PACKAGES=$(grep -v '^#' /app/packages.txt | grep '^[[:alnum:]]' | tr '\n' ' ')
+            if [ -n "$PACKAGES" ]; then
+              echo "Installing: $PACKAGES"
+              dnf install -y $PACKAGES && dnf clean all
+            else
+              echo "No packages found in packages.txt"
+            fi
+          else
+            echo "No packages.txt found, skipping DNF package installation"
+          fi
+
+          # Add Python libraries to path and run API server
           export PYTHONPATH="/tmp/pylibs:${PYTHONPATH}"
           exec python3 /app/api-server.py
         ports:
