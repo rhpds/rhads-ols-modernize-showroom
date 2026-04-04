@@ -14,7 +14,7 @@ import time
 app = Flask(__name__)
 CORS(app)
 
-PLAYBOOKS_DIR = "/playbooks"
+PLAYBOOKS_DIR = "playbooks"
 
 def run_playbook(playbook_name, output_queue):
     """Execute ansible-playbook and stream output to queue"""

@@ -24,38 +24,34 @@ spec:
           # Create directory for Python libraries
           mkdir -p /tmp/pylibs
 
-          # Install Python packages from requirements.txt if it exists
-          if [ -f /app/requirements.txt ]; then
-            echo "Installing Python packages from requirements.txt..."
-            /usr/local/bin/pip3 install --target=/tmp/pylibs -r /app/requirements.txt
-          else
-            echo "No requirements.txt found, skipping Python package installation"
-          fi
+          # Check if runtime-automation exists
+          if [ -d /repo/runtime-automation ]; then
+            echo "Found runtime-automation folder"
 
-          # DNF packages from packages.txt (running as root)
-          if [ -f /app/packages.txt ]; then
-            echo "Installing DNF packages from packages.txt..."
-            # Extract non-comment, non-empty lines
-            PACKAGES=$(grep -v '^#' /app/packages.txt | grep '^[[:alnum:]]' | tr '\n' ' ')
+            # Install Python packages from requirements.txt (if exists)
+            /usr/local/bin/pip3 install --target=/tmp/pylibs -r /repo/runtime-automation/requirements.txt 2>/dev/null || true
+
+            # DNF packages from packages.txt (running as root)
+            PACKAGES=$(grep -v '^#' /repo/runtime-automation/packages.txt 2>/dev/null | grep '^[[:alnum:]]' | tr '\n' ' ' || true)
             if [ -n "$PACKAGES" ]; then
-              echo "Installing: $PACKAGES"
+              echo "Installing DNF packages: $PACKAGES"
               dnf install -y $PACKAGES && dnf clean all
+            fi
+
+            # Add Python libraries to path
+            export PYTHONPATH="/tmp/pylibs:${PYTHONPATH}"
+
+            # Start API server
+            if [ -f /repo/runtime-automation/api-server.py ]; then
+              echo "Starting automation API server..."
+              cd /repo/runtime-automation
+              python3 api-server.py || sleep infinity
             else
-              echo "No packages found in packages.txt"
+              echo "⚠️  api-server.py not found"
+              sleep infinity
             fi
           else
-            echo "No packages.txt found, skipping DNF package installation"
-          fi
-
-          # Add Python libraries to path
-          export PYTHONPATH="/tmp/pylibs:${PYTHONPATH}"
-
-          # Start API server (or sleep forever if it doesn't exist)
-          if [ -f /app/api-server.py ]; then
-            echo "Starting automation API server..."
-            python3 /app/api-server.py || sleep infinity
-          else
-            echo "⚠️  runtime-automation not found - automation disabled"
+            echo "⚠️  runtime-automation folder not found - automation disabled"
             sleep infinity
           fi
         ports:
@@ -66,10 +62,6 @@ spec:
           value: /var/run/secrets/kubernetes.io/serviceaccount/token
         volumeMounts:
         - name: showroom-files
-          mountPath: /playbooks
-          subPath: repo/runtime-automation/playbooks
-          readOnly: true
-        - name: showroom-files
-          mountPath: /app
-          subPath: repo/runtime-automation
+          mountPath: /repo
+          subPath: repo
           readOnly: true

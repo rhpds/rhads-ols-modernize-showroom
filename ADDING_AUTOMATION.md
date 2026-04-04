@@ -267,13 +267,10 @@ spec:
           value: /var/run/secrets/kubernetes.io/serviceaccount/token
         volumeMounts:
         - name: showroom-files
-          mountPath: /playbooks
-          subPath: repo/runtime-automation/playbooks
+          mountPath: /repo
+          subPath: repo
           readOnly: true
         - name: showroom-files
-          mountPath: /app
-          subPath: repo/runtime-automation
-          readOnly: true
 ```
 
 ---
