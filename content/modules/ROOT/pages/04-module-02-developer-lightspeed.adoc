@@ -432,7 +432,13 @@ image::agent-mode-progress.png[Agent Mode Progress,link=self,window=blank,width=
 
 // TODO: Capture screenshot of Agent Mode showing multiple file modifications
 
-include::common/solve-button.adoc[tag=button,module=module-02]
+== Auto-Solve (POC)
+
+Need help completing this module? Click the button below to automatically solve the exercises:
+
+++++
+<div class="solve-button-placeholder" data-module="module-02"></div>
+++++
 
 == Troubleshooting
 

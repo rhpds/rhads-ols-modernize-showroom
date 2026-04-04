@@ -75,4 +75,10 @@ You have successfully analyzed the pre-generated data for ACME's applications an
 **Next steps:**
 Module 2 will show you how to use **Red Hat Developer Lightspeed** to accelerate the actual code modernization, transforming these MTA recommendations into implementation.
 
-include::common/solve-button.adoc[tag=button,module=module-01]
+== Auto-Solve (POC)
+
+Need help completing this module? Click the button below to automatically solve the exercises:
+
+++++
+<div class="solve-button-placeholder" data-module="module-01"></div>
+++++
