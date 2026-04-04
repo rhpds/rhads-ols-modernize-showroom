@@ -120,19 +120,20 @@ Need help completing this module? Click the button below to automatically solve 
 .clear-output-button:hover { background: #5a6268; }
 .solve-output {
   margin-top: 1rem;
-  background: #1e1e1e;
+  background: #000000;
   border-radius: 6px;
   padding: 1rem;
   max-height: 500px;
   overflow-y: auto;
+  border: 1px solid #333;
 }
 .solve-output-content {
   margin: 0;
   padding: 0;
-  color: #d4d4d4;
+  color: #ffffff;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
-  line-height: 1.5;
+  font-size: 0.9rem;
+  line-height: 1.6;
   white-space: pre-wrap;
   word-wrap: break-word;
 }
