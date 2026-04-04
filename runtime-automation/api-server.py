@@ -58,7 +58,7 @@ def health():
     """Health check endpoint"""
     return jsonify({"status": "healthy"}), 200
 
-@app.route('/api/solve/<module_name>', methods=['POST'])
+@app.route('/solve/<module_name>', methods=['POST'])
 def solve_module(module_name):
     """Execute solve playbook for a module and stream output"""
 
@@ -89,7 +89,7 @@ def solve_module(module_name):
 
     return Response(generate(), mimetype='text/event-stream')
 
-@app.route('/api/playbooks', methods=['GET'])
+@app.route('/playbooks', methods=['GET'])
 def list_playbooks():
     """List available playbooks"""
     playbooks = []
