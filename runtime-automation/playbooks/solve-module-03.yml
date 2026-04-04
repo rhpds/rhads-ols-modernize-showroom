@@ -15,7 +15,11 @@
 
     - name: Parse pods JSON
       ansible.builtin.set_fact:
-        pods: "{{ (pods_output.stdout | from_json).items }}"
+        pods_data: "{{ pods_output.stdout | from_json }}"
+
+    - name: Extract pod items
+      ansible.builtin.set_fact:
+        pods: "{{ pods_data.items }}"
 
     - name: Display pod count
       ansible.builtin.debug:
