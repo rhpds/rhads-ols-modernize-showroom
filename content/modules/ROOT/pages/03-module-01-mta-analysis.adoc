@@ -49,7 +49,7 @@ Confirm you have completed the strategic assessment:
 
 image::mta-analysis-report.png[MTA Analysis Report,link=self,window=blank,width=700]
 
-== Auto-Solve (POC)
+== Learning outcomes checkpoint
 
 Need help completing this module? Click the button below to automatically solve the exercises:
 
@@ -181,8 +181,6 @@ function clearSolveOutput(moduleName) {
 </script>
 ++++
 
-== Learning outcomes checkpoint
-
 Before moving forward, confirm you can:
 
 * [ ] Access and navigate the Migration Toolkit for Applications console
@@ -206,3 +204,137 @@ You have successfully analyzed the pre-generated data for ACME's applications an
 
 **Next steps:**
 Module 2 will show you how to use **Red Hat Developer Lightspeed** to accelerate the actual code modernization, transforming these MTA recommendations into implementation.
+
+== Auto-Solve (POC)
+
+Need help completing this module? Click the button below to automatically solve the exercises:
+
+++++
+<style>
+.solve-section {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+}
+.solve-controls { margin-bottom: 1rem; }
+.solve-button, .clear-output-button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 0.5rem;
+}
+.solve-button {
+  background: #28a745;
+  color: white;
+}
+.solve-button:hover:not(:disabled) {
+  background: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+.solve-button:disabled {
+  background: #adb5bd;
+  cursor: not-allowed;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+.clear-output-button {
+  background: #6c757d;
+  color: white;
+}
+.clear-output-button:hover { background: #5a6268; }
+.solve-output {
+  margin-top: 1rem;
+  background: #1e1e1e;
+  border-radius: 6px;
+  padding: 1rem;
+  max-height: 500px;
+  overflow-y: auto;
+}
+.solve-output-content {
+  margin: 0;
+  padding: 0;
+  color: #d4d4d4;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+</style>
+
+<div class="solve-section">
+  <div class="solve-controls">
+    <button class="solve-button" onclick="executeSolve('module-01')">
+      🚀 Solve Module
+    </button>
+    <button class="clear-output-button" onclick="clearSolveOutput('module-01')" style="display:none;" id="clear-btn-module-01">
+      🗑️ Clear Output
+    </button>
+  </div>
+  <div class="solve-output" id="solve-output-module-01" style="display:none;">
+    <pre class="solve-output-content" id="solve-output-content-module-01"></pre>
+  </div>
+</div>
+
+<script>
+if (typeof executeSolve === 'undefined') {
+  function executeSolve(moduleName) {
+    const outputDiv = document.getElementById('solve-output-' + moduleName);
+    const outputContent = document.getElementById('solve-output-content-' + moduleName);
+    const solveButton = event.target;
+    const clearButton = document.getElementById('clear-btn-' + moduleName);
+
+    outputDiv.style.display = 'block';
+    outputContent.textContent = '';
+    solveButton.disabled = true;
+    solveButton.textContent = '⏳ Running...';
+    clearButton.style.display = 'inline-block';
+
+    const eventSource = new EventSource('/api/solve/' + moduleName);
+
+    eventSource.onmessage = function(event) {
+      try {
+        const line = JSON.parse(event.data);
+        outputContent.textContent += line;
+      } catch (e) {
+        outputContent.textContent += event.data + '\n';
+      }
+      outputContent.scrollTop = outputContent.scrollHeight;
+    };
+
+    eventSource.onerror = function(error) {
+      console.error('SSE Error:', error);
+      eventSource.close();
+      solveButton.disabled = false;
+      solveButton.textContent = '🚀 Solve Module';
+      outputContent.textContent += '\n❌ Connection closed\n';
+    };
+
+    setTimeout(() => {
+      eventSource.close();
+      solveButton.disabled = false;
+      solveButton.textContent = '🚀 Solve Module';
+    }, 60000);
+  }
+
+  function clearSolveOutput(moduleName) {
+    const outputDiv = document.getElementById('solve-output-' + moduleName);
+    const outputContent = document.getElementById('solve-output-content-' + moduleName);
+    const clearButton = document.getElementById('clear-btn-' + moduleName);
+    outputDiv.style.display = 'none';
+    outputContent.textContent = '';
+    clearButton.style.display = 'none';
+  }
+}
+</script>
+++++
