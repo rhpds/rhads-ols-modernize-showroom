@@ -2,6 +2,7 @@
 // Usage: :module-name: module-01
 //        include::common/solve-button.adoc[]
 
+[pass,subs="attributes"]
 ++++
 <style>
 .solve-section {margin: 2rem 0; padding: 1.5rem; background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px;}
