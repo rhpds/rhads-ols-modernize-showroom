@@ -120,22 +120,25 @@ Need help completing this module? Click the button below to automatically solve 
 .clear-output-button:hover { background: #5a6268; }
 .solve-output {
   margin-top: 1rem;
-  background: #000000;
+  background-color: #000 !important;
   border-radius: 6px;
-  padding: 1rem;
-  max-height: 500px;
+  padding: 1.5rem;
+  max-height: 600px;
   overflow-y: auto;
-  border: 1px solid #333;
+  border: 2px solid #00ff00;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
 }
 .solve-output-content {
-  margin: 0;
-  padding: 0;
-  color: #ffffff;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.9rem;
-  line-height: 1.6;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: #00ff00 !important;
+  background: transparent !important;
+  font-family: 'Courier New', 'Courier', monospace;
+  font-size: 14px;
+  line-height: 1.8;
   white-space: pre-wrap;
   word-wrap: break-word;
+  font-weight: 500;
 }
 @keyframes pulse {
   0%, 100% { opacity: 1; }
