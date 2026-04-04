@@ -1,5 +1,0 @@
-flask==3.0.0
-flask-cors==4.0.0
-ansible-core==2.16.0
-kubernetes==28.1.0
-openshift==0.13.2
