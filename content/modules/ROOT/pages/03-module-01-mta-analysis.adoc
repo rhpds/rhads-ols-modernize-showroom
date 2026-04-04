@@ -89,7 +89,7 @@ Need help completing this module? Click the button below to automatically solve 
   border-radius: 8px;
 }
 .solve-controls { margin-bottom: 1rem; }
-.solve-button, .clear-output-button {
+.solve-button {
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   font-weight: 600;
@@ -97,9 +97,6 @@ Need help completing this module? Click the button below to automatically solve 
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-right: 0.5rem;
-}
-.solve-button {
   background: #28a745;
   color: white;
 }
@@ -113,11 +110,6 @@ Need help completing this module? Click the button below to automatically solve 
   cursor: not-allowed;
   animation: pulse 1.5s ease-in-out infinite;
 }
-.clear-output-button {
-  background: #6c757d;
-  color: white;
-}
-.clear-output-button:hover { background: #5a6268; }
 .solve-output {
   margin-top: 1rem;
   background-color: #000 !important;
@@ -151,9 +143,6 @@ Need help completing this module? Click the button below to automatically solve 
     <button class="solve-button" onclick="executeSolve('module-01')">
       🚀 Solve Module
     </button>
-    <button class="clear-output-button" onclick="clearSolveOutput('module-01')" style="display:none;" id="clear-btn-module-01">
-      🗑️ Clear Output
-    </button>
   </div>
   <div class="solve-output" id="solve-output-module-01" style="display:none;">
     <pre class="solve-output-content" id="solve-output-content-module-01"></pre>
@@ -166,13 +155,12 @@ if (typeof executeSolve === 'undefined') {
     const outputDiv = document.getElementById('solve-output-' + moduleName);
     const outputContent = document.getElementById('solve-output-content-' + moduleName);
     const solveButton = event.target;
-    const clearButton = document.getElementById('clear-btn-' + moduleName);
 
+    // Clear previous output and show terminal
     outputDiv.style.display = 'block';
     outputContent.textContent = '';
     solveButton.disabled = true;
     solveButton.textContent = '⏳ Running...';
-    clearButton.style.display = 'inline-block';
 
     const eventSource = new EventSource('/api/solve/' + moduleName);
 
@@ -183,7 +171,8 @@ if (typeof executeSolve === 'undefined') {
       } catch (e) {
         outputContent.textContent += event.data + '\n';
       }
-      outputContent.scrollTop = outputContent.scrollHeight;
+      // Auto-scroll to bottom to follow output
+      outputDiv.scrollTop = outputDiv.scrollHeight;
     };
 
     eventSource.onerror = function(error) {
@@ -199,15 +188,6 @@ if (typeof executeSolve === 'undefined') {
       solveButton.disabled = false;
       solveButton.textContent = '🚀 Solve Module';
     }, 60000);
-  }
-
-  function clearSolveOutput(moduleName) {
-    const outputDiv = document.getElementById('solve-output-' + moduleName);
-    const outputContent = document.getElementById('solve-output-content-' + moduleName);
-    const clearButton = document.getElementById('clear-btn-' + moduleName);
-    outputDiv.style.display = 'none';
-    outputContent.textContent = '';
-    clearButton.style.display = 'none';
   }
 }
 </script>

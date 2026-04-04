@@ -14,9 +14,6 @@
                 <button class="solve-button" data-module="${moduleName}">
                     🚀 Solve Module
                 </button>
-                <button class="clear-output-button" data-module="${moduleName}" style="display:none;">
-                    🗑️ Clear Output
-                </button>
             </div>
             <div class="solve-output" id="solve-output-${moduleName}" style="display:none;">
                 <pre class="solve-output-content" id="solve-output-content-${moduleName}"></pre>
@@ -29,14 +26,12 @@
         const outputDiv = document.getElementById(`solve-output-${moduleName}`);
         const outputContent = document.getElementById(`solve-output-content-${moduleName}`);
         const solveButton = document.querySelector(`.solve-button[data-module="${moduleName}"]`);
-        const clearButton = document.querySelector(`.clear-output-button[data-module="${moduleName}"]`);
 
         // Show output area and clear previous content
         outputDiv.style.display = 'block';
         outputContent.textContent = '';
         solveButton.disabled = true;
         solveButton.textContent = '⏳ Running...';
-        clearButton.style.display = 'inline-block';
 
         // Create EventSource for SSE
         const eventSource = new EventSource(`${API_BASE_URL}/solve/${moduleName}`);
@@ -45,11 +40,11 @@
             try {
                 const line = JSON.parse(event.data);
                 outputContent.textContent += line;
-                // Auto-scroll to bottom
-                outputContent.scrollTop = outputContent.scrollHeight;
             } catch (e) {
                 outputContent.textContent += event.data + '\n';
             }
+            // Auto-scroll to bottom to follow output
+            outputDiv.scrollTop = outputDiv.scrollHeight;
         };
 
         eventSource.onerror = function(error) {
@@ -68,13 +63,6 @@
         }, 60000); // 60 second timeout
     }
 
-    function clearOutput(moduleName) {
-        const outputDiv = document.getElementById(`solve-output-${moduleName}`);
-        const outputContent = document.getElementById(`solve-output-content-${moduleName}`);
-        outputDiv.style.display = 'none';
-        outputContent.textContent = '';
-    }
-
     // Initialize solve buttons on page load
     document.addEventListener('DOMContentLoaded', function() {
         // Find all solve-button-placeholder divs
@@ -91,13 +79,6 @@
             button.addEventListener('click', function() {
                 const moduleName = this.getAttribute('data-module');
                 executePlaybook(moduleName);
-            });
-        });
-
-        document.querySelectorAll('.clear-output-button').forEach(button => {
-            button.addEventListener('click', function() {
-                const moduleName = this.getAttribute('data-module');
-                clearOutput(moduleName);
             });
         });
     });
