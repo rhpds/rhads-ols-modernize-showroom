@@ -1,6 +1,3 @@
-/* Import solve button styles */
-@import url('solve-button.css');
-
 /* left align items inside imageblock */
 .doc .imageblock {
     align-items: flex-start;
