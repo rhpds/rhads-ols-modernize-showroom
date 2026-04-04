@@ -7,19 +7,9 @@
       ansible.builtin.debug:
         msg: "Executing solve for Module 01: Analyzing Legacy Applications with MTA"
 
-    - name: Get current namespace
+    - name: Get showroom namespace pods
       ansible.builtin.command:
-        cmd: oc project -q
-      register: current_ns
-      changed_when: false
-
-    - name: Display current namespace
-      ansible.builtin.debug:
-        msg: "Working in namespace: {{ current_ns.stdout }}"
-
-    - name: Get pods in current namespace
-      ansible.builtin.command:
-        cmd: oc get pods -o json
+        cmd: oc get pods -n user-sct29-showroom -o json
       register: pods_output
       changed_when: false
 
@@ -29,7 +19,7 @@
 
     - name: Display pod count
       ansible.builtin.debug:
-        msg: "Found {{ pods | length }} pods in namespace {{ current_ns.stdout }}"
+        msg: "Found {{ pods | length }} pods in namespace user-sct29-showroom"
 
     - name: List pod names and status
       ansible.builtin.debug:
