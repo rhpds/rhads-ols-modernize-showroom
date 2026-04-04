@@ -628,9 +628,7 @@ Review your accomplishments:
 
 Need help completing this module? Click the button below to automatically solve the exercises:
 
-++++
-<div class="solve-button-placeholder" data-module="module-04"></div>
-++++
+include::common/solve-button.adoc[module-04]
 
 == Troubleshooting
 
