@@ -7,24 +7,34 @@
       ansible.builtin.debug:
         msg: "Executing solve for Module 01: Analyzing Legacy Applications with MTA"
 
-    - name: Get OpenShift namespaces
+    - name: Get current namespace
       ansible.builtin.command:
-        cmd: oc get namespaces -o json
-      register: ns_output
+        cmd: oc project -q
+      register: current_ns
       changed_when: false
 
-    - name: Parse namespace JSON
+    - name: Display current namespace
+      ansible.builtin.debug:
+        msg: "Working in namespace: {{ current_ns.stdout }}"
+
+    - name: Get pods in current namespace
+      ansible.builtin.command:
+        cmd: oc get pods -o json
+      register: pods_output
+      changed_when: false
+
+    - name: Parse pods JSON
       ansible.builtin.set_fact:
-        namespaces: "{{ (ns_output.stdout | from_json).items }}"
+        pods: "{{ (pods_output.stdout | from_json).items }}"
 
-    - name: Display namespace count
+    - name: Display pod count
       ansible.builtin.debug:
-        msg: "Found {{ namespaces | length }} namespaces"
+        msg: "Found {{ pods | length }} pods in namespace {{ current_ns.stdout }}"
 
-    - name: List namespace names
+    - name: List pod names and status
       ansible.builtin.debug:
-        msg: "{{ item.metadata.name }}"
-      loop: "{{ namespaces }}"
+        msg: "Pod: {{ item.metadata.name }} - Status: {{ item.status.phase }}"
+      loop: "{{ pods }}"
       loop_control:
         label: "{{ item.metadata.name }}"
 
