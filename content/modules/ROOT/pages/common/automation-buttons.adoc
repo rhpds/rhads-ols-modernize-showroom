@@ -1,0 +1,28 @@
+// Automation Buttons Component (Solve + Validate)
+// Usage: :module-name: module-01
+//        include::common/automation-buttons.adoc[]
+
+[pass,subs="attributes"]
+++++
+<style>
+.automation-section {margin: 2rem 0; padding: 1.5rem; background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px;}
+.automation-controls {margin-bottom: 1rem; display: flex; gap: 1rem;}
+.solve-button {padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; background: #28a745; color: white;}
+.solve-button:hover:not(:disabled) {background: #218838; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);}
+.solve-button:disabled {background: #adb5bd; cursor: not-allowed; animation: pulse 1.5s ease-in-out infinite;}
+.validate-button {padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; background: #007bff; color: white;}
+.validate-button:hover:not(:disabled) {background: #0056b3; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);}
+.validate-button:disabled {background: #adb5bd; cursor: not-allowed; animation: pulse 1.5s ease-in-out infinite;}
+.automation-output {margin-top: 1rem; background-color: #000 !important; border-radius: 6px; padding: 1.5rem; max-height: 600px; overflow-y: auto; border: 2px solid #00ff00; box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);}
+.automation-output.validate {border-color: #00bfff; box-shadow: 0 0 10px rgba(0, 191, 255, 0.2);}
+.automation-output-content {margin: 0 !important; padding: 0 !important; color: #00ff00 !important; background: transparent !important; font-family: 'Courier New', 'Courier', monospace; font-size: 14px; line-height: 1.8; white-space: pre-wrap; word-wrap: break-word; font-weight: 500;}
+.automation-output.validate .automation-output-content {color: #00bfff !important;}
+@keyframes pulse {0%, 100% {opacity: 1;} 50% {opacity: 0.5;}}
+</style>
+
+<div class="automation-button-placeholder" data-module="{module-name}"></div>
+
+<script>
+(function(){if(typeof window.automationButtonInit!=='undefined')return;window.automationButtonInit=true;function createAutomationSection(n){const s=document.createElement('div');s.className='automation-section';s.innerHTML=`<div class="automation-controls"><button class="solve-button" data-module="${n}">🚀 Solve Module</button><button class="validate-button" data-module="${n}">✓ Validate Module</button></div><div class="automation-output" id="automation-output-${n}" style="display:none;"><pre class="automation-output-content" id="automation-output-content-${n}"></pre></div>`;return s}function executePlaybook(n,t){const o=document.getElementById(`automation-output-${n}`),c=document.getElementById(`automation-output-content-${n}`),sb=document.querySelector(`.solve-button[data-module="${n}"]`),vb=document.querySelector(`.validate-button[data-module="${n}"]`);o.style.display='block';o.className=t==='validate'?'automation-output validate':'automation-output';c.textContent='';sb.disabled=true;vb.disabled=true;const ab=t==='solve'?sb:vb;ab.textContent=t==='solve'?'⏳ Running...':'⏳ Validating...';const e=new EventSource(`/api/${t}/${n}`);e.onmessage=function(d){try{const l=JSON.parse(d.data);c.textContent+=l}catch(x){c.textContent+=d.data+'\n'}o.scrollTop=o.scrollHeight};e.onerror=function(){console.error('SSE Error');e.close();sb.disabled=false;vb.disabled=false;sb.textContent='🚀 Solve Module';vb.textContent='✓ Validate Module';c.textContent+='\n❌ Connection closed\n'};setTimeout(()=>{e.close();sb.disabled=false;vb.disabled=false;sb.textContent='🚀 Solve Module';vb.textContent='✓ Validate Module'},60000)}document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.automation-button-placeholder').forEach(p=>{const m=p.getAttribute('data-module'),s=createAutomationSection(m);p.replaceWith(s)});document.querySelectorAll('.solve-button').forEach(b=>{b.addEventListener('click',function(){executePlaybook(this.getAttribute('data-module'),'solve')})});document.querySelectorAll('.validate-button').forEach(b=>{b.addEventListener('click',function(){executePlaybook(this.getAttribute('data-module'),'validate')})})})})();
+</script>
+++++

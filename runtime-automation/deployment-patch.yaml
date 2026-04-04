@@ -1,5 +1,5 @@
 ---
-# Patch to add solver sidecar container to showroom deployment
+# Patch to add automation sidecar container to showroom deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -10,8 +10,8 @@ spec:
     spec:
       serviceAccountName: showroom
       containers:
-      # Solver API sidecar using AgnosticD EE directly
-      - name: solver
+      # Automation sidecar for solve and validate operations
+      - name: automation
         image: quay.io/agnosticd/ee-multicloud:chained-2026-04-01
         imagePullPolicy: IfNotPresent
         securityContext:

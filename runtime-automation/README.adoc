@@ -59,34 +59,22 @@ vim-enhanced
 
 To add a new module (e.g., module-05):
 
-=== Solver
-
 1. Create solve playbook: `playbooks/solve-module-05.yml`
-2. Add solve button to AsciiDoc page:
+2. Create validation playbook: `playbooks/validate-module-05.yml`
+3. Add automation buttons to AsciiDoc page:
 +
 [source,asciidoc]
 ----
 :module-name: module-05
-include::common/solve-button.adoc[]
-----
-
-=== Validator
-
-1. Create validation playbook: `playbooks/validate-module-05.yml`
-2. Add validate button to AsciiDoc page:
-+
-[source,asciidoc]
-----
-:module-name: module-05
-include::common/validate-button.adoc[]
+include::common/automation-buttons.adoc[]
 ----
 
 === Convention-Based Mapping
 
 The system uses convention-based routing:
 
-* **Solve**: Button `data-module="module-05"` → API endpoint `/api/solve/module-05` → Playbook `playbooks/solve-module-05.yml`
-* **Validate**: Button `data-module="module-05"` → API endpoint `/api/validate/module-05` → Playbook `playbooks/validate-module-05.yml`
+* **Solve**: Button → API endpoint `/api/solve/module-05` → Playbook `playbooks/solve-module-05.yml`
+* **Validate**: Button → API endpoint `/api/validate/module-05` → Playbook `playbooks/validate-module-05.yml`
 
 == Files
 
@@ -112,11 +100,8 @@ The system uses convention-based routing:
 | `packages.txt`
 | DNF packages (auto-installed on startup)
 
-| `content/modules/ROOT/pages/common/solve-button.adoc`
-| AsciiDoc partial for solve button UI
-
-| `content/modules/ROOT/pages/common/validate-button.adoc`
-| AsciiDoc partial for validate button UI
+| `content/modules/ROOT/pages/common/automation-buttons.adoc`
+| AsciiDoc partial with both solve and validate buttons
 
 |===
 
@@ -146,6 +131,6 @@ oc delete pod -l app=showroom -n user-sct29-showroom
 - Delete pod to reinstall packages
 
 **Permission denied errors**:
-- Solver runs as USER 1000 with showroom ServiceAccount
+- Automation container runs as root (USER 0) with showroom ServiceAccount
 - Has cluster-admin equivalent via AnarchySubject ownership
 - Can perform any OpenShift operation via `oc` commands

@@ -75,16 +75,9 @@ You have successfully analyzed the pre-generated data for ACME's applications an
 **Next steps:**
 Module 2 will show you how to use **Red Hat Developer Lightspeed** to accelerate the actual code modernization, transforming these MTA recommendations into implementation.
 
-== Auto-Solve (POC)
+== Automation (POC)
 
-Need help completing this module? Click the button below to automatically solve the exercises:
-
-:module-name: module-01
-include::common/solve-button.adoc[]
-
-== Validate (POC)
-
-Want to verify you completed the exercises correctly? Click the button below to validate your work:
+Need help or want to verify your work? Use the buttons below:
 
 :module-name: module-01
-include::common/validate-button.adoc[]
+include::common/automation-buttons.adoc[]
