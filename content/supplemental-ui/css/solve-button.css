@@ -13,8 +13,7 @@
     margin-bottom: 1rem;
 }
 
-.solve-button,
-.clear-output-button {
+.solve-button {
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
     font-weight: 600;
@@ -22,79 +21,68 @@
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-right: 0.5rem;
-}
-
-.solve-button {
-    background: #ee0000;
+    background: #28a745;
     color: white;
 }
 
 .solve-button:hover:not(:disabled) {
-    background: #cc0000;
+    background: #218838;
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(238, 0, 0, 0.3);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
 }
 
 .solve-button:disabled {
     background: #adb5bd;
     cursor: not-allowed;
+    animation: pulse 1.5s ease-in-out infinite;
 }
 
-.clear-output-button {
-    background: #6c757d;
-    color: white;
-}
-
-.clear-output-button:hover {
-    background: #5a6268;
-}
-
+/* Matrix-style terminal output */
 .solve-output {
     margin-top: 1rem;
-    background: #1e1e1e;
+    background-color: #000 !important;
     border-radius: 6px;
-    padding: 1rem;
-    max-height: 500px;
+    padding: 1.5rem;
+    max-height: 600px;
     overflow-y: auto;
+    border: 2px solid #00ff00;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
 }
 
 .solve-output-content {
-    margin: 0;
-    padding: 0;
-    color: #d4d4d4;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    font-size: 0.875rem;
-    line-height: 1.5;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #00ff00 !important;
+    background: transparent !important;
+    font-family: 'Courier New', 'Courier', monospace;
+    font-size: 14px;
+    line-height: 1.8;
     white-space: pre-wrap;
     word-wrap: break-word;
+    font-weight: 500;
 }
 
-/* Scrollbar styling for output */
+/* Scrollbar styling for matrix theme */
 .solve-output::-webkit-scrollbar {
     width: 8px;
 }
 
 .solve-output::-webkit-scrollbar-track {
-    background: #2d2d2d;
+    background: #001a00;
     border-radius: 4px;
 }
 
 .solve-output::-webkit-scrollbar-thumb {
-    background: #555;
+    background: #00ff00;
     border-radius: 4px;
 }
 
 .solve-output::-webkit-scrollbar-thumb:hover {
-    background: #777;
+    background: #00cc00;
 }
 
 /* Animation for running state */
 @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
-}
-
-.solve-button:disabled {
-    animation: pulse 1.5s ease-in-out infinite;
 }
