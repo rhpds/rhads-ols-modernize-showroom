@@ -1,0 +1,41 @@
+---
+- name: Validate Module 01
+  hosts: localhost
+  gather_facts: false
+  tasks:
+  - name: Get current namespace
+    ansible.builtin.set_fact:
+      current_namespace: "{{ lookup('env', 'NAMESPACE') | default('user-sct29-showroom', true) }}"
+
+  - name: Check if required pods are running
+    ansible.builtin.command:
+      cmd: oc get pods -n {{ current_namespace }} -o json
+    register: pods_json
+    changed_when: false
+
+  - name: Parse pod data
+    ansible.builtin.set_fact:
+      pods_data: "{{ pods_json.stdout | from_json }}"
+
+  - name: Validate showroom pod exists
+    ansible.builtin.assert:
+      that:
+        - pods_data['items'] | selectattr('metadata.name', 'search', 'showroom') | list | length > 0
+      success_msg: "✓ Showroom pod found"
+      fail_msg: "✗ Showroom pod not found"
+
+  - name: Validate showroom pod is running
+    ansible.builtin.assert:
+      that:
+        - pods_data['items'] | selectattr('metadata.name', 'search', 'showroom') | map(attribute='status.phase') | list | first == 'Running'
+      success_msg: "✓ Showroom pod is running"
+      fail_msg: "✗ Showroom pod is not in Running state"
+
+  - name: Display validation summary
+    ansible.builtin.debug:
+      msg:
+        - "╔════════════════════════════════════════╗"
+        - "║     Module 01 Validation PASSED       ║"
+        - "╚════════════════════════════════════════╝"
+        - ""
+        - "All checks completed successfully!"

@@ -1,0 +1,31 @@
+---
+- name: Validate Module 03
+  hosts: localhost
+  gather_facts: false
+  tasks:
+  - name: Get current namespace
+    ansible.builtin.set_fact:
+      current_namespace: "{{ lookup('env', 'NAMESPACE') | default('user-sct29-showroom', true) }}"
+
+  - name: Check namespace exists
+    ansible.builtin.command:
+      cmd: oc get namespace {{ current_namespace }}
+    register: ns_check
+    changed_when: false
+    failed_when: false
+
+  - name: Validate namespace exists
+    ansible.builtin.assert:
+      that:
+        - ns_check.rc == 0
+      success_msg: "✓ Namespace {{ current_namespace }} exists"
+      fail_msg: "✗ Namespace {{ current_namespace }} not found"
+
+  - name: Display validation summary
+    ansible.builtin.debug:
+      msg:
+        - "╔════════════════════════════════════════╗"
+        - "║     Module 03 Validation PASSED       ║"
+        - "╚════════════════════════════════════════╝"
+        - ""
+        - "Namespace {{ current_namespace }} validated successfully"

@@ -689,3 +689,18 @@ You now understand how to scale AI-assisted modernization across ACME's entire o
 
 **Next steps:**
 Module 4 will complete the migration journey by deploying your modernized application to OpenShift, proving the end-to-end workflow from legacy code to production-ready container.
+
+
+== Auto-Solve (POC)
+
+Need help completing this module? Click the button below to automatically solve the exercises:
+
+:module-name: module-03
+include::common/solve-button.adoc[]
+
+== Validate (POC)
+
+Want to verify you completed the exercises correctly? Click the button below to validate your work:
+
+:module-name: module-03
+include::common/validate-button.adoc[]

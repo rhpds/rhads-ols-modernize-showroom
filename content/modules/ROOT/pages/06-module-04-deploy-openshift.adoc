@@ -753,3 +753,18 @@ You've demonstrated mastery of AI-assisted application modernization using Red H
 * Investigate Developer Lightspeed custom models
 * Learn OpenShift GitOps for automated deployments
 * Study OpenShift Pipelines for CI/CD integration
+
+
+== Auto-Solve (POC)
+
+Need help completing this module? Click the button below to automatically solve the exercises:
+
+:module-name: module-04
+include::common/solve-button.adoc[]
+
+== Validate (POC)
+
+Want to verify you completed the exercises correctly? Click the button below to validate your work:
+
+:module-name: module-04
+include::common/validate-button.adoc[]

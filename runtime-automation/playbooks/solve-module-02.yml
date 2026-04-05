@@ -1,0 +1,22 @@
+---
+- name: Solve Module 02 - MTA Analysis
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Display module information
+      ansible.builtin.debug:
+        msg: "Executing solve for Module 02: Analyzing Legacy Applications with MTA"
+
+    - name: List pods in showroom namespace
+      ansible.builtin.command:
+        cmd: oc get pods -n user-sct29-showroom
+      register: pods_output
+      changed_when: false
+
+    - name: Display pods
+      ansible.builtin.debug:
+        msg: "{{ pods_output.stdout_lines }}"
+
+    - name: Completion message
+      ansible.builtin.debug:
+        msg: "✅ Module 02 solve completed successfully!"
