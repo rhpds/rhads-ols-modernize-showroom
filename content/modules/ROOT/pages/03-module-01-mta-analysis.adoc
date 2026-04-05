@@ -77,7 +77,14 @@ Module 2 will show you how to use **Red Hat Developer Lightspeed** to accelerate
 
 == Automation (POC)
 
-Need help or want to verify your work? Use the buttons below:
+Need help? Use the solve button below:
 
 :module-name: module-01
-include::common/automation-buttons.adoc[]
+include::common/solve-button.adoc[]
+
+== Validation (POC)
+
+Want to verify your work? Use the validation button below:
+
+:module-name: module-01
+include::common/validate-button.adoc[]

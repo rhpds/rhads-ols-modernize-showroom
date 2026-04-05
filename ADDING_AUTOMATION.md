@@ -413,12 +413,133 @@ spec:
 ++++
 ```
 
-**File:** `content/modules/ROOT/pages/common/automation-buttons.adoc`
+**File:** `content/modules/ROOT/pages/common/send-to.adoc`
 
 ```asciidoc
-// Automation Buttons Component (Solve + Validate)
+// Send-to Terminal Button Component
+// Usage: include::common/send-to.adoc[]
+//
+// Then add role="send-to" to any code block:
+// [source,bash,role="send-to"]
+// ----
+// echo "This command will have a send-to button"
+// ----
+
+[pass,subs="attributes"]
+++++
+<style>
+.listingblock { position: relative; }
+.send-to-command-btn {
+    position: absolute; top: 0.5rem; right: 0.5rem;
+    background: #28a745; color: white; border: none; border-radius: 4px;
+    padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    opacity: 0.3;
+}
+.send-to-command-btn:hover {
+    background: #218838;
+    transform: translateY(-2px);
+    opacity: 1;
+}
+.send-to-command-btn.success { background: #27ae60; }
+.send-to-command-btn.copied { background: #3498db; }
+.listingblock pre.send-to { padding-top: 3rem !important; }
+</style>
+<script>
+(function() {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  function init() {
+    // Add buttons to code blocks with role=send-to
+    document.querySelectorAll('pre.send-to, .send-to').forEach(function(block) {
+      if (block.dataset.sendToButtonAdded) return;
+      const listingBlock = block.closest('.listingblock');
+      if (!listingBlock) return;
+
+      const btn = document.createElement('button');
+      btn.className = 'send-to-command-btn';
+      btn.innerHTML = '▶';
+
+      btn.onclick = function() {
+        const cmd = (block.querySelector('code') || block).textContent.trim();
+        sendToTerminal(cmd, btn);
+      };
+
+      listingBlock.appendChild(btn);
+      block.dataset.sendToButtonAdded = 'true';
+    });
+  }
+
+  function sendToTerminal(command, button) {
+    // Find wetty iframe - it's in the parent window
+    let wettyFrame = null;
+
+    try {
+      if (window.parent && window.parent !== window) {
+        const frames = window.parent.document.querySelectorAll('iframe');
+        for (let i = 0; i < frames.length; i++) {
+          const src = frames[i].src || '';
+          if (src.indexOf('/wetty') !== -1 || src.indexOf('/tty') !== -1) {
+            wettyFrame = frames[i];
+            break;
+          }
+        }
+      }
+    } catch (e) {
+      console.log('[Send-To] Cannot access parent:', e.message);
+    }
+
+    if (wettyFrame) {
+      // Send command via postMessage
+      wettyFrame.contentWindow.postMessage({
+        type: 'execute',
+        data: command + '\r'
+      }, '*');
+
+      // Store original text
+      const originalText = button.innerHTML;
+
+      button.classList.add('success');
+      button.innerHTML = '✓ Sent!';
+      setTimeout(function() {
+        button.classList.remove('success');
+        button.innerHTML = originalText;
+      }, 2000);
+    } else {
+      // Fallback to clipboard
+      navigator.clipboard.writeText(command).then(function() {
+        const originalText = button.innerHTML;
+        button.classList.add('copied');
+        button.innerHTML = '📋 Copied!';
+        setTimeout(function() {
+          button.classList.remove('copied');
+          button.innerHTML = originalText;
+        }, 2000);
+      }).catch(function() {
+        button.innerHTML = '✗ Failed';
+      });
+    }
+  }
+})();
+</script>
+++++
+```
+
+**File:** `content/modules/ROOT/pages/common/automation-buttons.adoc`
+
+> **Note:** This file has been deprecated. Use separate `solve-button.adoc` and `validate-button.adoc` instead.
+
+```asciidoc
+// Automation Buttons Component (Solve + Validate) - DEPRECATED
 // Usage: :module-name: module-01
 //        include::common/automation-buttons.adoc[]
+//
+// Prefer using solve-button.adoc and validate-button.adoc separately
 
 [pass,subs="attributes"]
 ++++
@@ -452,17 +573,7 @@ spec:
 
 Edit your module page (e.g., `content/modules/ROOT/pages/module-01.adoc`) and add buttons at the end:
 
-**Option 1: Both buttons together (recommended)**
-```asciidoc
-== Auto-Solve & Validate
-
-Need help or want to verify your work? Use the buttons below:
-
-:module-name: module-01
-include::common/automation-buttons.adoc[]
-```
-
-**Option 2: Separate buttons**
+**Recommended: Separate buttons**
 ```asciidoc
 == Auto-Solve
 
@@ -481,7 +592,101 @@ include::common/validate-button.adoc[]
 
 ---
 
-## Step 8: Deploy to OpenShift
+## Step 8: Add Send-to-Terminal Functionality (Optional)
+
+The **send-to** feature allows users to click a button on any code block to send commands directly to the Showroom terminal (or copy to clipboard as fallback).
+
+### Enable Send-To Globally
+
+Include the send-to partial once at the top of each module page where you want this feature:
+
+```asciidoc
+= Module 1: Your Module Title
+:source-highlighter: rouge
+:toc: macro
+:toclevels: 1
+
+include::common/send-to.adoc[]
+
+Your module content here...
+```
+
+### Add Send-To Buttons to Code Blocks
+
+Add `role="send-to"` to any bash/shell code block:
+
+```asciidoc
+[source,bash,role="send-to"]
+----
+oc get pods -n my-namespace
+kubectl apply -f deployment.yaml
+./mvnw clean install
+----
+```
+
+### How It Works
+
+1. **Terminal Available**: When the user clicks the ▶ button, the command is sent directly to the Showroom wetty terminal and executed automatically
+2. **No Terminal**: If no terminal iframe is found, the command is copied to the user's clipboard with a "📋 Copied!" notification
+
+### Send-To vs Solve/Validate Buttons
+
+| Feature | Send-To | Solve/Validate |
+|---------|---------|----------------|
+| Purpose | Send individual commands to terminal | Execute complete Ansible playbooks |
+| Scope | Single code block | Entire module |
+| Backend | Client-side only (JavaScript) | Server-side (Flask + Ansible) |
+| Use Case | Quick commands, testing | Full automation, validation |
+| Visual | Small ▶ button on code block | Large button with output terminal |
+
+### Example: Combined Usage
+
+```asciidoc
+= Module 1: Deploy Application
+
+include::common/send-to.adoc[]
+
+== Step 1: Login to OpenShift
+
+Run the following command:
+
+[source,bash,role="send-to"]
+----
+oc login -u admin -p password
+----
+
+== Step 2: Create Project
+
+[source,bash,role="send-to"]
+----
+oc new-project my-app
+----
+
+== Auto-Solve
+
+If you want to skip the manual steps:
+
+:module-name: module-01
+include::common/solve-button.adoc[]
+
+== Validate
+
+Verify your deployment is correct:
+
+:module-name: module-01
+include::common/validate-button.adoc[]
+```
+
+### Best Practices
+
+- Use `role="send-to"` for **commands users should run themselves** (learning by doing)
+- Use **solve buttons** for **complex multi-step automation** (help when stuck)
+- Use **validate buttons** for **verification** (check work correctness)
+- Don't add `role="send-to"` to code blocks that are just examples or snippets (not meant to be executed)
+
+---
+
+## Step 9: Deploy to OpenShift
 
 ```bash
 # 1. Update namespace in deployment-patch.yaml
@@ -503,7 +708,7 @@ oc get pods -n $NAMESPACE -w
 
 ---
 
-## Step 9: Verify Deployment
+## Step 10: Verify Deployment
 
 ```bash
 # Check pod is running with 3 containers
