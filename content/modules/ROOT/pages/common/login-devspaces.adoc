@@ -35,3 +35,5 @@ image::common/vscode-getstarted.png[VSCode Tab,link=self,window=blank,title="VSC
 
 
 NOTE: When finished, close this browser tab and return to the Module Instructions Tab.
+
+image::module-03/.png[,link=self,window=blank,title=""]

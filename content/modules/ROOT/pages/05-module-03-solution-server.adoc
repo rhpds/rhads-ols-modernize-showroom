@@ -9,10 +9,9 @@ ACME needs to scale modernization across dozens of applications while maintainin
 
 In this module, you'll experience how Solution Server captures company policies, learns tribal knowledge, and accelerates major migration waves by teaching AI your organization's specific patterns.
 
-In this module you move between two different roles. First you will be the senior architect or developer who based on an Archetype grouping of applications we covered in Module 1, works with a representative application, and at certain points adds into the code migration company policy code approaches, or tribal knowledge based upon company code libraries or practices.
-
-
-You will then switch roles and as a junior developer will benefit from AI infused learned best practices.
+In this module you move between two different roles: +
+* First you will be a senior architect or lead developer and based on an archetype grouping of applications we covered in Module 1, you will work with an initial representative application. You will add into the AI generated code some company policy code approaches, which reflect tribal knowledge based upon company libraries or practices.
+* Then you will switch roles, and as a junior developer will benefit from the AI learned best practices, which will then be injected as hints to the LLM creating code fixes.
 
 == Learning objectives
 
@@ -43,7 +42,7 @@ Developer Lightspeed Solution Server acts as an organizational knowledge reposit
 
 . Review the Solution Server architecture:
 +
-Solution Server is an MCP server that sits on top of MTA's OpenShift installation.  It listens and records into a database before and after code changes made by a developer during the migration process. These fixes are then centrally available through solution server for all developers connected to the MTA Hub and Solution Server.  As developers invoke **Analysis** sessions, through the developers MTA Developer Lightspeed extension, and the static code rule enriched prompts are passed to the LLM, the LLM adds in relevant key insights based upon past fixes captured by solution server.  These relevant insights are called __Migration Hints__ and they are molded by the LLM into the returned suggested code fixes.
+Solution Server is an MCP server that sits on top of MTA's OpenShift installation.  It listens and records "before" and "after" code changes made by a developer during the Developer Lightspeed AI driven migration process. These fixes are reconstructed as "hints," which are then centrally available through solution server for all developers connected to the MTA Hub and Solution Server.  As developers invoke **Analysis** sessions, through the developers MTA Developer Lightspeed extension, and the static code rule enriched prompts are passed to the LLM, the LLM adds in relevant key insights based upon past fixes captured by solution server.  These relevant insights are called __Migration Hints__ and they are molded by the LLM into the returned suggested code fixes.
 +
 ----
 Developer → Developer Lightspeed Extension → Solution Server → AI Models
@@ -105,9 +104,11 @@ xref:common/login-devspaces.adoc[Initially login or reestablish DevSpaces worksp
 . Switch to the Module 3 Git branch
 +
 * Create a new terminal window
-* Click on the hamburger icon on the right sidebar, Click on the **Terminal** menu item, click on **New Terminal** 
+* Click on the hamburger icon on the left sidebar, Click on the **Terminal** menu item, click on **New Terminal** 
 * A new terminal window will open at the bottom of the screen
 * Type **git checkout module3** and hit return
++
+image::module-03/git-checkout-module3.png[Checkout Module 3,link=self,window=blank,title="Checkout Module 3"]
 
 
 . Confirm and open MTA VSCode extension (Developer Lightspeed for MTA)
@@ -119,8 +120,13 @@ If so, navigate to the **Analysis View** panel,
 If you don't, or can't locate it **click** on the following link and follow the instructions. +
 xref:common/load-extensions.adoc[Load MTA related VSCode extensions,role=resource,window=_blank,title="Load extensions"]
 
-IMPORTANT:  Ensure **Agent Mode** is NOT switched on to speed movement through this module, and **Server Status** should be __Running__
+[IMPORTANT]  
+====
+Ensure **Agent Mode** is NOT switched on to speed movement through this module. +
+Also ensure **Server Status** is __Running__ +
 
+image::module-03/Server-Status.png[Server Status,250,250,link=self,window=blank,title="Server Status"]
+====
 . Connect to the MTA Hub and confirm access to the LLM
 +
 The MTA Hub connection gives access to the Solution Server tooling, which is running as an MPC server
@@ -130,8 +136,14 @@ The MTA Hub connection gives access to the Solution Server tooling, which is run
 NOTE: Depending upon your environment you may notice warning messages about connections.  Ignore them for now.
 +
 * Click on the configuration gear icon on the upper right of the pane.
++
+image::module-03/Analysis-panel-initial.png[Open Configuration,link=self,window=blank,title="Open Analysis Configuration"]
++
 * A side panel will open **Get Ready to Analyze**
-* Notice Hub Configuration is not yet configured and Configure GenAI may not be configured yet also
++
+image::module-03/Analysis-Config.png[Analysis Configuration,300,300,link=self,window=blank,title="Analysis Configuration"]
++
+* Notice __Hub Configuration__ is not yet configured and __Configure GenAI__ may not be configured yet also
 * Click on **Configure Hub Settings**
 * The __MTA Hub Configuration__ tab will open
 * In __General Settings__ , click the slider to Enable connection to Konveyor Hub  (MTA Hub)
@@ -141,15 +153,17 @@ NOTE: Depending upon your environment you may notice warning messages about conn
 * Click **Save**
 * Close the __MTA Hub Configuration__ tab
 +
+image::module-03/Hub-Config1.png[Hub Configuration,link=self,window=blank,title="Hub Configuration"]
++
+image::module-03/Hub-Config2.png[Hub Configuration,link=self,window=blank,title="Hub Configuration"]
++
 If the **Configure GenAI** setting is not configured
 +
 * Click on __Configure GenAI Settings__
 +
-image::module-02/Analysis-hub.png[Configure Generative AI Settings,link=self,window=blank,title="Configure Generative AI Settings"]
-+
 * The **provider-settings.yaml** file will open on a separate pane
 +
-image::module-02/provider-settings.png[AI Model Settings,link=self,window=blank,title="AI Model Settings"]
+image::module-03/provider-settings.png[AI Model Settings,link=self,window=blank,title="AI Model Settings"]
 +
 * Replace/Update from the word **models:** down through the first entry with the following 
 +
@@ -172,6 +186,8 @@ models:
 * Navigate to the **MTA Analysis View** tab
 * Ensure that the **Server Status** shows __Running__
 * If it doesn't, click on the **Start** button
++
+image::module-03/Server-Status.png[Server Status,250,250,link=self,window=blank,title="Server Status"]
 
 
 . Review the Profile Settings
@@ -179,23 +195,28 @@ models:
 In this module the Active Profile has been prebuilt for you. We will review it here. +
 Normally you would have several profiles for different Analysis Scenarios.  Each profile is specific to a certain type of application migration wave scenario:  defining source technologies and frameworks, target technologies and frameworks, and categories of static rules to run.
 +
-NOTE: In this scenario we are working with the same Module 2 monolithic legacy JavaEE application running on OpenJDK 8.  The Senior Architect/Developer is now going to engage Solution Server to capture their changes or adjustments after reviewing the suggested corrections initially generated by Developer Lightspeed. 
+NOTE: In this scenario we are working with the same Module 2 monolithic legacy JavaEE application running on OpenJDK 8.  The Senior Architect/Developer is now going to engage Solution Server to capture their further changes or adjustments after reviewing the suggested corrections initially generated by Developer Lightspeed. 
 +
 * Navigate to the **MTA Analysis View** tab
 * Click on the **down arrow** in the dropdown box showing the __Solution Server__ profile
 * Click on **Manage Profiles**
++
+image::module-03/Open-Profiles.png[Open Profiles,link=self,window=blank,title="Open Profiles"]
++
 * Notice that an active profile named **Solution Server** has been created for you
 ** Like Module 2 it has same __Target__ and __Source__ Technologies
 ** If includes __Default Rules__ to help narrow down areas of concern
 ** It also includes the use of __Custom Rules__ , authored in yaml by ACME architects that look for company specific logging concerns in code, among other things.
 * Close the **MTA Manage Profiles** panel
 +
+image::module-03/Active-Profile.png[Active-Profile,link=self,window=blank,title="Active Profile"]
++
 NOTE: Rapid authoring of Custom Rules in beyond the scope of this workshop, but if you have interest in this area please talk with the workshop leads for more information and enablement approaches.
 
 
 == Exercise 3: Experience Solution Server learning company policies and best practices
 
-Now you'll see how Solution Server learns from ACME's from adopted solution patterns.  This normally involves Architects and Developers modifying initial suggested fixes from Developer Lightspeed, so that they better embrace company specific policies and approaches.
+Now you'll see how Solution Server learns from ACME's adopted solution patterns.  This normally involves Architects and Developers modifying initial suggested fixes from Developer Lightspeed, so that they better embrace company specific policies and approaches.  Solution Server captures the before and after fixes and leverages them for future hints to the LLM.
 
 === Prerequisites
 * Access to Dev Spaces workspace
@@ -205,20 +226,28 @@ Now you'll see how Solution Server learns from ACME's from adopted solution patt
 
 . Run an Analysis with Solution Server engaged:
 +
-You will have Developer Lightspeed run an analysis, which includes running the __Default__ and __Custom__ (ACME best practices and policy) rules. +
+You will have Developer Lightspeed run an analysis, which includes running the __Default__ and __Custom__ (ACME best practices and policy) static rules. +
 Then Developer Lightspeed will create RAG style infused prompts to the LLM for generation of targeted fixes to be returned to the developer. +
 While this is occuring __Solution Server__ will be listening and recording any developer/architect adjustments to generated code fixes from the LLM.
 +
 * Ensure you are in the **MTA Analysis View** pane
 * Click on **Run Analysis**  (The analysis run may take up to a couple of minutes due to size of workshops and resources allocated)
++
+image::module-03/Run-Initial-Analysis.png[Initial Analysis,link=self,window=blank,title="Initial Analysis"]
++
 * Notice all the errors return by the __Default__ and __Custom__ rules
 * Narrow down our interest by focusing on issues in one Java class
 * Enter **OrderService** in the Search box in __Analysis Results__
 * Scroll down to Issue  **Replace `FileSystemAuditLogger` instantiation with `StreamableAuditLogger` over TCP**
 * Click the down arrow to view the Issue details
++
+image::module-03/Find-Order-Service.png[Order Service,link=self,window=blank,title="Order Service"]
++
 * In this case we have an issue related to how logging is handled in the legacy application that is not acceptable in a modern cloud native Java application.
 * Click on the down arrow next to one of the wrench icons and select **Get solution**
 * As was seen in Module 2 this action opens a **MTA Resolution Details** pane and the interactive conversation between Developer Lightspeed and the LLM scrolls by with the LLM returning a suggested set of fixes for **OrderService.java**
++
+image::module-03/Logger-Issue.png[Logging Issue,link=self,window=blank,title="Logging Issue"]
 +
 NOTE:  You may want to take a minute and scroll through the AI Results screen and see all the suggested changes and reasoning behind why the LLM is suggesting the resolution.
 +
@@ -227,18 +256,25 @@ NOTE:  You may want to take a minute and scroll through the AI Results screen an
 TIP:  You can slide the panels a bit to expand the side by side viewing area.
 + 
 * You may notice that the analysis runs again partially in the background
-* In the bottom of the file notice **Red** suggested removals and **Green** suggested fixes generated by Developer Lightspeed through the LLM with rules prompting.
+* As you scroll through the __OrderService.java__ file notice **Red** suggested removals and **Green** suggested fixes generated by Developer Lightspeed through the LLM with rules prompting. Recall that the static rules run during the **Analysis** and are used to focus the LLM on defined categories of code issues in migration efforts.
++
+image::module-03/Order-Service-Result1.png[Suggested Fix,link=self,window=blank,title="Suggested Fix View 1"]
++
+image::module-03/Order-Service-Result2.png[Suggested Fix,link=self,window=blank,title="Suggested Fix View 2"]
 +
 [IMPORTANT]
 ====
 From an ACME perspective the Architect or Lead Developer recognizes that the suggested code fix replaces file system log usage with streamable logs. +
 
-This also removes the current dependency on inhouse internal patterns and libraries that have evolved or become obsolete over the years, and also removes potential security issues.  Generic LLMs don’t understand this problem. + 
+This also removes the current dependency on inhouse internal patterns and libraries that have evolved or become obsolete over the years, and also removes potential security issues. +
+
+Generic LLMs don’t understand this problem, which is why Developer Lightspeed and Solution Server are able to focus the LLM code generation on the correct context and provide solution hints. + 
 
 However, this generated code fix still seems to allow hardcoded __Host__ and __Port__ values, which for an OpenShift and modern secure cloud native application should really follow ACME's new policy of putting such information in separate environment settings in Kubernetes artifacts.
 ====
 +
-* As the Architect/Lead Developer you recognize new ACME cloud native policy and best practices need to be added into this fix.
+* As the Architect/Lead Developer you recognize that new ACME cloud native coding policies and best practices need to be added into this fix.
+* You will now add in the ACME prescribed coding approach for this logging fix, and get rid of hardcoded environment variables.
 * To visualize the suggested updates best, __Add a couple open lines after the green generated code fix__
 * Copy in the following enhanced fix.
 +
@@ -251,20 +287,30 @@ However, this generated code fix still seems to allow hardcoded __Host__ and __P
 
 ----
 +
-* Notice the differing approach, switching to using environment variables as the primary way to set configuration in the running application.
-* Delete the existing green highlighted code snippet.
+image::module-03/Order-Service-Fix1.png[Insert ACME Policy Approach,link=self,window=blank,title="Insert ACME Policy Approach"]
++
+* Notice the differing approach, switching to using environment variables as the primary way to set the configuration in the running application.
+* Delete the original **green** highlighted code snippet. (The **red** areas marked for deletion will disappear in the next step)
++
+image::module-03/Order-Service-Fix2.png[Final Fix View,link=self,window=blank,title="Final Fix View"]
++
 * Scroll to the top of the file and click on **Accept all changes**
-* Developer Lightspeed saves the fixed file, and automatically runs the analysis again
+* Developer Lightspeed removes the red marked deletions, keeps the green highlighted fixes, and keeps the Architect/Lead Developer authored ACME policy driven fixes. It then saves the fixed file, and automatically runs the analysis again to confirm the fixes.
++
+image::module-03/Order-Service-Save.png[Accept and Save Fixes,link=self,window=blank,title="Accept and Save Fixes"]
++
 * Close the file
 * Back in the **MTA Resolutions Details** pane click __continue__ and close the pane.
 +
+image::module-03/Order-Service-Check.png[Continue and Return to Analysis Results,link=self,window=blank,title="Continue and Return to Analysis Results"]
++
 [IMPORTANT]
 ====
-Solution Server has stored the before and after of this code fix.  It has stored the resolution you have effected as an Architect or Lead Developer. +
+Solution Server has stored the before and after of this code fix.  It has stored the ACME code policy resolution you have inserted as an Architect or Lead Developer. +
 
 Overtime ACME's best practices, patterns, and metrics, will be available through Solution Server MCP server.
 
-Going forward Solution Server will pass hints into the LLM for what future fixes should take into account.  Thus both static rules pinpointing areas of concern and enhanced hints incorporated into LLM code fixes are all taken into account.
+Going forward Solution Server will pass hints into the LLM for what future fixes should take into account.  Thus both static rules pinpointing areas of concern and enhanced hints from Solution Server will be incorporated into LLM code fixes.
 ====
 
 
@@ -274,59 +320,80 @@ Going forward Solution Server will pass hints into the LLM for what future fixes
 With some of ACME's policies captured and loaded, you'll now test how Solution Server applies these organizational standards to AI-generated code. +
 
 In this Exercise you will change roles from an Architect/Lead Developer to a Junior Developer or Contractor brought in to quickly migrate a bunch of applications. +
-
 These applications were grouped into a migration wave based upon the Archetypes and Risk analysis carried out in Module 1. +
 
-One of those applications  **Cool Store** a legacy JavaEE OpenJDK 8 monolithic application was initially analyzed, and injected with LLM generated and manually modified code fixes. +
-This was done in Module 2 and in Exercise 3 here in Module 3 through the use of Developer Lightspeed for MTA interacting with a referenced LLM and the MCP server, Solution Server. +
+As a reminder: One of those applications  **Cool Store** a legacy JavaEE OpenJDK 8 monolithic application was already analyzed, and partially migrated. + 
+This was done in Module 2 and here in Module 3 through the use of Developer Lightspeed for MTA interacting with a referenced LLM and the MCP server, Solution Server. +
 
-Since Solution Server just learned some ACME specific coding best practices related to security, logging, and removing hard coded environment variables, we now want to see if those can be applied as hints to the LLM, which can then generate code fixes for junior developers and contractors who would not have that tribal knowledge or company policy at this point, but are tasked with correctly migrating similar applications in the wave to OpenShift. +
+Since Solution Server just learned some ACME specific coding best practices related to security, logging, and removing hard coded environment variables, we now want to see if those can be applied as hints to the LLM for future fixes. +
 
-__Normally the LLM would not be able to create these fixes by itself since the context and policy is specific to ACME.  Solution Server + Developer LIghtspeed for MTA provides this unique AI capability__
+Can these __Migration Hints__ via Solution Server enrich generated code fixes for junior developers and contractors who would not yet have that tribal knowledge or company policy, but are tasked with correctly migrating similar applications in the migration wave to OpenShift. +
+
+__Normally the LLM would not be able to create these fixes by itself since the context and policy is specific to ACME.  Solution Server + Developer LIghtspeed for MTA provide this unique AI capability__
 
 === Steps
 
-. Fix another occurance of the learned policy issue:
+. Fix another occurance of the learned policy issue and resolutin approach:
 +
-As the Junior developer or contractor migrating a similar application, your use of Developer Lightspeed will benefit from Solution Server offering hints to the LLM and generate the appropriate context appropriate code fix.
+As the Junior developer or contractor migrating a similar application, your use of Developer Lightspeed will benefit from Solution Server offering hints to the LLM and generate the appropriate context aware code fix.
 +
 NOTE: Given the limited time for this workshop, we will not switch environments and setup another application codebase.  We will continue to use the existing codebase and have Solution Server apply its capabilities to fix a different instance of the same logging violation.
 +
 
-. Locate another instance of the Logging Issue:
+. Locate another instance of the orignial Logging Issue:
 +
 * In the role of the Junior Developer now, you should still be looking at the **MTA Analysis View** pane
 ** If not navigate to that pane
 * In order to speed the focus on applying learned policy we will move directly to another logging issue
-* In the __Search box__ in the Analysis Results listing type **ProductService** 
+* In the __Search box__ in the Analysis Results listing, type **ProductService** 
++
+image::module-03/ProductService-issues.png[ProductService Issues,link=self,window=blank,title="ProductService Issues"]
++
 * Click on the **arrow >** to the left of the Issue __Replace `FileSystemAuditLogger` instantiation with `StreamableAuditLogger` over TCP__
 ** Notice that this is the same type of issue we saw previously in another part of the overall codebase.
 * Click on the down arrow next to one of the wrench icons and select **Get solution**
-* As before this opens a **MTA Resolution Details** pane and the interactive conversation between Developer Lightspeed and the LLM scrolls by with the LLM returning a 
-* 
++
+image::module-03/ProductService-Get-Solution.png[ProductService Get Solution,link=self,window=blank,title="ProductService Analysis: Get Solution"]
++
+* As before this opens a **MTA Resolution Details** pane and the interactive conversation between Developer Lightspeed and the LLM scrolls by with the LLM returning a suggested fix
++
+image::module-03/ProductService-GenAI-Results.png[Generative AI Results,link=self,window=blank,title="Generative AI Results"]
++
+* Note that the generated code fix includes the ACME coding policy approach captured in the previous Exercise in this Module.
 
-. Review the AI-generated code:
+
+. Review the AI-generated code fix that infuses learned organizational standards:
 +
-Solution Server should guide the AI to generate code that:
+Solution Server __Migration Hints__ working with Developer Lightspeed for MTA have guided the LLM to generate code that fully fixes the orignial issue: +
+__Replace `FileSystemAuditLogger` instantiation with `StreamableAuditLogger` over TCP__
 +
-* Uses SLF4J Logger (not System.out)
-* Includes requestId and userId in log statements
-* Uses appropriate log levels
-* Includes try-catch with proper error logging
-* Follows the pattern from ACME's logging policy
+image::module-03/ProductService-Main-Fixes.png[Full Solution,link=self,window=blank,title="Full Solution"]
++
+The level of completion includes: 
++
+* Removal and replacment of import statements that now reflect streamable logging classes
+* Context aware logging code that implements streamable logging approaches
+* Removal of legacy company coding approaches
+* Removal of hard coded environment variables + 
+
+You can can now accept changes and close the file and Resolution Pane 
+
+image::module-03/ProductService-AcceptChanges.png[Accept Changes,link=self,window=blank,title="Accept Changes"]
+
 
 
 == Exercise 5: Review how Solution Server accelerates migration waves
 
-Now that Solution Server understands ACME's standards, you'll see how this accelerates large-scale migration efforts across multiple applications.
+Now that Solution Server understands some of ACME's standards, you'll see how expanding use of these capabilites accelerates large-scale migration efforts across multiple applications.
 
 === Steps
 
-. Consider the migration wave scenario:
+. Consider what has been learned in this migration issue example:
 +
-ACME has identified 15 applications in Wave 1 that all need similar modernization:
+ACME has identified many applications in Wave 1 that all need similar modernization approaches. +
+The example here focused on a logging issue pervasize across Wave 1 applications, and was able to:
 +
-* Add health check endpoints
+* Move logging away from legacy static file approaches
 * Externalize configuration
 * Update logging to company standards
 * Apply security best practices
@@ -367,117 +434,11 @@ Beyond speed, Solution Server provides:
 * **Onboarding**: New developers learn ACME patterns through examples
 * **Compliance**: Policy enforcement is automated, not manual
 
-. Document the business case:
-+
-Create a summary for ACME's stakeholders:
-+
-[source,bash]
-----
-cat > migration-wave-analysis.md << 'EOF'
-# ACME Corp Migration Wave 1 Analysis
 
-## Scope
-- 15 legacy applications requiring modernization
-- Target: OpenShift containerization
-- Standards: ACME coding policies and best practices
-
-## Approach Comparison
-
-### Traditional Manual Approach
-- Developer manually codes each modernization
-- References policy documents repeatedly
-- Code review ensures compliance
-- **Estimated time**: 75-105 days
-- **Risk**: Inconsistencies between applications
-
-### AI-Accelerated with Solution Server
-- AI generates code following ACME policies automatically
-- Solution Server ensures consistency
-- Policies embedded in code generation
-- **Estimated time**: 15-30 days
-- **Quality**: Guaranteed consistency across all apps
-
-## Business Impact
-- **Time savings**: 45-90 days
-- **Cost reduction**: 60-85% less developer effort
-- **Quality improvement**: Zero policy violations
-- **Scalability**: Approach proven for future waves
-
-## Recommendation
-Adopt Developer Lightspeed with Solution Server for all migration waves.
-EOF
-----
 
 === Verify
 
-Review the business case for Solution Server:
 
-[source,bash]
-----
-cat migration-wave-analysis.md
-----
-
-✓ Velocity improvement is quantified (5-7x faster)
-✓ Quality benefits are documented
-✓ Business case is clear for stakeholders
-✓ Approach is scalable to future waves
-
-== Troubleshooting
-
-**Issue**: Solution Server doesn't seem to apply policies to generated code
-**Solution**: Verify policies are properly indexed:
-[source,bash]
-----
-# Check that policy files exist
-ls -la .devlightspeed/policies/
-
-# Verify policy format is correct (Markdown with examples)
-cat .devlightspeed/policies/logging-standard.md
-
-# Re-index policies in Developer Lightspeed panel
-# Solution Server → Refresh Policy Index
-----
-
-**Issue**: AI generates code that violates ACME security standards
-**Solution**: Make policy requirements more explicit in the policy document:
-[source,markdown]
-----
-## MUST DO
-- Validate all user input before processing
-- Never concatenate SQL queries
-
-## NEVER DO
-- System.out.println() in production
-- Log passwords or tokens
-----
-Provide clear examples of both correct and incorrect patterns.
-
-**Issue**: Policies conflict with each other
-**Solution**: Review all policies for consistency:
-[source,bash]
-----
-# List all policies
-find .devlightspeed/policies/ -name "*.md"
-
-# Review for conflicts
-# Resolve by updating policy priority or merging related policies
-----
-
-**Issue**: Solution Server performance is slow with many policies
-**Solution**: Organize policies hierarchically:
-[source,bash]
-----
-# Structure policies by topic
-.devlightspeed/policies/
-  ├── logging/
-  │   └── logging-standard.md
-  ├── configuration/
-  │   └── config-standard.md
-  └── security/
-      └── security-standard.md
-
-# Index only relevant policies for specific tasks
-----
 
 **Issue**: New team members don't know policies exist
 **Solution**: Document Solution Server usage in onboarding:
