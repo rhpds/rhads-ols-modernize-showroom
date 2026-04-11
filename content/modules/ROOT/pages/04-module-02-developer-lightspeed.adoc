@@ -66,7 +66,7 @@ image::module-02/workspace-listing.png[Open Workspace,link=self,window=blank,tit
 +
 Your **kai-coolstore** gitea repository will load in DevSpaces and your development environment will be setup.
 +
-The workspace will open in a new tab in your browser.  The workspace tab is a VSCode GUI environment served up by DevSpaces
+IMPORTANT: The workspace will open in a new tab in your browser.  The workspace tab is a VSCode GUI environment served up by DevSpaces
 +
 * If asked if you trust the content and providers, acknowledge yes, you do.
 * If shown a layout introductory panel, choose **Light Modern** theme for best contrast later in the exercise and **Mark Done**.
@@ -424,4 +424,4 @@ You now have hands-on experience with AI-assisted code modernization and underst
 
 **Next steps:**
 
-Module 3 will show you how to incorporate ACME's specific coding standards and best practices into the AI's knowledge using Developer Lightspeed Solution Server, ensuring consistency across all migration waves.
+Module 3 will show you how to incorporate ACME's specific coding standards and best practices into AI's generative code migration, by using Developer Lightspeed Solution Server, ensuring consistency across all developers from senior developer to junior contractor, and across all migration waves.
