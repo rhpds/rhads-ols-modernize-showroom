@@ -2,51 +2,71 @@
 :toc: left
 :icons: font
 
-== 1. Environment Setup
+== 1. Goals of this lab
 
-* [cite_start]**Access the Console:** Open the *MTA Web Console*[cite: 3, 5].
+As part of the digital transformation and cloud adoption initiative of a large organization, the _Development_ and _DevOps_ teams embarked upon a journey to modernize their existing siloed services running on virtual machines.
+
+The goal of this lab is to assess and analyze the current application portfolio and identify potential issues and risks for implementing advanced cloud-native architectures with application modernization.
+
+== 2. Introduction to Migration Toolkit for Applications
+
+To work on the migration of the existing applications in our portfolio we will use the https://developers.redhat.com/products/mta/overview[Migration Toolkit for Applications (MTA)^]. _MTA_ will be used to assess, analyze and finally migrate the `Customers` application, currently running on a _Tomcat_ server on a VM.
+
+Open a new browser to access the {mta_url}[MTA Web Console^].
+
+NOTE: For this lab the MTA Web Console is readily available at that URL. In a production-ready environment the console would be secured by Red Hat Single Sign On and require you to log in with valid credentials.
+
+You will see existing application in the inventory such as *Customers*, *Orders*, *Inventory*, and more.
+
+== 3. Environment Setup
+
+* **Access the Console:** Open the *MTA Web Console*.
 * **Enable Questionnaires:**
-. Switch the top-left perspective selector to *Administration*[cite: 55].
-. Select *Assessment Questionnaires*[cite: 55].
-. Toggle the *Required* switch for *Legacy Pathfinder* to *ON*[cite: 57, 58].
-. Switch the perspective back to *Migration*[cite: 59].
-* [cite_start]**Enable Insecure Repositories:** In the *Administration* perspective, go to *Repositories > Git* and toggle *Consume insecure Git repositories* to the right[cite: 102].
+. Switch the top-left perspective selector to *Administration*.
+. Select *Assessment Questionnaires*.
+. Toggle the *Required* switch for *Legacy Pathfinder* to *ON*.
+. Switch the perspective back to *Migration*.
+* [cite_start]**Enable Insecure Repositories:** In the *Administration* perspective, go to *Repositories > Git* and toggle *Consume insecure Git repositories* to the right.
 
 ---
 
-== 2. Archetype Assessment
+== 4. Archetype Assessment
 
-* [cite_start]**Start Assessment:** Navigate to *Archetypes* on the left menu, click the *three-dot menu* for the *Summer Framework* archetype, and select *Assess*[cite: 65].
-* **Retake & Navigate:** Click *Retake* [cite: 68], then click *Next* through the Stakeholders and initial sections (Details, Dependencies, Observability)[cite: 71, 72].
-* **Update Configuration:** In the *Application cross-cutting concerns* section, find "How is the application configured?" and select: *Multiple configuration files in multiple file system locations*[cite: 74, 75].
+* **Start Assessment:** Navigate to *Archetypes* on the left menu, click the *three-dot menu* for the *Summer Framework* archetype, and select *Assess*.
+* **Retake & Navigate:** Click *Retake* [cite: 68], then click *Next* through the Stakeholders and initial sections (Details, Dependencies, Observability).
+* **Update Configuration:** In the *Application cross-cutting concerns* section, find "How is the application configured?" and select: *Multiple configuration files in multiple file system locations*.
 * **Submit Review:**
-. Click *Save and review*[cite: 75].
-. Set *Proposed action* to *Refactor*[cite: 81, 82].
-. Set *Effort estimate* to *Small*[cite: 82].
-. Set *Business criticality* to *10* and *Work priority* to *9*[cite: 83].
-. [cite_start]Click *Submit Review*[cite: 84].
+. Click *Save and review*.
+. Set *Proposed action* to *Refactor*.
+. Set *Effort estimate* to *Small*.
+. Set *Business criticality* to *10* and *Work priority* to *9*.
+. Click *Submit Review*.
 
 ---
 
-== 3. Application Analysis
+== 5. Application Analysis
 
 * **Configure Customers App:**
-. [cite_start]In *Application inventory*, click the *pencil (edit) icon* for the *Customers* application[cite: 105].
+. In *Application inventory*, click the *pencil (edit) icon* for the *Customers* application.
 . Set *Repository type* to *Git*[cite: 106].
-. Enter the *Source Repository* URL, set *Branch* to `mta-lab`, and *Root path* to `customers-tomcat-legacy`[cite: 106].
-. Click *Save*[cite: 107].
+. Enter the *Source Repository* URL, set *Branch* to `mta-lab`, and *Root path* to `customers-tomcat-legacy`.
+. Click *Save*.
 * **Run Analysis:**
-. Select the *Customers* checkbox and click *Analyze*[cite: 114].
-. **Mode:** Select *Source code*[cite: 115].
-. **Targets:** Select *Containerization*, *Linux*, and *OracleJDK to OpenJDK*[cite: 118, 120].
-. **Scope:** Select *Application and internal dependencies only*[cite: 124].
-. **Custom Rules:** Select the *Repository* tab and enter the Gitea URL, Branch `mta-lab`, and Root path `customrules`[cite: 129, 130].
-. [cite_start]**Execute:** Click *Next* through advanced options and click *Run*[cite: 133, 134].
+. Select the *Customers* checkbox and click *Analyze*.
+. **Mode:** Select *Source code*.
+. **Targets:** Select *Containerization*, *Linux*, and *OracleJDK to OpenJDK*.
+. **Scope:** Select *Application and internal dependencies only*.
+. **Custom Rules:** Select the *Repository* tab and enter the Gitea URL, Branch `mta-lab`, and Root path `customrules`.
+. **Execute:** Click *Next* through advanced options and click *Run*.
 
 ---
 
-== 4. Results Review
+== 6. Results Review
 
-* [cite_start]**Status:** Wait for the analysis status to change from *Scheduled* to *Completed*[cite: 135, 141].
-* **View Issues:** Click on the *Customers* application row to open the *Application Profile* and select the *Issues* link[cite: 143, 158].
-* [cite_start]**Identify Risks:** Review the findings for *Hardcoded IP Address* and *Legacy configuration* triggers[cite: 159, 164].
+* **Status:** Wait for the analysis status to change from *Scheduled* to *Completed*.
+* **View Issues:** Click on the *Customers* application row to open the *Application Profile* and select the *Issues* link.
+* **Identify Risks:** Review the findings for *Hardcoded IP Address* and *Legacy configuration* triggers.
+
+== Summary
+
+You have now successfully analyzed the legacy application to gather insight about technologies, dependencies and potential issues that need to be addressed for the application to run in OpenShift.
