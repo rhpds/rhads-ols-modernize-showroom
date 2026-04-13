@@ -66,18 +66,33 @@ xref:common/login-devspaces.adoc[Initially login or reestablish DevSpaces worksp
 // may need to stash prior branch effort before git checkout
 * Enter the following into the terminal prompt and hit Enter:
 +
-[source,bash]
+[source,bash,role="execute", subs="attributes"]
 ----
 git checkout module4
 ----
 +
 image::module-04/Git-Checkout-Module4.png[Checkout Module 4,link=self,window=blank,title="Checkout Module 4"]
++
+[NOTE]
+====
+If you get an error similar to +
+__error: Your local changes to the following files would be overwritten by checkout:__ +
+Then enter the following in the terminal prompt:
+[source,bash,role="execute", subs="attributes"]
+----
+# Do a save of uncommitted work from the previous module
+git stash
 
+# Switch to branch for this module
+git checkout module4
+----
+====
++
 . Log into your OpenShift Cluster from the terminal:
 +
 * Enter the following into the terminal prompt and hit Enter/Return:
 +
-[source,bash]
+[source,bash,role="execute", subs="attributes"]
 ----
 # Login to OpenShift cluster
 oc login --server={openshift_api_url} \
@@ -90,7 +105,7 @@ oc login --server={openshift_api_url} \
 +
 This OpenShift namespace is where the application will be built and deployed
 +
-[source,bash]
+[source,bash,role="execute", subs="attributes"]
 ----
 # Switch to the new application project namespace
 oc project user-{user}-coolstore
@@ -105,7 +120,7 @@ The Coolstore application needs a database to connect to for managing shopping c
 +
 * Enter the following in the terminal window and hit Enter/Return
 +
-[source,bash]
+[source,bash,role="execute", subs="attributes"]
 ----
 oc new-app -e POSTGRESQL_USER=quarkus \
             -e POSTGRESQL_PASSWORD=quarkus \
@@ -131,7 +146,7 @@ As explained above we take a rapid developer environment approach for this that 
 . Build and Deploy the Coolstore Application 
 * Enter the following in the terminal window and hit Enter/Return
 +
-[source,bash]
+[source,bash,role="execute", subs="attributes"]
 ----
 mvn install -Dquarkus.openshift.deploy=true
 ----
@@ -142,7 +157,7 @@ Confirm the application is running successfully on OpenShift:
 
 . Get the application URL:
 +
-[source,bash]
+[source,bash,role="execute", subs="attributes"]
 ----
 # Get the external route URL
 oc get route coolstore -o jsonpath='{.spec.host}'
@@ -156,7 +171,7 @@ echo "Application URL: https://$APP_URL"
 +
 Open the URL in your browser or test via curl:
 +
-[source,bash]
+[source,bash,role="execute", subs="attributes"]
 ----
 # Test the application endpoint
 curl -k https://$APP_URL/q/health
@@ -167,7 +182,7 @@ curl -k https://$APP_URL/
 
 . View application logs:
 +
-[source,bash]
+[source,bash,role="execute", subs="attributes"]
 ----
 # Get logs from the application pods
 oc logs -l app.kubernetes.io/name=coolstore --tail=50
@@ -182,7 +197,7 @@ Click the application URL or use the browser to:
 * Verify all functionality works in the containerized environment
 
 
-[source,bash]
+[source,bash,role="execute", subs="attributes"]
 ----
 # Check pod health
 oc get pods -l app=coolstore
@@ -223,7 +238,7 @@ image::openshift-deployment.png[OpenShift Deployment,link=self,window=blank,widt
 
 . Verify the image is in the registry:
 +
-[source,bash]
+[source,bash,role="execute", subs="attributes"]
 ----
 # List images in OpenShift registry
 oc get imagestream
@@ -231,7 +246,7 @@ oc get imagestream
 
 Confirm the image is available in OpenShift:
 
-[source,bash]
+[source,bash,role="execute", subs="attributes"]
 ----
 # Check imagestream details
 oc describe imagestream coolstore
@@ -253,7 +268,7 @@ latest
 
 . Get the OpenShift internal registry URL:
 +
-[source,bash]
+[source,bash,role="execute", subs="attributes"]
 ----
 # Get internal registry route
 REGISTRY=$(oc get route default-route -n openshift-image-registry \
@@ -263,7 +278,7 @@ echo "Registry URL: $REGISTRY"
 ----
 
 
-[source,bash]
+[source,bash,role="execute", subs="attributes"]
 ----
 # Get OpenShift token for registry authentication
 TOKEN=$(oc whoami -t)
@@ -274,7 +289,7 @@ podman login -u {user} -p $TOKEN $REGISTRY --tls-verify=false
 
 . Confirm the image in the OpenShift registry:
 +
-[source,bash]
+[source,bash,role="execute", subs="attributes"]
 ----
 # Search for images
 podman search $REGISTRY/user-{user}-coolstore/coolstore:1.0.0-SNAPSHOT --tls-verify=false
@@ -298,7 +313,7 @@ You've completed the end-to-end modernization journey. Now review what ACME has 
 
 . Review the deployment metrics:
 +
-[source,bash]
+[source,bash,role="execute", subs="attributes"]
 ----
 # Check resource usage
 oc adm top pods -l app=coolstore

@@ -119,13 +119,27 @@ xref:common/login-devspaces.adoc[Initially login or reestablish DevSpaces worksp
 * A new terminal window will open at the bottom of the screen
 * Enter the following into the terminal prompt and hit Enter:
 +
-[source,bash]
+[source,bash,role="execute", subs="attributes"]
 ----
 git checkout module3
 ----
 +
 image::module-03/git-checkout-module3.png[Checkout Module 3,link=self,window=blank,title="Checkout Module 3"]
++
+[NOTE]
+====
+If you get an error similar to +
+__error: Your local changes to the following files would be overwritten by checkout:__ +
+Then enter the following in the terminal prompt:
+[source,bash,role="execute", subs="attributes"]
+----
+# Do a save of uncommitted work from the previous module
+git stash
 
+# Switch to branch for this module
+git checkout module4
+----
+====
 
 . Confirm and open MTA VSCode extension (Developer Lightspeed for MTA)
 +
