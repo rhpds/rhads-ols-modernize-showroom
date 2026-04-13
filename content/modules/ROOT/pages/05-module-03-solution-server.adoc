@@ -9,6 +9,8 @@ ACME needs to scale modernization across dozens of applications while maintainin
 
 In this module, you'll experience how Solution Server captures company policies, learns tribal knowledge, and accelerates major migration waves by teaching AI your organization's specific patterns.
 
+IMPORTANT: Solution Server is an enterprise capability that will apply __Migration Hints__ to the LLM generating code fixes.  These company specific or privacy based approaches are based upon Solution Servers ability to capture company policies and tribal knowledge and have the LLM apply them across all migration efforts at ACME Corp.
+
 In this module you move between two different roles: 
 
 * First you will be a senior architect or lead developer and based on an archetype grouping of applications we covered in Module 1, you will work with an initial representative application. You will add into the AI generated code some company policy code approaches, which reflect tribal knowledge based upon company libraries or practices.
@@ -29,6 +31,12 @@ By the end of this module, you'll be able to:
 You need to understand what Solution Server is and how it enables organizational knowledge capture for AI-assisted development.
 
 You prepare to explore Solution Server's capabilities and architecture.
+
+=== Prerequisites
+* Understand at a high level the value of Developer Lightspeed for MTA
+* Able to access Workshop Application Tabs
+
+=== Steps
 
 . Understand Solution Server's role:
 +
@@ -95,19 +103,21 @@ Before you start, setup the module environment
 
 . Confirm access to DevSpaces workspace
 +
-If you completed Module 2 you probably still have an active DevSpaces workspace browser window open.
+There are two different browser tabs related to DevSpaces.  One is the DevSpaces tab/window that lists all the active DevSpaces workspaces.  The other one is the actual opened workspace, which is the VSCode IDE hosted in a browser window/tab.
++
+If you completed Module 2 you probably still have an active DevSpaces workspace browser tab window, or separate browser window open.
 +
 If so, navigate to it
 +
 If you don't, then **click** on the following linked instructions to initially open or reset your workspace browser window. +
 xref:common/login-devspaces.adoc[Initially login or reestablish DevSpaces workspace,role=resource,window=_blank,title="DevSpaces Login/Workspace"]
 
-. Switch to the Module 3 Git branch
+. Switch to the __Module 3__ Git branch
 +
 * Create a new terminal window
 * Click on the hamburger icon on the left sidebar, Click on the **Terminal** menu item, click on **New Terminal** 
 * A new terminal window will open at the bottom of the screen
-* Enter the following into to the terminal prompt and hit Enter:
+* Enter the following into the terminal prompt and hit Enter:
 +
 [source,bash]
 ----
@@ -150,12 +160,12 @@ image::module-03/Analysis-panel-initial.png[Open Configuration,link=self,window=
 +
 image::module-03/Analysis-Config.png[Analysis Configuration,300,300,link=self,window=blank,title="Analysis Configuration"]
 +
-* Notice __Hub Configuration__ is not yet configured and __Configure GenAI__ may not be configured yet also
+* Notice __Hub Configuration__ is not yet configured and __Configure GenAI__ may not be configured yet
 * Click on **Configure Hub Settings**
 * The __MTA Hub Configuration__ tab will open
 * In __General Settings__ , click the slider to Enable connection to Konveyor Hub  (MTA Hub)
-* In __Hub URL__ enter #\{mta_url}#
-* Enable/Turn on _Skip SSL certificate verification__
+* In __Hub URL__ enter `{mta_url}`
+* Enable/Turn on __Skip SSL certificate verification__
 * Under **Features** towards the bottom Enable **Solution Server**
 * Click **Save**
 * Close the __MTA Hub Configuration__ tab
@@ -195,7 +205,7 @@ models:
 * If it doesn't, click on the **Start** button
 * Do NOT turn on Agent Mode
 +
-image::module-03/Server-Status.png[Server Status,250,250,link=self,window=blank,title="Server Status"]
+image::module-03/Server-Status.png[Server Status,300,300,link=self,window=blank,title="Correct Server Status"]
 
 
 . Review the Profile Settings
@@ -216,12 +226,12 @@ image::module-03/Open-Profiles.png[Open Profiles,link=self,window=blank,title="O
 +
 image::module-03/Active-Profile.png[Active-Profile,link=self,window=blank,title="Active Profile"]
 +
-** Like Module 2 it has same __Target__ and __Source__ Technologies
+** Like Module 2 it has the same __Target__ and __Source__ Technologies
 ** It includes __Default Rules__ to help narrow down areas of concern
 ** It also includes the use of __Custom Rules__ , authored in yaml by ACME architects that look for company specific logging concerns in code, among other things.
 * Close the **MTA Manage Profiles** panel
 
-NOTE: Rapid authoring of Custom Rules in beyond the scope of this workshop, but if you have interest in this area please talk with the workshop leads for more information and enablement approaches.
+NOTE: Rapid authoring of Custom Rules is beyond the scope of this workshop, but if you have interest in this area please talk with the workshop leads for more information and enablement approaches.
 
 
 == Exercise 3: Experience Solution Server learning company policies and best practices
@@ -256,7 +266,7 @@ image::module-03/Find-Order-Service.png[Order Service,link=self,window=blank,tit
 * In this case we have an issue related to how logging is handled in the legacy application that is not acceptable in a modern cloud native Java application.
 * Click on the down arrow next to one of the wrench icons and select **Get solution**
 * As was seen in Module 2 this action opens a **MTA Resolution Details** pane and the interactive conversation between Developer Lightspeed and the LLM scrolls by with the LLM returning a suggested set of fixes for **OrderService.java**
-* You may want to take a minute and scroll through the AI Results screen and see all the suggested changes and reasoning behind why the LLM is suggesting the resolution.
+* You may want to take a minute and scroll through the **AI Results** screen and see all the suggested changes and reasoning behind why the LLM is suggesting the resolution.
 +
 image::module-03/Logger-Issue.png[Logging Issue,link=self,window=blank,title="Logging Issue"]
 +
@@ -340,7 +350,7 @@ Since Solution Server just learned some ACME specific coding best practices rela
 
 Can these __Migration Hints__ via Solution Server enrich generated code fixes for junior developers and contractors who would not yet have that tribal knowledge or company policy, but are tasked with correctly migrating similar applications in the migration wave to OpenShift. +
 
-__Normally the LLM would not be able to create these fixes by itself since the context and policy is specific to ACME.  Solution Server + Developer LIghtspeed for MTA provide this unique AI capability__
+__Normally the LLM would not be able to create these fixes by itself since the context and policy is specific to ACME Corp__.  **Solution Server + Developer LIghtspeed for MTA provide this unique AI capability.**
 
 === Steps
 
@@ -388,7 +398,7 @@ The level of completion includes:
 * Removal of legacy company coding approaches
 * Removal of hard coded environment variables + 
 
-You can can now scroll to the fop of the file, accept changes, and close the file and Resolution Pane 
+You can can now scroll to the fop of the file, accept changes, and close the file and Resolution Pane. 
 
 image::module-03/ProductService-AcceptChanges.png[Accept Changes,link=self,window=blank,title="Accept Changes"]
 
@@ -418,7 +428,6 @@ The example here focused on a logging issue pervasize across Wave 1 applications
 * Developers must reference policy documents repeatedly
 * Inconsistencies arise between applications
 * Code review catches policy violations late
-* Estimated: 5-7 days per application × 15 apps = 75-105 days
 
 . Calculate AI-accelerated effort with Solution Server:
 +
@@ -428,47 +437,15 @@ The example here focused on a logging issue pervasize across Wave 1 applications
 * Policies are enforced during code generation
 * No manual reference to policy documents needed
 * Consistency is automatic across all applications
-* Estimated: 1-2 days per application × 15 apps = 15-30 days
-
-. Understand the velocity improvement:
-+
-* **Traditional approach**: 75-105 days
-* **AI with Solution Server**: 15-30 days
-* **Acceleration**: 5-7x faster
-* **Time saved**: 45-90 days for Wave 1 alone
 
 . Consider the quality benefits:
 +
 Beyond speed, Solution Server provides:
 +
-* **Consistency**: All 15 apps follow identical patterns
+* **Consistency**: All apps follow identical patterns
 * **Maintainability**: Standardized code is easier to support
 * **Onboarding**: New developers learn ACME patterns through examples
 * **Compliance**: Policy enforcement is automated, not manual
-
-
-
-=== Verify
-
-
-
-**Issue**: New team members don't know policies exist
-**Solution**: Document Solution Server usage in onboarding:
-[source,markdown]
-----
-# ACME Developer Onboarding
-
-## Coding Standards
-All code must follow ACME policies:
-- Stored in: .devlightspeed/policies/
-- Automatically applied by Developer Lightspeed
-- Review policies before starting development
-
-## How to Use
-1. Use Developer Lightspeed for all code generation
-2. AI automatically follows ACME standards
-3. Review generated code to learn patterns
-----
 
 == Learning outcomes checkpoint
 
@@ -482,8 +459,6 @@ Before moving forward, confirm you can:
 * [ ] Quantify business benefits of organizational knowledge capture
 * [ ] Understand scalability advantages for large migration portfolios
 
-If you can check all these boxes, you're ready to proceed. If not, review the exercises where you need more practice.
-
 == Module summary
 
 You've successfully demonstrated how Solution Server captures organizational knowledge and accelerates large-scale migration efforts.
@@ -492,11 +467,10 @@ You've successfully demonstrated how Solution Server captures organizational kno
 * Created comprehensive policy documents for logging, configuration, and security
 * Configured Solution Server to learn ACME's organizational standards
 * Verified that AI-generated code automatically follows company policies
-* Quantified 5-7x velocity improvement for migration waves
 
 **Business impact realized:**
 * **Consistency**: All applications follow identical patterns and standards
-* **Velocity**: Migration waves accelerate from 75-105 days to 15-30 days
+* **Velocity**: Migration waves accelerate rapidly
 * **Quality**: Policy compliance is automated, not manual
 * **Scalability**: Proven approach works across entire application portfolio
 

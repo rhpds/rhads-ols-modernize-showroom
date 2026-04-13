@@ -32,6 +32,12 @@ You need to set up your development environment with AI capabilities to start mo
 
 You prepare to launch DevSpaces and configure the Developer Lightspeed extension.
 
+=== Prerequisites
+* Incognito mode browser access from user laptop to Workshop materials
+* Splitscreen view in browser to the Workshop Instructions and Tabs for Applications
+
+=== Steps
+
 . Switch to Red Hat OpenShift DevSpaces by clicking the **OpenShift DevSpaces** tab in the workshop interface.  
 
 . Log in to Dev Spaces using your OpenShift credentials:
@@ -60,10 +66,10 @@ image::module-02/workspace-listing.png[Open Workspace,link=self,window=blank,tit
 +
 Your **kai-coolstore** gitea repository will load in DevSpaces and your development environment will be setup.
 +
-The workspace will open in a new tab in your browser.  The workspace tab is a VSCode GUI environment served up by DevSpaces
+IMPORTANT: The workspace will open in a new tab in your browser.  The workspace tab is a VSCode GUI environment served up by DevSpaces
 +
 * If asked if you trust the content and providers, acknowledge yes, you do.
-* If shown a layout introductory panel, choose **Light** theme for best contrast later in the exercise and **Mark Done**.
+* If shown a layout introductory panel, choose **Light Modern** theme for best contrast later in the exercise and **Mark Done**.
 +
 image::module-02/vscode-getstarted.png[VSCode Tab,link=self,window=blank,title="VSCode Tab"]
 
@@ -74,12 +80,20 @@ image::module-02/vscode-getstarted.png[VSCode Tab,link=self,window=blank,title="
 
 . Configure the Developer Lightspeed MTA extension **Profile**
 +
+Before Developer Lightspeed can Analyize your legacy project you need to create a **Profile**, which will outline which LLM you want to use, and what the expected source and target technologies are that you want to convert from and to in the migration.
++
+Turning on static rules to assist in the analysis is also important.  You can also add additional **custom rules**, which we will do in the next lab module.  Basically static rules are known issues to look for when migrating from certain source technologies.  
++
+Rules also include hints on how to fix the issue.  In a __RAG__ style fashion, these are passed to the LLM and help focus the LLM tapped by Developer Lightspeed for MTA to ensure generated solutions are highly tuned for an optimal fix.
++
 * Click on the **MTA** Extension icon on the left side of the screen
-* If you see an **Install Extension Pack** message just reload the page
+* If you see an **Install Extension Pack** message just __reload__ the page
 * Click **Open Analysis Panel**
 +
-image::module-02/MTA-extension.png[Open Analysis Panel,link=self,window=blank,title="Open Analysis Panel"]
-TIP:  If you ever accidently close the MTA Analysis View panel, just click on the MTA Extension icon and click on the book icon in the pane just to the right, at the top. image:module-02/Open-Analysis-View.png[Open Analysis Pane Icon,link=self,window=blank,title="Open Analysis Pane Icon",250,250]
+image::module-02/MTA-extension.png[Open Analysis Panel,link=self,window=blank,title="(Reload) And Open Analysis Panel"]
+TIP:  If you ever accidently close the MTA Analysis View panel, just click on the MTA Extension icon and click on the book icon in the pane just to the right, at the top. 
++
+image::module-02/Open-Analysis-View.png[Open Analysis Pane Icon,450,450,link=self,window=blank,title="Tip: Re-Open Analysis Pane Icon"]
 +
 * Click **Manage Profiles** on the screen
 +
@@ -101,14 +115,6 @@ image::module-02/MTA-profile-filling.png[Create New Profile,link=self,window=bla
 image::module-02/MTA-Profile-settings.png[Profile Settings,link=self,window=blank,title="Profile Settings"]
 +
 
-// for now we will skip custom rules and put those into the Solution Server module
-// * Click on **Select Custom Rules...**
-// * A __Select Custom Rules__ input box will appear at the top of the screen
-// * Enter the following path: `/projects/kai-coolstore/rules`
-// * The profile auto-saves as you enter and make changes.
-// We need to prebuild the provider-settings.yaml file and remove this following step/section
-// configuration file to be updated is: /checode/remote/data/User/globalStorage/redhat.mta-vscode-extension/settings/provider-settings.yaml
-// Until then here are the steps
 . Configure the AI model connection for MTA Developer Lightspeed:
 +
 * Click on the **MTA Analysis View** tab
@@ -118,7 +124,7 @@ NOTE: You will notice a yellow warning about a connection issue, we will resolve
 * Click on the gear icon, on the right side of the screen.
 * The Get Ready to Analyze pane will open on the right hand side of the screen
 * Notice most of the settings are already established
-* The **Hub Configuration** is configured and used in the next module.
+* The **Hub Configuration** is configured and used in the next lab module.
 * Click on the __Configure GenAI Settings__ link in the bottom message box
 +
 image::module-02/Analysis-hub.png[Configure Generative AI Settings,link=self,window=blank,title="Configure Generative AI Settings"]
@@ -144,14 +150,6 @@ models:
         baseURL: "{litellm_api_base_url}"
 ----
 +
-//* Go to hamburger icon at the top left of the DevSpaces env Click on the menu **File > Save**
-//+
-// [IMPORTANT]
-// ====
-// You need to manually save any changes to files in this workshop. +  
-// Don't use Auto Save or you will miss reviewing the reasoning in some later steps.
-// ====
-+
 * Close the provider-settings.yaml file
 * Click on the **MTA Analysis View** tab 
 * Close the **Get Ready to Analyze** pane
@@ -162,15 +160,13 @@ models:
 
 Confirm your DevSpaces and MTA (Developer Lightspeed for MTA) Extension is setup correctly
 
+. If you have concerns, Confirm MTA Extension is setup correctly
+* When you click on the MTA extension icon in the left pane, and are able to get to/open the MTA Analysis View Tab
+** Click on the gear icon on the right side of the screen
+** The **Get Ready to Analyze** pane will open on the right hand side of the screen
+** There should be green check marks in all of the message boxes (except Hub Configuration) and each should be listed as completed
 
-
-. Confirm MTA Extension is setup correctly
-* When you clicked on the MTA extension icon, and are on the MTA Analysis View Tab:
-* Click on the gear icon on the right side of the screen
-* The **Get Ready to Analyze** pane will open on the right hand side of the screen
-* There should be green check marks in all four of the message boxes and each should be listed as completed
-
-. Confirm the DevSpaces workspace is pointing to the correct gitea repository 
+. If you have concerns, Confirm the DevSpaces workspace is pointing to the correct gitea repository 
 * Click on the file icon on the left side of the DevSpaces environment
 * You should see in the File _EXPLORER_ the **kai-coolstore** directory listing
 * You may have to click on the file explorer arrows to open the directories.
@@ -181,7 +177,9 @@ Confirm your DevSpaces and MTA (Developer Lightspeed for MTA) Extension is setup
 
 Before making changes, you'll use Developer Lightspeed MTA extension to analyze the legacy code and identify specific modernization opportunities.
 
-In this exercise the Developer Lightspeed for MTA extension will run a static code analysis against all the source code in the cloned repository. The static code rules are provided by Red Hat to help focus on rapid identification of issues, and customer rules can also be written and included.In this case we are including the custom ACME specific company policy code rules. This provides an efficient starting point focused on identifying migration issues that were highlighted during the risk analysis in the last module.
+In this exercise the Developer Lightspeed for MTA extension will run a static code analysis against all the source code in the cloned repository. The static code rules are provided by Red Hat to help focus on rapid identification of issues, and customer rules can also be written and included. This provides an efficient starting point focused on identifying migration issues that were highlighted during the risk analysis in the last module.
+
+In the next lab module you will include custom ACME specific company policy code rules.
 
 Later on the analysis results will be used to prompt the LLM for generating code fixes.
 
@@ -195,20 +193,20 @@ Later on the analysis results will be used to prompt the LLM for generating code
 +
 * Navigate to the **MTA Analysis View** pane
 +
-TIP:  If you ever accidently close the MTA Analysis View panel, just click on the MTA Extension icon and click on the book icon in the pane just to the right, at the top. image:module-02/reopen-analysis-pane.png[Reopen View Panel,link=self,window=blank,title="Reopen View Panel",150,150]
+TIP:  If you ever accidently close the MTA Analysis View panel, just click on the MTA Extension icon and click on the book icon in the pane just to the right, at the top. image:module-02/reopen-analysis-pane.png[Reopen View Panel,350,350,link=self,window=blank,title="Reopen View Panel"]
 +
 * In the center of the screen make sure the profile selected is the **{user} coolstore**
 * At the top right of the screen, ensure the __Server Status__ is **Running**
 ** Click the **Start** button if it isn't and wait till the Server Status is **Running**
 
-. Invoke Developer Lightspeed analysis:
+. Invoke Developer Lightspeed Analysis:
 +
 * In the right side of the screen click on the **Run Analysis** button.
 +
 [NOTE]
 ====
 In this scenario the lead developer is migrating a legacy JavaEE monlithic application into a cloud native Quarkus application to run on OpenShift. +
-They want to understand the level of effort needed to migrate a representative application for a "wave" of JavaEE apps to be migrated.
+They want to understand the level of effort needed to migrate a representative application within a "wave" of JavaEE apps to be migrated.
 ====
 +
 image::module-02/Initial-analysis.png[Run Initial Static Code Analysis,link=self,window=blank,title="Run Initial Static Code Analysis"]
@@ -233,14 +231,16 @@ image::module-02/EJB-issue.png[EJB Issue - Not Supported,link=self,window=blank,
 +
 * __If this is NOT the first result in the listing do the following:__
 ** Type __OrderServiceMDB__ in the Search box at the top of the Analysis Results listing
-* Click on the **>** arrow on the left of the result and view the details
-* You will see a short statement giving more context as to what the issue is and some basic guidance
+* When you locate the issue, Click on the **>** arrow on the left of the result and view the details
+* You will see a short statement giving more context as to what the issue is and some basic guidance on how such an issue should be resolved
 * You will also see a link to the file itself that has the issue.
 * In the next exercise we will use AI capabilities as Developer Lightspeed has an interactive conversation with an LLM to generate code fixes, prompting it with information from rules. This is a RAG style approach, as it is creating enriched prompts
 
 [NOTE]
 ====
-For the Lead Developer this is a major issue, newer Java frameworks like Quarkus don't support legacy JavaEE EJB (Enterprise Java Bean) approaches.  Especially when working with messaging solutions legacy EJB approaches need to be removed and modern  __MicroProfile__ approaches need to injected into the code.  This also directly reflects the risk assessment reviewed in the first module, where legacy monolithic applications using JavaEE frameworks were a major concern.
+For the Lead Developer this is a major issue, newer Java frameworks like Quarkus don't support legacy JavaEE EJB (Enterprise Java Bean) approaches.  Especially when working with messaging solutions, legacy EJB approaches need to be removed and modern  __MicroProfile__ approaches need to injected into the code.  
+
+This also directly reflects the risk assessment reviewed in the first module, where legacy monolithic applications using JavaEE frameworks were a major concern.
 ====
 
 === Verify
@@ -269,10 +269,9 @@ image::module-02/EJB-get-solution.png[Start AI Code Generation,link=self,window=
 +
 * Click on one of the wrench icons down arrows to the right of the screen for the issue.
 * Click on Get Solution from the drop down menu.
-//* NOTE:  If the wrench icon itself was clicked that will also directly run Get Solution
 * Notice the **MTA Resolution Details** tab now opens and an interactive conversation occurs between the MTA extension and the LLM.
 * Scroll through the __Generative AI Results__ screen and observe how Developer Lightspeed for MTA extension has an interactive conversation with the LLM, prompting it with information from rules.
-* Note how LLM via the **MTA AI** respondant provides reasoning, change suggestions, and a fully converted Quarkus code approach to replace the existing approach.
+* Note how the LLM via the **MTA AI** respondant provides reasoning, change suggestions, and a fully converted Quarkus code approach to replace the existing approach.
 * Notice that it then pauses and asks if the developer wants to **Review Changes** or just accept, or reject what the AI powered MTA extension suggested. 
 +
 image::module-02/EJB-GenAI-results.png[Generative AI Results,link=self,window=blank,title="Generative AI Results"]
@@ -281,27 +280,29 @@ image::module-02/EJB-GenAI-results.png[Generative AI Results,link=self,window=bl
 +
 * Click on **Review In Editor**
 * A new code editor pane will open to the right and show the OrderServiceMDB.java file
++
+NOTE: You can slide the pane divider right/left to increase the view of either the Resolution Details or the Java file
++
 ** Original code that doesn't need changes will not be highlighted
-** Red highlighted code is what needs to be removed
-** Green highlighted code is what needs to be added
+** **Red** highlighted code is what needs to be removed
+** **Green** highlighted code is what needs to be added
 
 . Accept the AI-generated changes:
-+
-image::module-02/EJB-review-accept-changes.png[Review and Accept All,link=self,window=blank,title="Review and Accept All Changes"]
 +
 * At the top of the file is a small prompt/link to **Accept All Changes or Reject All Changes**
 * Scrolling through the file shows that each highlighted code block can be accepted or rejected individually
 * Scroll to the top of the file and Click **Accept All Changes**
++
+image::module-02/EJB-review-accept-changes.png[Review and Accept All,link=self,window=blank,title="Review and Accept All Changes"]
++
 * Developer Lightspeed will now apply all the corrective changes and rerun the analysis to show it has been resolved
-* Save the migrated **OrderServiceMDB.java** file
-** Go to hamburger icon at the top left of the DevSpaces env Click on the menu **File > Save**
-* In the **MTA Resolution Details** tab click the Continue button and this will return focus to the **MTA Analysis View**
+* In the **MTA Resolution Details** tab click the __Continue__ button and this will return focus to the **MTA Analysis View**
 * Close the **MTA Resolution Details** and fixed **OrderServiceMDB.java** panes by clicking **X** on their tabs
 
 
 === Verify
 
-Confirm that the **@MessageDriven - EJBs are not supported in Quarkus** is no longer listed in the 
+Confirm that the **@MessageDriven - EJBs are not supported in Quarkus** is no longer listed in the Analysis Results.
 
 ✓ AI generated valid, compilable code
 ✓ Changes maintain application functionality
@@ -326,7 +327,9 @@ However, to speed migration and modernization, once they have checked how effect
 * Switch to the **MTA Analysis View** tab in the Developer Lightspeed for MTA extension
 * Ensure in the uppper right __Server Status__ is **Running**
 * Click **Agent Mode** toggle to turn it on
-
++
+image::module-02/Server-running-Agent-Mode.png[Ensure Server and Agent Mode are On,300,300,link=self,window=blank,title="Ensure Server and Agent Mode are On"]
++
 . Start another Analyis run
 +
 This Analysis run will use Agent Mode
@@ -335,7 +338,7 @@ This Analysis run will use Agent Mode
 * The Analyis will run again
 * __At this point in the exercises one can choose to see how Agent Mode can migrate a cascading fix across a code base by doing the following optional step OR move to the **Let the Agent work** Step and watch it fix all the issues.__
 
-. Selectively focus on a specific issue Theme (Optional)
+. Selectively focus on a specific issue Theme
 +
 In ACME'S scenario the lead developer is very concerned about a major Java framework issue **Adopt Quarkus Maven plugin** and they want to see how Developer Lighspeed can cascade changes across files based on fixing this major issue, using __Agent Mode__.
 +
@@ -343,94 +346,27 @@ In ACME'S scenario the lead developer is very concerned about a major Java frame
 * Open the issue by clicking on the **>** arrow
 * Observe the pom.xml file will need to be changed and as the Java developer knows this will cause cascading changes across the codebase for imported libraries and code approaches
 * Click the wrench icon to the right of the issue, inorder to initiate the AI solution resolution
-* Developer Lightspeed extension will scroll through the Generative AI Results, which was covered in detail previously
-* Click **Accept All** suggested changes
++
+image::module-02/Quarkus-plugin.png[Need To Insert Quarkus Plugin,link=self,window=blank,title="Need To Insert Quarkus Plugin"]
++
+* Developer Lightspeed extension will scroll through the __Generative AI Results__, which was covered in detail previously
+* Click **Accept All** suggested changes for the Plugin Issue
 * Developer Lightspeed fixes the issue, and **Agent Mode** continues to look for all impacted code across the project that are affected by this fix.
 * Agent Mode offers to __continue fixing them__
-* Choose **Yes**
-* The screen may appear to lockup but notice that the **Generative AI Results** title at the top of the pane now has 3 bouncing ***** balls after it
-* Soon the results stream will report that it fixed all the dependent files and list a summary of the number of fixed files.
-* Click **Run Analysis** again.
 +
-. Let the Agent work:
+image::module-02/Stop-Agent-fixes.png[Agent Mode Search Results,link=self,window=blank,title="Agent Mode Locates Other Impacted Code"]
 +
-Developer Lightspeed Agent Mode will now fix all the remaining issues
+* Choose **NO**
 +
-* Scroll the screen so you are looking at the beginning of the __Analyis Results__ listing
-* Click the down arrow next the wrench icon directly opposite the __Analyis Results__ title
-* Notice it offers to **Get solution for xx incidents**  -- meaning all the incidents
-* Either click the wrench icon or the either of the **Get solution for xx incidents** options
-* Agent Mode will now fix all the remaining issues
-* This means it will:
-** Analyze the entire project structure
-** Identify all files needing changes based upon the rule violations identified in the Analysis
-** Generate modernization code across multiple files
-** Apply changes systematically
-** Provide progress updates
+IMPORTANT: We are choosing NO, because this workshop doesn't allow enough time and shared resources to simultaneously fully fix all cascading issues across the project, for all participants.
 
-. Monitor the Agent's progress:
-+
-Watch as the Agent:
-+
-* Scans project files
-* Makes decisions about changes
-* Applies transformations
-* Validates its own work
-
-. Review the Agent's complete work:
-+
-Once the Agent finishes:
-+
-[source,bash]
-----
-# See all files modified by Agent Mode
-git status
-
-# Review the comprehensive changes
-git diff --stat
-----
-
-. Test the Agent-modernized code:
-+
-[source,bash]
-----
-# Compile everything
-./mvnw clean compile
-
-# Run full test suite
-./mvnw test
-
-# Package the application
-./mvnw package
-----
+This **Agent Exercise** provided a strong case for using Developer Lightspeed for MTA to not only fix specific issues but also be able to use AI capabilities to look across a codebase for all impacted code as the initial change has a ripple effect across the project.  Agent mode can then provide fixes along the way and further speed the migration, and scale the effort in a safe consistent way that ensures complete migration.
 
 === Verify
 
-Validate that Agent Mode successfully modernized the project:
-
-[source,bash]
-----
-# Verify build success
-ls -lh target/*.jar
-
-# Check test results
-./mvnw test | grep "Tests run"
-----
-
-Expected result:
-
-----
-[INFO] Tests run: XX, Failures: 0, Errors: 0, Skipped: 0
-----
 
 ✓ Agent Mode completed project-wide modernization
 ✓ Multiple files updated systematically
-✓ Build succeeds with all changes
-✓ Tests pass across entire codebase
-
-image::agent-mode-progress.png[Agent Mode Progress,link=self,window=blank,width=700,title="Agent Mode Progress"]
-
-// TODO: Capture screenshot of Agent Mode showing multiple file modifications
 
 == Troubleshooting
 
@@ -448,43 +384,6 @@ If endpoint is down, check with workshop instructor. If accessible, try restarti
 ----
 # Revert to previous version
 git checkout -- <file-name>
-
-# Try a more specific prompt to the AI
-# Be explicit about constraints and requirements
-----
-
-**Issue**: Agent Mode makes too many changes at once
-**Solution**: Provide more specific, constrained instructions:
-[source,text]
-----
-Focus only on updating Spring Boot dependencies in pom.xml
-Do not modify application logic or configuration files yet
-----
-
-**Issue**: Build fails after AI modifications
-**Solution**: Check compiler errors and resolve step-by-step:
-[source,bash]
-----
-# See specific compilation errors
-./mvnw compile 2>&1 | grep error
-
-# Fix errors one file at a time
-# Ask Developer Lightspeed to fix specific compilation errors
-----
-
-**Issue**: Cannot push to Gitea repository
-**Solution**: Verify Git credentials and remote configuration:
-[source,bash]
-----
-# Check remote URL
-git remote -v
-
-# Verify Gitea credentials
-# Username: {user}
-# Password: {password}
-
-# Push with explicit credentials if needed
-git push https://{user}:{password}@<gitea-host>/<repo>.git main
 ----
 
 == Learning outcomes checkpoint
@@ -506,19 +405,23 @@ If you can check all these boxes, you're ready to proceed. If not, review the ex
 You've successfully demonstrated AI-accelerated code modernization and can now show ACME how to dramatically reduce migration time.
 
 **What you accomplished for ACME:**
+
 * Configured AI-powered development environment
 * Generated production-quality modernized code using AI assistance
 * Validated AI changes through proper testing and review
 * Scaled modernization work using Agent Mode across entire projects
 
 **Business impact realized:**
+
 * **Development velocity**: Reduced code modernization time from days to hours
 * **Consistency**: AI applies patterns uniformly across codebase
 * **Quality**: Automated testing validates all changes
 * **Scalability**: Agent Mode enables project-level transformations
 
 **Your journey progress:**
+
 You now have hands-on experience with AI-assisted code modernization and understand how Developer Lightspeed accelerates the transformation from legacy to cloud-native applications.
 
 **Next steps:**
-Module 3 will show you how to incorporate ACME's specific coding standards and best practices into the AI's knowledge using Developer Lightspeed Solution Server, ensuring consistency across all migration waves.
+
+Module 3 will show you how to incorporate ACME's specific coding standards and best practices into AI's generative code migration, by using Developer Lightspeed Solution Server, ensuring consistency across all developers from senior developer to junior contractor, and across all migration waves.
