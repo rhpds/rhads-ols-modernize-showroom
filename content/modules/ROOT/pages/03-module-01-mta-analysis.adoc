@@ -1,76 +1,52 @@
-= Module 1: Strategic Analysis and Migration Planning with MTA
-:source-highlighter: rouge
-:toc: macro
-:toclevels: 1
+= MTA Assessment and Analysis: Quick-Start Guide
+:toc: left
+:icons: font
 
-Your manager at ACME Corp previously assigned you to lead the application modernization initiative. To save time, the initial setup and automated scanning of the legacy portfolio have already been completed.
+== 1. Environment Setup
 
-In this module, you will step directly into the role of a lead architect to interpret the results of the AI-powered analysis and organize the applications into a strategic migration roadmap.
+* [cite_start]**Access the Console:** Open the *MTA Web Console*[cite: 3, 5].
+* **Enable Questionnaires:**
+. Switch the top-left perspective selector to *Administration*[cite: 55].
+. Select *Assessment Questionnaires*[cite: 55].
+. Toggle the *Required* switch for *Legacy Pathfinder* to *ON*[cite: 57, 58].
+. Switch the perspective back to *Migration*[cite: 59].
+* [cite_start]**Enable Insecure Repositories:** In the *Administration* perspective, go to *Repositories > Git* and toggle *Consume insecure Git repositories* to the right[cite: 102].
 
-== Learning objectives
+---
 
-By the end of this module, you'll be able to:
+== 2. Archetype Assessment
 
-* Interpret AI-powered risk assessments and migration recommendations
-* Identify technical debt and modernization opportunities
-* Organize applications into migration waves based on complexity and effort
+* [cite_start]**Start Assessment:** Navigate to *Archetypes* on the left menu, click the *three-dot menu* for the *Summer Framework* archetype, and select *Assess*[cite: 65].
+* **Retake & Navigate:** Click *Retake* [cite: 68], then click *Next* through the Stakeholders and initial sections (Details, Dependencies, Observability)[cite: 71, 72].
+* **Update Configuration:** In the *Application cross-cutting concerns* section, find "How is the application configured?" and select: *Multiple configuration files in multiple file system locations*[cite: 74, 75].
+* **Submit Review:**
+. Click *Save and review*[cite: 75].
+. Set *Proposed action* to *Refactor*[cite: 81, 82].
+. Set *Effort estimate* to *Small*[cite: 82].
+. Set *Business criticality* to *10* and *Work priority* to *9*[cite: 83].
+. [cite_start]Click *Submit Review*[cite: 84].
 
-== Exercise: Review analysis and identify migration waves
+---
 
-The legacy Java application `petclinic-app` has already been imported and analyzed within the MTA console. Your task is to evaluate the findings to determine the migration strategy.
+== 3. Application Analysis
 
-=== Steps
+* **Configure Customers App:**
+. [cite_start]In *Application inventory*, click the *pencil (edit) icon* for the *Customers* application[cite: 105].
+. Set *Repository type* to *Git*[cite: 106].
+. Enter the *Source Repository* URL, set *Branch* to `mta-lab`, and *Root path* to `customers-tomcat-legacy`[cite: 106].
+. Click *Save*[cite: 107].
+* **Run Analysis:**
+. Select the *Customers* checkbox and click *Analyze*[cite: 114].
+. **Mode:** Select *Source code*[cite: 115].
+. **Targets:** Select *Containerization*, *Linux*, and *OracleJDK to OpenJDK*[cite: 118, 120].
+. **Scope:** Select *Application and internal dependencies only*[cite: 124].
+. **Custom Rules:** Select the *Repository* tab and enter the Gitea URL, Branch `mta-lab`, and Root path `customrules`[cite: 129, 130].
+. [cite_start]**Execute:** Click *Next* through advanced options and click *Run*[cite: 133, 134].
 
-. **Access the Analysis Report**: Open the MTA console and navigate to the **Analysis report** for the `petclinic-app`.
+---
 
-. **Evaluate the Risk Assessment Summary**: Review how MTA has categorized findings by risk level:
-* **Low risk**: Simple changes, minimal effort.
-* **Medium risk**: Moderate refactoring needed.
-* **High risk**: Significant code changes or architectural decisions required.
+== 4. Results Review
 
-. **Examine Specific Technical Issues**: Click through the **Issues** section to see specific findings, including affected files, line numbers, and recommended remediation actions.
-
-. **Record the Effort Estimation**: Note the **Story points** estimate provided by MTA. This value quantifies the total effort required for the migration.
-
-. **Assign a Migration Wave**: Based on the risk and story points, determine which wave this application belongs to:
-* **Wave 1 (Quick wins)**: Low-risk applications with minimal story points.
-* **Wave 2 (Moderate complexity)**: Medium-risk applications.
-* **Wave 3 (Complex migrations)**: High-risk applications.
-
-. **Tag the Application**: Return to the **Application inventory** and add the appropriate tag (e.g., `migration-wave-1`) to the `petclinic-app` to document your strategy.
-
-=== Verify
-
-Confirm you have completed the strategic assessment:
-
-* ✓ Risk assessment levels are understood
-* ✓ Story points have been recorded for project planning
-* ✓ The application is tagged with its designated migration wave
-
-image::mta-analysis-report.png[MTA Analysis Report,link=self,window=blank,width=700]
-
-== Learning outcomes checkpoint
-
-Before moving forward, confirm you can:
-
-* [ ] Access and navigate the Migration Toolkit for Applications console
-* [ ] Understand how legacy applications are imported from Git repositories into MTA
-* [ ] Understand how to configure and run AI-powered risk assessments
-* [ ] Interpret analysis results and understand risk levels
-* [ ] Identify specific code issues and remediation recommendations
-* [ ] Estimate migration effort using story points
-* [ ] Organize applications into strategic migration waves
-
-If you can check all these boxes, you're ready to proceed. If not, review the exercises where you need more practice.
-
-== Module summary
-
-You have successfully analyzed the pre-generated data for ACME's applications and established a data-driven foundation for the migration.
-
-**Business impact realized:**
-* **Planning acceleration**: Reduced assessment time from days to hours.
-* **Risk visibility**: Clear understanding of migration complexity and effort.
-* **Strategic sequencing**: Optimized migration approach based on complexity.
-
-**Next steps:**
-Module 2 will show you how to use **Red Hat Developer Lightspeed** to accelerate the actual code modernization, transforming these MTA recommendations into implementation.
+* [cite_start]**Status:** Wait for the analysis status to change from *Scheduled* to *Completed*[cite: 135, 141].
+* **View Issues:** Click on the *Customers* application row to open the *Application Profile* and select the *Issues* link[cite: 143, 158].
+* [cite_start]**Identify Risks:** Review the findings for *Hardcoded IP Address* and *Legacy configuration* triggers[cite: 159, 164].
