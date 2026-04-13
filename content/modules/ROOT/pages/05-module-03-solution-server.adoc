@@ -137,7 +137,7 @@ Then enter the following in the terminal prompt:
 git stash
 
 # Switch to branch for this module
-git checkout module4
+git checkout module3
 ----
 ====
 

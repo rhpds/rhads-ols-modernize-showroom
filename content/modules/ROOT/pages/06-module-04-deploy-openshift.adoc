@@ -108,7 +108,7 @@ This OpenShift namespace is where the application will be built and deployed
 [source,bash,role="execute", subs="attributes"]
 ----
 # Switch to the new application project namespace
-oc project user-{user}-coolstore
+oc project {user}-coolstore
 
 # Verify you're in the correct project
 oc project
@@ -148,7 +148,7 @@ As explained above we take a rapid developer environment approach for this that 
 +
 [source,bash,role="execute", subs="attributes"]
 ----
-mvn install -Dquarkus.openshift.deploy=true
+mvn clean compile package -Dquarkus.kubernetes.deploy=true
 ----
 
 === Verify
