@@ -29,7 +29,7 @@ By the end of this module, you'll be able to:
 
 [NOTE]
 ====
-This module takes a very direct "inner loop" developer sandbox approach to building and deploying the coolstore application that you have migrated in the previous modules.  It uses a Quarkus extension to enable a command driven maven approach to seamlessly build and deploy the application to an OpenShift cluster.  Configurable environment variables allow for lots of application use case and infrastructure specfic scenarios.
+This module takes a very direct "inner loop" developer sandbox approach to building and deploying a fully migrated coolstore application that you helped migrate in the previous modules.  It uses a Quarkus extension to enable a command-line driven maven approach to seamlessly build and deploy the application to an OpenShift cluster.  Configurable environment variables allow for lots of application use case and infrastructure specfic scenarios.
 
 In general, Quarkus is an advanced Java framework and provides many ways to build and deploy applications:
 
