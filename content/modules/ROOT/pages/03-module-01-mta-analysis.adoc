@@ -18,6 +18,8 @@ NOTE: For this lab the MTA Web Console is readily available at that URL. In a pr
 
 You will see existing application in the inventory such as *Customers*, *Orders*, *Inventory*, and more.
 
+image::mta-analyze/mta-application-inventory.png[application inventory]
+
 == 3. Environment Setup
 
 * **Access the Console:** Open the *MTA Web Console*.
