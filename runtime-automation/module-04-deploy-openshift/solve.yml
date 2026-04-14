@@ -9,7 +9,6 @@
     coolstore_namespace: "{{ student_user }}-coolstore"
     openshift_api: "{{ openshift_api_url | default('') }}"
     student_password: "{{ password | default('') }}"
-    gitea_host: "gitea.{{ openshift_cluster_ingress_domain | default('') }}"
   tasks:
     # -------------------------------------------------------
     # Task 1 — Find DevSpaces workspace pod
@@ -29,9 +28,9 @@
       ignore_errors: true
 
     # -------------------------------------------------------
-    # Task 2 — Switch to module4 git branch in DevSpaces
+    # Task 2 — Switch to module4 branch + login to OCP
     # -------------------------------------------------------
-    - name: Stash and switch to module4
+    - name: Stash and checkout module4
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ devworkspace_namespace }}"
@@ -41,10 +40,7 @@
       when: workspace_pod is defined
       ignore_errors: true
 
-    # -------------------------------------------------------
-    # Task 3 — Login to OCP + deploy PostgreSQL via oc new-app
-    # -------------------------------------------------------
-    - name: Login to OpenShift from DevSpaces
+    - name: Login to OpenShift + switch to coolstore project
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ devworkspace_namespace }}"
@@ -54,7 +50,10 @@
       when: workspace_pod is defined
       ignore_errors: true
 
-    - name: Deploy PostgreSQL via oc new-app
+    # -------------------------------------------------------
+    # Task 3 — Deploy PostgreSQL (lab instruction: oc new-app)
+    # -------------------------------------------------------
+    - name: Deploy PostgreSQL database
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ devworkspace_namespace }}"
@@ -67,84 +66,27 @@
       ignore_errors: true
 
     # -------------------------------------------------------
-    # Task 4 — Delete old binary BuildConfig + create Source BuildConfig
-    #   Binary S2I builds require a live HTTP connection (exec timeout kills them).
-    #   Source BuildConfig points to gitea — runs independently on OCP cluster.
+    # Task 4 — Run Maven deploy using setsid (truly detached from exec session)
+    #   setsid creates a new session — process survives when exec connection closes.
+    #   nohup alone is insufficient; setsid is required.
     # -------------------------------------------------------
-    - name: Delete old binary BuildConfig (if exists)
-      kubernetes.core.k8s:
-        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
-        state: absent
-        api_version: build.openshift.io/v1
-        kind: BuildConfig
-        name: coolstore
-        namespace: "{{ coolstore_namespace }}"
-      ignore_errors: true
-
-    - name: Create ImageStream for coolstore
-      kubernetes.core.k8s:
-        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
-        state: present
-        definition:
-          apiVersion: image.openshift.io/v1
-          kind: ImageStream
-          metadata:
-            name: coolstore
-            namespace: "{{ coolstore_namespace }}"
-      ignore_errors: true
-
-    - name: Create Source BuildConfig from gitea module4 branch
-      kubernetes.core.k8s:
-        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
-        state: present
-        definition:
-          apiVersion: build.openshift.io/v1
-          kind: BuildConfig
-          metadata:
-            name: coolstore
-            namespace: "{{ coolstore_namespace }}"
-            labels:
-              app: coolstore
-          spec:
-            source:
-              type: Git
-              git:
-                uri: "https://{{ gitea_host }}/{{ student_user }}/kai-coolstore.git"
-                ref: module4
-              contextDir: "/"
-            strategy:
-              type: Source
-              sourceStrategy:
-                from:
-                  kind: ImageStreamTag
-                  namespace: openshift
-                  name: "java:openjdk-21-ubi8"
-                env:
-                  - name: MAVEN_ARGS
-                    value: "clean package -DskipTests -Dquarkus.package.jar.type=fast-jar"
-            output:
-              to:
-                kind: ImageStreamTag
-                name: "coolstore:1.0.0-SNAPSHOT"
-            triggers:
-              - type: ConfigChange
-      register: r_bc_create
-      ignore_errors: true
-
-    - name: Start coolstore build via oc start-build (submits and exits, build runs on OCP)
+    - name: Start maven deploy with setsid (truly detached)
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ devworkspace_namespace }}"
         pod: "{{ workspace_pod }}"
-        command: "sh -c 'oc start-build coolstore -n {{ coolstore_namespace }} 2>&1 && echo BUILD_SUBMITTED'"
-      register: r_start_build
-      when: workspace_pod is defined
+        command: "sh -c 'cd /projects/kai-coolstore && setsid sh -c \"mvn clean compile package -DskipTests -Dquarkus.kubernetes.deploy=true > /tmp/coolstore-deploy.log 2>&1\" & echo MAVEN_STARTED_PID=$!'"
+      register: r_mvn_start
+      when:
+        - workspace_pod is defined
+        - r_git_checkout is not failed
       ignore_errors: true
 
     # -------------------------------------------------------
-    # Task 5 — Wait for OCP Build to complete (up to 10 minutes)
+    # Task 5 — Poll for coolstore Deployment to appear (maven creates it)
+    #   Then wait for OCP Build to complete
     # -------------------------------------------------------
-    - name: Wait for new build to start
+    - name: Wait for OCP Build to appear (maven triggers S2I build)
       kubernetes.core.k8s_info:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         api_version: build.openshift.io/v1
@@ -153,13 +95,13 @@
       register: r_builds
       until: >
         r_builds.resources | default([]) |
-        selectattr('status.phase', 'in', ['Running', 'Pending', 'Complete', 'Failed']) |
+        selectattr('status.phase', 'in', ['Running', 'Pending', 'New']) |
         list | length > 0
-      retries: 12
+      retries: 18
       delay: 10
       ignore_errors: true
 
-    - name: Wait for build to complete
+    - name: Wait for OCP Build to complete (up to 10 minutes)
       kubernetes.core.k8s_info:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         api_version: build.openshift.io/v1
@@ -175,71 +117,14 @@
       ignore_errors: true
 
     # -------------------------------------------------------
-    # Task 6 — Create/update Deployment using the built image + create route
+    # Task 6 — Create route (lab says: oc get route coolstore)
     # -------------------------------------------------------
-    - name: Create coolstore Service
-      kubernetes.core.k8s:
-        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
-        state: present
-        definition:
-          apiVersion: v1
-          kind: Service
-          metadata:
-            name: coolstore
-            namespace: "{{ coolstore_namespace }}"
-            labels:
-              app: coolstore
-          spec:
-            selector:
-              app: coolstore
-            ports:
-              - port: 8080
-                targetPort: 8080
-      ignore_errors: true
-
-    - name: Create coolstore Deployment
-      kubernetes.core.k8s:
-        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
-        state: present
-        definition:
-          apiVersion: apps/v1
-          kind: Deployment
-          metadata:
-            name: coolstore
-            namespace: "{{ coolstore_namespace }}"
-            labels:
-              app: coolstore
-          spec:
-            replicas: 1
-            selector:
-              matchLabels:
-                app: coolstore
-            template:
-              metadata:
-                labels:
-                  app: coolstore
-              spec:
-                containers:
-                  - name: coolstore
-                    image: "image-registry.openshift-image-registry.svc:5000/{{ coolstore_namespace }}/coolstore:1.0.0-SNAPSHOT"
-                    imagePullPolicy: Always
-                    ports:
-                      - containerPort: 8080
-                    env:
-                      - name: QUARKUS_DATASOURCE_JDBC_URL
-                        value: "jdbc:postgresql://coolstore-database:5432/coolstore"
-                      - name: QUARKUS_DATASOURCE_USERNAME
-                        value: quarkus
-                      - name: QUARKUS_DATASOURCE_PASSWORD
-                        value: quarkus
-      ignore_errors: true
-
-    - name: Create edge route for coolstore
+    - name: Create edge route named coolstore
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ devworkspace_namespace }}"
         pod: "{{ workspace_pod }}"
-        command: "sh -c 'oc create route edge acme-coolstore --service=coolstore --port=8080 -n {{ coolstore_namespace }} 2>/dev/null || echo route-exists'"
+        command: "sh -c 'oc create route edge coolstore --service=coolstore --port=8080 -n {{ coolstore_namespace }} 2>/dev/null || echo route-exists'"
       when: workspace_pod is defined
       ignore_errors: true
 
@@ -265,6 +150,6 @@
           DevSpaces workspace: {{ workspace_pod | default('not found') }}
           Git checkout module4: {{ 'done' if (r_git_checkout is not failed) else 'failed' }}
           PostgreSQL: {{ 'deployed' if (r_deploy_postgres is not failed) else 'failed/skipped' }}
-          BuildConfig created: {{ 'done' if (r_bc_create is not failed) else 'failed' }}
+          Maven started: {{ r_mvn_start.stdout | default('not started') | trim }}
           Build phase: {{ (r_build_done.resources | default([]) | map(attribute='status.phase') | list | join(', ')) or 'pending' }}
-          Coolstore deployment ready: {{ 'yes' if ((r_coolstore_deploy.resources | default([{}]) | first).status.readyReplicas | default(0) | int >= 1) else 'not yet' }}
+          App ready: {{ 'yes' if ((r_coolstore_deploy.resources | default([{}]) | first).status.readyReplicas | default(0) | int >= 1) else 'not yet' }}
