@@ -26,15 +26,18 @@
       ignore_errors: true
 
     # -------------------------------------------------------
-    # Check 2 — Workspace is on module3 branch
+    # Check 2 — provider-settings.yaml exists (LLM configured for Solution Server)
+    #   Branch is NOT checked — solve-04 switches to module4 after solve-03,
+    #   so checking the branch would always fail if modules run in order.
+    #   The durable outcome of module-03 is the provider-settings.yaml being present.
     # -------------------------------------------------------
-    - name: Check current git branch in workspace
+    - name: Check provider-settings.yaml exists in workspace
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ devworkspace_namespace }}"
         pod: "{{ workspace_pod }}"
-        command: "sh -c 'cd /projects/kai-coolstore && git branch --show-current 2>/dev/null || git rev-parse --abbrev-ref HEAD'"
-      register: r_git_branch
+        command: "sh -c 'test -f /projects/kai-coolstore/settings/provider-settings.yaml && echo exists || echo missing'"
+      register: r_provider_settings
       when: workspace_pod is defined
       ignore_errors: true
 
@@ -98,7 +101,7 @@
     - name: Build task results
       ansible.builtin.set_fact:
         _task1_ok: "{{ r_workspace_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0 }}"
-        _task2_ok: "{{ r_git_branch is defined and r_git_branch is not failed and 'module3' in (r_git_branch.stdout | default('')) }}"
+        _task2_ok: "{{ r_provider_settings is defined and r_provider_settings is not failed and 'exists' in (r_provider_settings.stdout | default('')) }}"
         _task3_ok: "{{ r_kai_api_pod.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0 and r_solution_server is defined and r_solution_server is not failed }}"
         _task4_ok: "{{ mta_hub_pod is defined and r_mta_health is defined and r_mta_health is not failed and '200' in (r_mta_health.stdout | default('')) }}"
 
@@ -107,11 +110,11 @@
         check: "{{ _task1_ok and _task2_ok and _task3_ok and _task4_ok }}"
         pass_msg: |
           ✅ Task 1: DevSpaces workspace is running
-          ✅ Task 2: Workspace is on module3 git branch
+          ✅ Task 2: provider-settings.yaml configured (LLM endpoint set for Solution Server)
           ✅ Task 3: Solution Server (kai-solution-server) is reachable
           ✅ Task 4: MTA hub is reachable
         error_msg: |
           {{ '✅' if _task1_ok else '❌' }} Task 1: DevSpaces workspace {{ 'running' if _task1_ok else 'NOT running in ' + devworkspace_namespace }}
-          {{ '✅' if _task2_ok else '❌' }} Task 2: Git branch {{ 'is module3' if _task2_ok else 'is NOT module3 (current: ' + (r_git_branch.stdout | default('unknown')) + ') — run: git checkout module3' }}
+          {{ '✅' if _task2_ok else '❌' }} Task 2: provider-settings.yaml {{ 'exists' if _task2_ok else 'MISSING — run Solve or configure LLM settings in DevSpaces' }}
           {{ '✅' if _task3_ok else '❌' }} Task 3: Solution Server {{ 'reachable' if _task3_ok else 'NOT reachable — check ' + student_user + '-mta namespace' }}
           {{ '✅' if _task4_ok else '❌' }} Task 4: MTA hub {{ 'reachable' if _task4_ok else 'NOT reachable' }}
