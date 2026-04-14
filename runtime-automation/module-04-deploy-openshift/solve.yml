@@ -88,6 +88,7 @@
     - name: Wait for OCP Build to appear
       kubernetes.core.k8s_info:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        api_version: build.openshift.io/v1
         kind: Build
         namespace: "{{ coolstore_namespace }}"
       register: r_builds
@@ -99,6 +100,7 @@
     - name: Wait for OCP Build to complete (up to 8 minutes)
       kubernetes.core.k8s_info:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        api_version: build.openshift.io/v1
         kind: Build
         namespace: "{{ coolstore_namespace }}"
       register: r_build_status
