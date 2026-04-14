@@ -27,16 +27,18 @@
       ignore_errors: true
 
     # -------------------------------------------------------
-    # Check 2 — Workspace is on module4 branch
+    # Check 2 — Coolstore route exists (durable outcome of module-04 deploy)
+    #   Branch NOT checked — re-running solve-03 switches back to module3.
+    #   The durable outcome of module-04 is the coolstore route existing.
     # -------------------------------------------------------
-    - name: Check current git branch
-      kubernetes.core.k8s_exec:
+    - name: Check coolstore route exists
+      kubernetes.core.k8s_info:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
-        namespace: "{{ devworkspace_namespace }}"
-        pod: "{{ workspace_pod }}"
-        command: "sh -c 'cd /projects/kai-coolstore && git branch --show-current 2>/dev/null || git rev-parse --abbrev-ref HEAD'"
-      register: r_git_branch
-      when: workspace_pod is defined
+        api_version: route.openshift.io/v1
+        kind: Route
+        name: coolstore
+        namespace: "{{ coolstore_namespace }}"
+      register: r_coolstore_route_check
       ignore_errors: true
 
     # -------------------------------------------------------
@@ -97,7 +99,7 @@
     - name: Build task results
       ansible.builtin.set_fact:
         _task1_ok: "{{ r_workspace_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0 }}"
-        _task2_ok: "{{ r_git_branch is defined and r_git_branch is not failed and 'module4' in (r_git_branch.stdout | default('')) }}"
+        _task2_ok: "{{ r_coolstore_route_check.resources | default([]) | length > 0 }}"
         _task3_ok: "{{ r_postgres_pod.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0 }}"
         _task4_ok: "{{ r_coolstore_deploy.resources | default([]) | length > 0 }}"
         _task5_ok: "{{ r_app_reachable is defined and r_app_reachable is not failed and r_app_reachable is not skipped }}"
@@ -107,13 +109,13 @@
         check: "{{ _task1_ok and _task2_ok and _task3_ok and _task4_ok and _task5_ok }}"
         pass_msg: |
           ✅ Task 1: DevSpaces workspace is running
-          ✅ Task 2: Workspace is on module4 git branch
+          ✅ Task 2: Coolstore route exists (app was deployed)
           ✅ Task 3: PostgreSQL database is running in {{ coolstore_namespace }}
           ✅ Task 4: Coolstore application deployment exists in {{ coolstore_namespace }}
           ✅ Task 5: Application route is reachable ({{ app_url | default('URL found') }})
         error_msg: |
           {{ '✅' if _task1_ok else '❌' }} Task 1: DevSpaces workspace {{ 'running' if _task1_ok else 'NOT running' }}
-          {{ '✅' if _task2_ok else '❌' }} Task 2: Git branch {{ 'is module4' if _task2_ok else 'NOT module4 (current: ' + (r_git_branch.stdout | default('unknown')) + ')' }}
+          {{ '✅' if _task2_ok else '❌' }} Task 2: Coolstore route {{ 'exists' if _task2_ok else 'NOT found — run Solve to deploy the app' }}
           {{ '✅' if _task3_ok else '❌' }} Task 3: PostgreSQL {{ 'running' if _task3_ok else 'NOT running in ' + coolstore_namespace + ' — run Solve or deploy manually' }}
           {{ '✅' if _task4_ok else '❌' }} Task 4: Coolstore deployment {{ 'exists' if _task4_ok else 'NOT found — run Solve or deploy via mvn quarkus:deploy' }}
           {{ '✅' if _task5_ok else '❌' }} Task 5: App route {{ 'reachable at ' + (app_url | default('unknown')) if _task5_ok else 'NOT reachable — check deployment status' }}
