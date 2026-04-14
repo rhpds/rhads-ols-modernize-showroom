@@ -48,7 +48,7 @@
         kind: Pod
         namespace: "{{ coolstore_namespace }}"
         label_selectors:
-          - "app=postgres"
+          - "deployment=coolstore-database"
       register: r_postgres_pod
       ignore_errors: true
 

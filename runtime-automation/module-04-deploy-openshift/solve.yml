@@ -75,12 +75,12 @@
       when: workspace_pod is defined
       ignore_errors: true
 
-    - name: Deploy PostgreSQL database from kubernetes manifests
+    - name: Deploy PostgreSQL database via oc new-app (matches lab instructions)
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ devworkspace_namespace }}"
         pod: "{{ workspace_pod }}"
-        command: "sh -c 'cd /projects/kai-coolstore && oc apply -f deploy/kubernetes/persistent-volume-claim.yaml -n {{ coolstore_namespace }} && oc apply -f deploy/kubernetes/postgresql-deployment.yaml -n {{ coolstore_namespace }} && oc apply -f deploy/kubernetes/postgresql-service.yaml -n {{ coolstore_namespace }} && echo postgres-deployed'"
+        command: "sh -c 'oc new-app -n {{ coolstore_namespace }} -e POSTGRESQL_USER=quarkus -e POSTGRESQL_PASSWORD=quarkus -e POSTGRESQL_DATABASE=coolstore openshift/postgresql:latest --name=coolstore-database 2>/dev/null || echo already-exists && echo postgres-deployed'"
       register: r_deploy_postgres
       when:
         - workspace_pod is defined
