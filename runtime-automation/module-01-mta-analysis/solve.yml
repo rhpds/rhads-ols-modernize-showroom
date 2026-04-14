@@ -151,7 +151,7 @@
       when: r_analysis_id_raw.stdout is defined
       ignore_errors: true
 
-    - name: Wait for analysis to complete (up to 5 minutes)
+    - name: Wait for analysis to complete (up to 15 minutes)
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
@@ -159,7 +159,7 @@
         command: "sh -c 'curl -s http://localhost:8080/tasks/{{ analysis_task_id }} | python3 -c \"import json,sys; t=json.load(sys.stdin); print(t.get(\\\"state\\\",\\\"\\\"))\"'"
       register: r_task_status_raw
       until: r_task_status_raw.stdout | default('') | trim in ['Succeeded', 'Failed', 'Canceled']
-      retries: 30
+      retries: 90
       delay: 10
       when: analysis_task_id is defined and analysis_task_id | length > 0
       ignore_errors: true
