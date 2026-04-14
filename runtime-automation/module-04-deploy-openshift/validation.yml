@@ -100,7 +100,7 @@
         _task2_ok: "{{ r_git_branch is defined and r_git_branch is not failed and 'module4' in (r_git_branch.stdout | default('')) }}"
         _task3_ok: "{{ r_postgres_pod.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0 }}"
         _task4_ok: "{{ r_coolstore_deploy.resources | default([]) | length > 0 }}"
-        _task5_ok: "{{ r_app_reachable is defined and r_app_reachable is not failed }}"
+        _task5_ok: "{{ r_app_reachable is defined and r_app_reachable is not failed and r_app_reachable is not skipped }}"
 
     - name: Validate all tasks
       validation_check:

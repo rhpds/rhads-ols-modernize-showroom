@@ -42,12 +42,13 @@
     # -------------------------------------------------------
     # Check 3 — LiteLLM endpoint reachable with student key
     # -------------------------------------------------------
-    - name: Check LiteLLM endpoint is reachable
+    - name: Check LiteLLM endpoint is reachable (models list)
       ansible.builtin.uri:
-        url: "{{ litellm_base_url | replace('/v1', '') }}/health"
+        url: "{{ litellm_base_url }}/models"
         method: GET
         headers:
           Authorization: "Bearer {{ litellm_key }}"
+        validate_certs: false
         timeout: 10
       register: r_litellm_health
       ignore_errors: true

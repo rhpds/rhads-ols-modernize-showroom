@@ -52,12 +52,31 @@
     # -------------------------------------------------------
     # Check 4 — MTA hub reachable
     # -------------------------------------------------------
-    - name: Check MTA hub reachable
-      ansible.builtin.uri:
-        url: "{{ mta_hub_url }}/api/v1/applications"
-        method: GET
-        timeout: 10
+    # MTA hub check via k8s_exec (NetworkPolicy blocks direct HTTP from runner)
+    - name: Find mta-hub pod for MTA check
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        kind: Pod
+        namespace: "{{ student_user }}-mta"
+        label_selectors:
+          - "role=mta-hub"
+      register: r_mta_pods
+      ignore_errors: true
+
+    - name: Set mta-hub pod
+      ansible.builtin.set_fact:
+        mta_hub_pod: "{{ (r_mta_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | first).metadata.name }}"
+      when: r_mta_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0
+      ignore_errors: true
+
+    - name: Check MTA hub reachable via exec
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ student_user }}-mta"
+        pod: "{{ mta_hub_pod }}"
+        command: "sh -c 'curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/applications'"
       register: r_mta_health
+      when: mta_hub_pod is defined
       ignore_errors: true
 
     # -------------------------------------------------------
@@ -68,7 +87,7 @@
         _task1_ok: "{{ r_workspace_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0 }}"
         _task2_ok: "{{ r_git_branch is defined and r_git_branch is not failed and 'module3' in (r_git_branch.stdout | default('')) }}"
         _task3_ok: "{{ r_solution_server is not failed }}"
-        _task4_ok: "{{ r_mta_health is not failed }}"
+        _task4_ok: "{{ mta_hub_pod is defined and r_mta_health is defined and r_mta_health is not failed and '200' in (r_mta_health.stdout | default('')) }}"
 
     - name: Validate all tasks
       validation_check:
