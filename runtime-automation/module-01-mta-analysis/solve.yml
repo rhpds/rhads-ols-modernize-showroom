@@ -59,12 +59,12 @@
       when: r_pathfinder_id_raw.stdout is defined
       ignore_errors: true
 
-    - name: Enable Legacy Pathfinder questionnaire (required = true)
+    - name: Enable Legacy Pathfinder questionnaire (GET full object then PUT with required=true)
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
-        command: "sh -c 'curl -s -X PATCH http://localhost:8080/questionnaires/{{ pathfinder_id }} -H \"Content-Type: application/json\" -d \"{\\\"required\\\":true}\" && echo ok'"
+        command: "python3 -c \"import json,urllib.request; url='http://localhost:8080/questionnaires/{{ pathfinder_id }}'; q=json.loads(urllib.request.urlopen(url).read()); q['required']=True; req=urllib.request.Request(url,data=json.dumps(q).encode(),headers={'Content-Type':'application/json'},method='PUT'); urllib.request.urlopen(req); print('enabled')\""
       when: pathfinder_id is defined and pathfinder_id | length > 0
       register: r_enable_questionnaire
       ignore_errors: true
@@ -117,12 +117,12 @@
       when: r_customers_id_raw.stdout is defined
       ignore_errors: true
 
-    - name: Configure Customers application with Git source repository
+    - name: Configure Customers application with Git repo (GET full object then PUT)
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
-        command: "sh -c 'curl -s -X PATCH http://localhost:8080/applications/{{ customers_app_id }} -H \"Content-Type: application/json\" -d \"{\\\"repository\\\":{\\\"kind\\\":\\\"git\\\",\\\"url\\\":\\\"{{ gitea_url }}/{{ student_user }}/kai-coolstore.git\\\",\\\"branch\\\":\\\"mta-lab\\\",\\\"path\\\":\\\"customers-tomcat-legacy\\\"}}\" && echo ok'"
+        command: "python3 -c \"import json,urllib.request; url='http://localhost:8080/applications/{{ customers_app_id }}'; a=json.loads(urllib.request.urlopen(url).read()); a['repository']={'kind':'git','url':'{{ gitea_url }}/{{ student_user }}/kai-coolstore.git','branch':'mta-lab','path':'customers-tomcat-legacy'}; req=urllib.request.Request(url,data=json.dumps(a).encode(),headers={'Content-Type':'application/json'},method='PUT'); urllib.request.urlopen(req); print('configured')\""
       when: customers_app_id is defined and customers_app_id | length > 0
       register: r_configure_app
       ignore_errors: true
