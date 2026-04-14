@@ -41,12 +41,25 @@
     # -------------------------------------------------------
     # Check 3 — Solution Server (kai-solution-server) is reachable
     # -------------------------------------------------------
-    - name: Check kai-solution-server reachable
-      ansible.builtin.uri:
-        url: "http://kai-solution-server.{{ student_user }}-mta.svc.cluster.local:8000/docs"
-        method: GET
-        timeout: 10
+    # kai-solution-server service selects app=kai-api pod
+    - name: Find kai-api (solution server) pod
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        kind: Pod
+        namespace: "{{ student_user }}-mta"
+        label_selectors:
+          - "app=kai-api"
+      register: r_kai_api_pod
+      ignore_errors: true
+
+    - name: Check kai-solution-server reachable via exec (NetworkPolicy — use kai-api pod)
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ student_user }}-mta"
+        pod: "{{ (r_kai_api_pod.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | first).metadata.name }}"
+        command: "sh -c 'curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8000/ && echo ok'"
       register: r_solution_server
+      when: r_kai_api_pod.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0
       ignore_errors: true
 
     # -------------------------------------------------------
@@ -86,7 +99,7 @@
       ansible.builtin.set_fact:
         _task1_ok: "{{ r_workspace_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0 }}"
         _task2_ok: "{{ r_git_branch is defined and r_git_branch is not failed and 'module3' in (r_git_branch.stdout | default('')) }}"
-        _task3_ok: "{{ r_solution_server is not failed }}"
+        _task3_ok: "{{ r_kai_api_pod.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0 and r_solution_server is defined and r_solution_server is not failed }}"
         _task4_ok: "{{ mta_hub_pod is defined and r_mta_health is defined and r_mta_health is not failed and '200' in (r_mta_health.stdout | default('')) }}"
 
     - name: Validate all tasks

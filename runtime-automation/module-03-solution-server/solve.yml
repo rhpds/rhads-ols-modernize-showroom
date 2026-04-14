@@ -76,26 +76,42 @@
       ignore_errors: true
 
     # -------------------------------------------------------
-    # Task 4 — Verify Solution Server (kai-solution-server) is reachable
+    # Task 4 — Verify Solution Server + MTA hub via k8s_exec (NetworkPolicy blocks direct HTTP)
+    # kai-solution-server service selects app=kai-api pod
     # -------------------------------------------------------
-    - name: Verify kai-solution-server is reachable
-      ansible.builtin.uri:
-        url: "http://kai-solution-server.{{ student_user }}-mta.svc.cluster.local:8000/docs"
-        method: GET
-        timeout: 10
-      register: r_solution_server
+    - name: Find mta-hub and kai-api pods
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        kind: Pod
+        namespace: "{{ student_user }}-mta"
+        label_selectors:
+          - "app=mta-hub"
+      register: r_mta_hub_pod
       ignore_errors: true
 
-    # -------------------------------------------------------
-    # Task 4 — Verify MTA hub reachable (for Solution Server integration)
-    # -------------------------------------------------------
-    - name: Verify MTA hub is reachable
-      ansible.builtin.uri:
-        url: "{{ mta_hub_url }}/api/v1/applications"
-        method: GET
-        timeout: 10
+    - name: Verify MTA hub is reachable via exec
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ student_user }}-mta"
+        pod: "{{ (r_mta_hub_pod.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | first).metadata.name }}"
+        command: "sh -c 'curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/applications'"
       register: r_mta_health
+      when: r_mta_hub_pod.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0
       ignore_errors: true
+
+    - name: Verify kai-solution-server (kai-api) is running
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        kind: Pod
+        namespace: "{{ student_user }}-mta"
+        label_selectors:
+          - "app=kai-api"
+      register: r_kai_api
+      ignore_errors: true
+
+    - name: Set solution server reachable fact
+      ansible.builtin.set_fact:
+        r_solution_server_ok: "{{ r_kai_api.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0 }}"
 
     # -------------------------------------------------------
     # Report
@@ -106,5 +122,5 @@
           DevSpaces workspace: {{ workspace_pod | default('not found') }}
           Git stash: {{ 'done' if (r_git_stash is defined and r_git_stash is not failed) else 'skipped' }}
           Git checkout module3: {{ 'done — ' + (r_git_checkout.stdout | default('')) if (r_git_checkout is defined and r_git_checkout is not failed) else 'failed — workspace may not have module3 branch' }}
-          Solution Server: {{ 'reachable' if r_solution_server is not failed else 'not reachable (check MTA namespace)' }}
-          MTA hub: {{ 'reachable' if r_mta_health is not failed else 'NOT reachable' }}
+          Solution Server (kai-api): {{ 'running' if r_solution_server_ok | default(false) else 'not running' }}
+          MTA hub: {{ 'reachable' if (r_mta_health is defined and r_mta_health is not failed and '200' in (r_mta_health.stdout | default(''))) else 'NOT reachable' }}
