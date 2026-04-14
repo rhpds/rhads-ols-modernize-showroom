@@ -34,7 +34,7 @@
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
-        command: "sh -c 'curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/api/v1/questionnaires'"
+        command: "sh -c 'curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/questionnaires'"
       register: r_mta_health
       when: mta_hub_pod is defined
       ignore_errors: true
@@ -47,7 +47,7 @@
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
-        command: "sh -c 'curl -s http://localhost:8080/api/v1/questionnaires | python3 -c \"import json,sys; qs=json.load(sys.stdin); print(any(\\\"Pathfinder\\\" in q.get(\\\"name\\\",\\\"\\\") and q.get(\\\"required\\\") for q in qs))\"'"
+        command: "sh -c 'curl -s http://localhost:8080/questionnaires | python3 -c \"import json,sys; qs=json.load(sys.stdin); print(any(\\\"Pathfinder\\\" in q.get(\\\"name\\\",\\\"\\\") and q.get(\\\"required\\\") for q in qs))\"'"
       register: r_pathfinder_check
       when: mta_hub_pod is defined
       ignore_errors: true
@@ -60,7 +60,7 @@
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
-        command: "sh -c 'curl -s http://localhost:8080/api/v1/applications | python3 -c \"import json,sys; apps=json.load(sys.stdin); print(any(a.get(\\\"name\\\")==\\\"Customers\\\" and a.get(\\\"repository\\\") for a in apps))\"'"
+        command: "sh -c 'curl -s http://localhost:8080/applications | python3 -c \"import json,sys; apps=json.load(sys.stdin); print(any(a.get(\\\"name\\\")==\\\"Customers\\\" and a.get(\\\"repository\\\") for a in apps))\"'"
       register: r_customers_check
       when: mta_hub_pod is defined
       ignore_errors: true
@@ -73,7 +73,7 @@
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
-        command: "sh -c 'curl -s \"http://localhost:8080/api/v1/tasks?kind=analyzer\" | python3 -c \"import json,sys; tasks=json.load(sys.stdin); print(any(t.get(\\\"state\\\") in [\\\"Succeeded\\\",\\\"Completed\\\"] for t in tasks))\"'"
+        command: "sh -c 'curl -s \"http://localhost:8080/tasks?kind=analyzer\" | python3 -c \"import json,sys; tasks=json.load(sys.stdin); print(any(t.get(\\\"state\\\") in [\\\"Succeeded\\\",\\\"Completed\\\"] for t in tasks))\"'"
       register: r_analysis_check
       when: mta_hub_pod is defined
       ignore_errors: true

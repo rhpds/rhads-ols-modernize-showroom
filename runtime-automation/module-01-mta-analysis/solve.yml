@@ -35,7 +35,7 @@
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
-        command: "sh -c 'curl -s -X PUT http://localhost:8080/api/v1/settings/git.insecure.enabled -H \"Content-Type: application/json\" -d true && echo ok'"
+        command: "sh -c 'curl -s -X PUT http://localhost:8080/settings/git.insecure.enabled -H \"Content-Type: application/json\" -d true && echo ok'"
       register: r_insecure_git
       when: mta_hub_pod is defined
       ignore_errors: true
@@ -48,7 +48,7 @@
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
-        command: "sh -c 'curl -s http://localhost:8080/api/v1/questionnaires | python3 -c \"import json,sys; qs=json.load(sys.stdin); found=[q for q in qs if \\\"Pathfinder\\\" in q.get(\\\"name\\\",\\\"\\\")]; print(found[0][\\\"id\\\"] if found else \\\"\\\")\"'"
+        command: "sh -c 'curl -s http://localhost:8080/questionnaires | python3 -c \"import json,sys; qs=json.load(sys.stdin); found=[q for q in qs if \\\"Pathfinder\\\" in q.get(\\\"name\\\",\\\"\\\")]; print(found[0][\\\"id\\\"] if found else \\\"\\\")\"'"
       register: r_pathfinder_id_raw
       when: mta_hub_pod is defined
       ignore_errors: true
@@ -64,7 +64,7 @@
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
-        command: "sh -c 'curl -s -X PATCH http://localhost:8080/api/v1/questionnaires/{{ pathfinder_id }} -H \"Content-Type: application/json\" -d \"{\\\"required\\\":true}\" && echo ok'"
+        command: "sh -c 'curl -s -X PATCH http://localhost:8080/questionnaires/{{ pathfinder_id }} -H \"Content-Type: application/json\" -d \"{\\\"required\\\":true}\" && echo ok'"
       when: pathfinder_id is defined and pathfinder_id | length > 0
       register: r_enable_questionnaire
       ignore_errors: true
@@ -77,7 +77,7 @@
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
-        command: "sh -c 'curl -s http://localhost:8080/api/v1/archetypes | python3 -c \"import json,sys; archs=json.load(sys.stdin); found=[a for a in archs if \\\"Summer Framework\\\" in a.get(\\\"name\\\",\\\"\\\")]; print(found[0][\\\"id\\\"] if found else \\\"\\\")\"'"
+        command: "sh -c 'curl -s http://localhost:8080/archetypes | python3 -c \"import json,sys; archs=json.load(sys.stdin); found=[a for a in archs if \\\"Summer Framework\\\" in a.get(\\\"name\\\",\\\"\\\")]; print(found[0][\\\"id\\\"] if found else \\\"\\\")\"'"
       register: r_archetype_id_raw
       when: mta_hub_pod is defined
       ignore_errors: true
@@ -93,7 +93,7 @@
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
-        command: "sh -c 'curl -s -X POST http://localhost:8080/api/v1/archetypes/{{ archetype_id }}/reviews -H \"Content-Type: application/json\" -d \"{\\\"proposedAction\\\":\\\"Refactor\\\",\\\"effortEstimate\\\":\\\"Small\\\",\\\"businessCriticality\\\":10,\\\"workPriority\\\":9}\" && echo ok'"
+        command: "sh -c 'curl -s -X POST http://localhost:8080/archetypes/{{ archetype_id }}/reviews -H \"Content-Type: application/json\" -d \"{\\\"proposedAction\\\":\\\"Refactor\\\",\\\"effortEstimate\\\":\\\"Small\\\",\\\"businessCriticality\\\":10,\\\"workPriority\\\":9}\" && echo ok'"
       when: archetype_id is defined and archetype_id | length > 0
       register: r_archetype_review
       ignore_errors: true
@@ -106,7 +106,7 @@
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
-        command: "sh -c 'curl -s http://localhost:8080/api/v1/applications | python3 -c \"import json,sys; apps=json.load(sys.stdin); found=[a for a in apps if a.get(\\\"name\\\")==\\\"Customers\\\"]; print(found[0][\\\"id\\\"] if found else \\\"\\\")\"'"
+        command: "sh -c 'curl -s http://localhost:8080/applications | python3 -c \"import json,sys; apps=json.load(sys.stdin); found=[a for a in apps if a.get(\\\"name\\\")==\\\"Customers\\\"]; print(found[0][\\\"id\\\"] if found else \\\"\\\")\"'"
       register: r_customers_id_raw
       when: mta_hub_pod is defined
       ignore_errors: true
@@ -122,7 +122,7 @@
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
-        command: "sh -c 'curl -s -X PATCH http://localhost:8080/api/v1/applications/{{ customers_app_id }} -H \"Content-Type: application/json\" -d \"{\\\"repository\\\":{\\\"kind\\\":\\\"git\\\",\\\"url\\\":\\\"{{ gitea_url }}/{{ student_user }}/kai-coolstore.git\\\",\\\"branch\\\":\\\"mta-lab\\\",\\\"path\\\":\\\"customers-tomcat-legacy\\\"}}\" && echo ok'"
+        command: "sh -c 'curl -s -X PATCH http://localhost:8080/applications/{{ customers_app_id }} -H \"Content-Type: application/json\" -d \"{\\\"repository\\\":{\\\"kind\\\":\\\"git\\\",\\\"url\\\":\\\"{{ gitea_url }}/{{ student_user }}/kai-coolstore.git\\\",\\\"branch\\\":\\\"mta-lab\\\",\\\"path\\\":\\\"customers-tomcat-legacy\\\"}}\" && echo ok'"
       when: customers_app_id is defined and customers_app_id | length > 0
       register: r_configure_app
       ignore_errors: true
@@ -135,7 +135,7 @@
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
-        command: "sh -c 'curl -s -X POST http://localhost:8080/api/v1/tasks -H \"Content-Type: application/json\" -d \"{\\\"name\\\":\\\"Analyze Customers\\\",\\\"kind\\\":\\\"analyzer\\\",\\\"application\\\":{\\\"id\\\":{{ customers_app_id | int }}},\\\"data\\\":{\\\"mode\\\":\\\"source-code\\\",\\\"targets\\\":[\\\"containerization\\\",\\\"linux\\\",\\\"openjdk\\\"],\\\"scope\\\":{\\\"withDependencies\\\":false},\\\"rules\\\":{\\\"repository\\\":{\\\"kind\\\":\\\"git\\\",\\\"url\\\":\\\"{{ gitea_url }}/{{ student_user }}/kai-coolstore.git\\\",\\\"branch\\\":\\\"mta-lab\\\",\\\"path\\\":\\\"customrules\\\"}}}}\" | python3 -c \"import json,sys; t=json.load(sys.stdin); print(t.get(\\\"id\\\",\\\"\\\"))\"'"
+        command: "sh -c 'curl -s -X POST http://localhost:8080/tasks -H \"Content-Type: application/json\" -d \"{\\\"name\\\":\\\"Analyze Customers\\\",\\\"kind\\\":\\\"analyzer\\\",\\\"application\\\":{\\\"id\\\":{{ customers_app_id | int }}},\\\"data\\\":{\\\"mode\\\":\\\"source-code\\\",\\\"targets\\\":[\\\"containerization\\\",\\\"linux\\\",\\\"openjdk\\\"],\\\"scope\\\":{\\\"withDependencies\\\":false},\\\"rules\\\":{\\\"repository\\\":{\\\"kind\\\":\\\"git\\\",\\\"url\\\":\\\"{{ gitea_url }}/{{ student_user }}/kai-coolstore.git\\\",\\\"branch\\\":\\\"mta-lab\\\",\\\"path\\\":\\\"customrules\\\"}}}}\" | python3 -c \"import json,sys; t=json.load(sys.stdin); print(t.get(\\\"id\\\",\\\"\\\"))\"'"
       when: customers_app_id is defined and customers_app_id | length > 0
       register: r_analysis_id_raw
       ignore_errors: true
@@ -151,7 +151,7 @@
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
-        command: "sh -c 'curl -s http://localhost:8080/api/v1/tasks/{{ analysis_task_id }} | python3 -c \"import json,sys; t=json.load(sys.stdin); print(t.get(\\\"state\\\",\\\"\\\"))\"'"
+        command: "sh -c 'curl -s http://localhost:8080/tasks/{{ analysis_task_id }} | python3 -c \"import json,sys; t=json.load(sys.stdin); print(t.get(\\\"state\\\",\\\"\\\"))\"'"
       register: r_task_status_raw
       until: r_task_status_raw.stdout | default('') | trim in ['Succeeded', 'Failed', 'Canceled']
       retries: 30
