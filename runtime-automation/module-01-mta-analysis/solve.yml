@@ -152,16 +152,15 @@
       when: r_analysis_id_raw.stdout is defined
       ignore_errors: true
 
-    - name: Wait for analysis to complete (up to 25 minutes)
+    # Analysis runs asynchronously — solver triggers it and exits.
+    # Student clicks Validate after analysis completes in MTA (takes 5-25 min).
+    - name: Check analysis task state (non-blocking — just report current state)
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
         command: "sh -c 'curl -s http://localhost:8080/tasks/{{ analysis_task_id }} | python3 -c \"import json,sys; t=json.load(sys.stdin); print(t.get(\\\"state\\\",\\\"\\\"))\"'"
       register: r_task_status_raw
-      until: r_task_status_raw.stdout | default('') | trim in ['Succeeded', 'Failed', 'Canceled']
-      retries: 150
-      delay: 10
       when: analysis_task_id is defined and analysis_task_id | length > 0
       ignore_errors: true
 
@@ -176,4 +175,4 @@
           Legacy Pathfinder (id={{ pathfinder_id | default('?') }}): {{ 'enabled' if (r_enable_questionnaire is defined and r_enable_questionnaire is not failed) else 'skipped' }}
           Archetype review (id={{ archetype_id | default('?') }}): {{ 'submitted' if (r_archetype_review is defined and r_archetype_review is not failed) else 'skipped' }}
           Customers app (id={{ customers_app_id | default('?') }}): {{ 'configured' if (r_configure_app is defined and r_configure_app is not failed) else 'skipped/failed' }}
-          Analysis (id={{ analysis_task_id | default('?') }}): {{ 'state=' + (r_task_status_raw.stdout | default('triggered') | trim) if (r_task_status_raw is defined) else 'triggered' if (r_analysis_id_raw is defined and r_analysis_id_raw is not failed) else 'not triggered' }}
+          Analysis (id={{ analysis_task_id | default('?') }}): {{ 'triggered (state=' + (r_task_status_raw.stdout | default('') | trim) + ') — click Validate once MTA shows Complete' if (r_analysis_id_raw is defined and r_analysis_id_raw is not failed) else 'not triggered' }}
