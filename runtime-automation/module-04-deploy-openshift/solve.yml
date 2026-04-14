@@ -131,16 +131,14 @@
       register: r_bc_create
       ignore_errors: true
 
-    - name: Start coolstore build from gitea source
-      kubernetes.core.k8s:
+    - name: Start coolstore build via oc start-build (submits and exits, build runs on OCP)
+      kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
-        state: present
-        definition:
-          apiVersion: build.openshift.io/v1
-          kind: BuildRequest
-          metadata:
-            name: coolstore
-            namespace: "{{ coolstore_namespace }}"
+        namespace: "{{ devworkspace_namespace }}"
+        pod: "{{ workspace_pod }}"
+        command: "sh -c 'oc start-build coolstore -n {{ coolstore_namespace }} 2>&1 && echo BUILD_SUBMITTED'"
+      register: r_start_build
+      when: workspace_pod is defined
       ignore_errors: true
 
     # -------------------------------------------------------
