@@ -11,7 +11,7 @@
     student_password: "{{ password | default('') }}"
   tasks:
     # -------------------------------------------------------
-    # Task 1 — Find DevSpaces workspace pod
+    # Find DevSpaces workspace pod
     # -------------------------------------------------------
     - name: Find DevSpaces workspace pod
       kubernetes.core.k8s_info:
@@ -28,19 +28,22 @@
       ignore_errors: true
 
     # -------------------------------------------------------
-    # Task 2 — Switch to module4 branch + login to OCP
+    # Step 1 — git checkout module4 (student does this first)
     # -------------------------------------------------------
     - name: Stash and checkout module4
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ devworkspace_namespace }}"
         pod: "{{ workspace_pod }}"
-        command: "sh -c 'cd /projects/kai-coolstore && git stash 2>/dev/null; git checkout module4 && echo checked-out-module4'"
+        command: "sh -c 'cd /projects/kai-coolstore && git stash 2>/dev/null; git checkout module4 && echo checked-out'"
       register: r_git_checkout
       when: workspace_pod is defined
       ignore_errors: true
 
-    - name: Login to OpenShift + switch to coolstore project
+    # -------------------------------------------------------
+    # Step 2 — oc login + oc project (student does this in terminal)
+    # -------------------------------------------------------
+    - name: Login to OpenShift and switch to coolstore project
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ devworkspace_namespace }}"
@@ -51,14 +54,14 @@
       ignore_errors: true
 
     # -------------------------------------------------------
-    # Task 3 — Deploy PostgreSQL (lab instruction: oc new-app)
+    # Step 3 — Deploy Postgres (student runs oc new-app)
     # -------------------------------------------------------
     - name: Deploy PostgreSQL database
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ devworkspace_namespace }}"
         pod: "{{ workspace_pod }}"
-        command: "sh -c 'oc new-app -n {{ coolstore_namespace }} -e POSTGRESQL_USER=quarkus -e POSTGRESQL_PASSWORD=quarkus -e POSTGRESQL_DATABASE=coolstore openshift/postgresql:latest --name=coolstore-database 2>&1 | tail -3 || echo already-exists'"
+        command: "sh -c 'oc new-app -n {{ coolstore_namespace }} -e POSTGRESQL_USER=quarkus -e POSTGRESQL_PASSWORD=quarkus -e POSTGRESQL_DATABASE=coolstore openshift/postgresql:latest --name=coolstore-database 2>&1 | tail -5 || echo already-exists'"
       register: r_deploy_postgres
       when:
         - workspace_pod is defined
@@ -66,68 +69,25 @@
       ignore_errors: true
 
     # -------------------------------------------------------
-    # Task 4 — Run Maven deploy using setsid (truly detached from exec session)
-    #   setsid creates a new session — process survives when exec connection closes.
-    #   nohup alone is insufficient; setsid is required.
+    # Step 4 — Run Maven deploy SYNCHRONOUSLY (student waits in terminal ~8-10 min)
+    #   k8s_exec stays open until maven finishes — same as student's terminal.
+    #   The binary S2I build needs the exec to stay alive during JAR upload.
     # -------------------------------------------------------
-    - name: Start maven deploy with setsid (truly detached)
+    - name: Build and deploy coolstore (mvn quarkus deploy — runs synchronously like student terminal)
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ devworkspace_namespace }}"
         pod: "{{ workspace_pod }}"
-        command: "sh -c 'cd /projects/kai-coolstore && setsid sh -c \"mvn clean compile package -DskipTests -Dquarkus.kubernetes.deploy=true > /tmp/coolstore-deploy.log 2>&1\" & echo MAVEN_STARTED_PID=$!'"
-      register: r_mvn_start
+        command: "sh -c 'cd /projects/kai-coolstore && mvn clean compile package -DskipTests -Dquarkus.kubernetes.deploy=true && echo BUILD_AND_DEPLOY_DONE || echo BUILD_FAILED'"
+      register: r_mvn_deploy
       when:
         - workspace_pod is defined
         - r_git_checkout is not failed
       ignore_errors: true
 
     # -------------------------------------------------------
-    # Task 5 — Poll for coolstore Deployment to appear (maven creates it)
-    #   Then wait for OCP Build to complete
+    # Step 5 — Wait for deployment to be ready
     # -------------------------------------------------------
-    - name: Wait for OCP Build to appear (maven triggers S2I build)
-      kubernetes.core.k8s_info:
-        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
-        api_version: build.openshift.io/v1
-        kind: Build
-        namespace: "{{ coolstore_namespace }}"
-      register: r_builds
-      until: >
-        r_builds.resources | default([]) |
-        selectattr('status.phase', 'in', ['Running', 'Pending', 'New']) |
-        list | length > 0
-      retries: 18
-      delay: 10
-      ignore_errors: true
-
-    - name: Wait for OCP Build to complete (up to 10 minutes)
-      kubernetes.core.k8s_info:
-        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
-        api_version: build.openshift.io/v1
-        kind: Build
-        namespace: "{{ coolstore_namespace }}"
-      register: r_build_done
-      until: >
-        r_build_done.resources | default([]) |
-        selectattr('status.phase', 'equalto', 'Complete') |
-        list | length > 0
-      retries: 30
-      delay: 20
-      ignore_errors: true
-
-    # -------------------------------------------------------
-    # Task 6 — Create route (lab says: oc get route coolstore)
-    # -------------------------------------------------------
-    - name: Create edge route named coolstore
-      kubernetes.core.k8s_exec:
-        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
-        namespace: "{{ devworkspace_namespace }}"
-        pod: "{{ workspace_pod }}"
-        command: "sh -c 'oc create route edge coolstore --service=coolstore --port=8080 -n {{ coolstore_namespace }} 2>/dev/null || echo route-exists'"
-      when: workspace_pod is defined
-      ignore_errors: true
-
     - name: Wait for coolstore deployment to be ready
       kubernetes.core.k8s_info:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
@@ -150,6 +110,5 @@
           DevSpaces workspace: {{ workspace_pod | default('not found') }}
           Git checkout module4: {{ 'done' if (r_git_checkout is not failed) else 'failed' }}
           PostgreSQL: {{ 'deployed' if (r_deploy_postgres is not failed) else 'failed/skipped' }}
-          Maven started: {{ r_mvn_start.stdout | default('not started') | trim }}
-          Build phase: {{ (r_build_done.resources | default([]) | map(attribute='status.phase') | list | join(', ')) or 'pending' }}
+          Maven build+deploy: {{ 'done — ' + (r_mvn_stdout | default('')) if (r_mvn_deploy is not failed) else 'failed — check /tmp/mvn.log in workspace' }}
           App ready: {{ 'yes' if ((r_coolstore_deploy.resources | default([{}]) | first).status.readyReplicas | default(0) | int >= 1) else 'not yet' }}
