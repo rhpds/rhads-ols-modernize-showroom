@@ -5,67 +5,103 @@
   gather_facts: false
   vars:
     student_user: "{{ user | default('') }}"
-    mta_hub_url: "http://mta-hub.{{ student_user }}-mta.svc.cluster.local:8080"
+    mta_namespace: "{{ student_user }}-mta"
+    gitea_url: "https://gitea.{{ openshift_cluster_ingress_domain | default('') }}"
   tasks:
     # -------------------------------------------------------
-    # Check 1 — MTA hub is reachable
+    # Find mta-hub pod (NetworkPolicy blocks cross-ns HTTP — use k8s_exec)
     # -------------------------------------------------------
-    - name: Check MTA hub is reachable
-      ansible.builtin.uri:
-        url: "{{ mta_hub_url }}/api/v1/questionnaires"
-        method: GET
-        timeout: 10
+    - name: Find mta-hub pod
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        kind: Pod
+        namespace: "{{ mta_namespace }}"
+        label_selectors:
+          - "role=mta-hub"
+      register: r_mta_pods
+      ignore_errors: true
+
+    - name: Set mta-hub pod name
+      ansible.builtin.set_fact:
+        mta_hub_pod: "{{ (r_mta_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | first).metadata.name }}"
+      when: r_mta_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Check 1 — MTA hub pod is running
+    # -------------------------------------------------------
+    - name: Check 1 — MTA hub is reachable via exec
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ mta_namespace }}"
+        pod: "{{ mta_hub_pod }}"
+        command: "curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/v1/questionnaires"
       register: r_mta_health
+      when: mta_hub_pod is defined
       ignore_errors: true
 
     # -------------------------------------------------------
     # Check 2 — Legacy Pathfinder questionnaire is required
     # -------------------------------------------------------
-    - name: Check Legacy Pathfinder is enabled (required=true)
+    - name: Get questionnaires
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ mta_namespace }}"
+        pod: "{{ mta_hub_pod }}"
+        command: "curl -s http://localhost:8080/api/v1/questionnaires"
+      register: r_questionnaires_raw
+      when: mta_hub_pod is defined
+      ignore_errors: true
+
+    - name: Check Legacy Pathfinder is required
       ansible.builtin.set_fact:
-        _pathfinder_required: "{{ (r_mta_health.json | default([]) | selectattr('name', 'search', 'Pathfinder') | selectattr('required', 'equalto', true) | list | length > 0) }}"
-      when: r_mta_health.json is defined
+        _pathfinder_required: "{{ (r_questionnaires_raw.stdout | default('[]') | from_json | selectattr('name', 'search', 'Pathfinder') | selectattr('required', 'equalto', true) | list | length > 0) }}"
+      when: r_questionnaires_raw.stdout is defined
       ignore_errors: true
 
     # -------------------------------------------------------
-    # Check 3 — Customers application has Git repo configured
+    # Check 3 — Customers app has Git repo configured
     # -------------------------------------------------------
-    - name: Get list of applications
-      ansible.builtin.uri:
-        url: "{{ mta_hub_url }}/api/v1/applications"
-        method: GET
-        timeout: 10
-      register: r_applications
+    - name: Get applications
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ mta_namespace }}"
+        pod: "{{ mta_hub_pod }}"
+        command: "curl -s http://localhost:8080/api/v1/applications"
+      register: r_applications_raw
+      when: mta_hub_pod is defined
       ignore_errors: true
 
     - name: Check Customers app has repository configured
       ansible.builtin.set_fact:
         _customers_repo_ok: >-
-          {{ (r_applications.json | default([]) |
+          {{ (r_applications_raw.stdout | default('[]') | from_json |
               selectattr('name', 'equalto', 'Customers') |
               selectattr('repository', 'defined') |
               list | length > 0) }}
-      when: r_applications.json is defined
+      when: r_applications_raw.stdout is defined
       ignore_errors: true
 
     # -------------------------------------------------------
-    # Check 4 — At least one analysis task exists
+    # Check 4 — At least one analysis task completed
     # -------------------------------------------------------
-    - name: Get analyses
-      ansible.builtin.uri:
-        url: "{{ mta_hub_url }}/api/v1/tasks?kind=analyzer"
-        method: GET
-        timeout: 10
-      register: r_analyses
+    - name: Get analysis tasks
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ mta_namespace }}"
+        pod: "{{ mta_hub_pod }}"
+        command: "curl -s 'http://localhost:8080/api/v1/tasks?kind=analyzer'"
+      register: r_analyses_raw
+      when: mta_hub_pod is defined
       ignore_errors: true
 
     - name: Check analysis completed
       ansible.builtin.set_fact:
         _analysis_completed: >-
-          {{ (r_analyses.json | default([]) |
+          {{ (r_analyses_raw.stdout | default('[]') | from_json |
               selectattr('state', 'in', ['Succeeded', 'Completed']) |
               list | length > 0) }}
-      when: r_analyses.json is defined
+      when: r_analyses_raw.stdout is defined
       ignore_errors: true
 
     # -------------------------------------------------------
@@ -73,7 +109,7 @@
     # -------------------------------------------------------
     - name: Build task results
       ansible.builtin.set_fact:
-        _task1_ok: "{{ r_mta_health is not failed }}"
+        _task1_ok: "{{ mta_hub_pod is defined and r_mta_health is not failed and '200' in (r_mta_health.stdout | default('')) }}"
         _task2_ok: "{{ _pathfinder_required | default(false) | bool }}"
         _task3_ok: "{{ _customers_repo_ok | default(false) | bool }}"
         _task4_ok: "{{ _analysis_completed | default(false) | bool }}"
@@ -82,12 +118,12 @@
       validation_check:
         check: "{{ _task1_ok and _task2_ok and _task3_ok and _task4_ok }}"
         pass_msg: |
-          ✅ Task 1: MTA hub is reachable
+          ✅ Task 1: MTA hub is reachable (pod: {{ mta_hub_pod | default('?') }})
           ✅ Task 2: Legacy Pathfinder questionnaire is required
           ✅ Task 3: Customers application has Git repository configured
           ✅ Task 4: Analysis has completed
         error_msg: |
-          {{ '✅' if _task1_ok else '❌' }} Task 1: MTA hub {{ 'is reachable' if _task1_ok else 'NOT reachable — check MTA namespace' }}
+          {{ '✅' if _task1_ok else '❌' }} Task 1: MTA hub {{ 'reachable' if _task1_ok else 'NOT reachable — pod=' + (mta_hub_pod | default('not found')) }}
           {{ '✅' if _task2_ok else '❌' }} Task 2: Legacy Pathfinder {{ 'is required' if _task2_ok else 'NOT enabled — Administration → Assessment Questionnaires → toggle required ON' }}
-          {{ '✅' if _task3_ok else '❌' }} Task 3: Customers app {{ 'has Git repo configured' if _task3_ok else 'missing Git repo — edit app in Application Inventory' }}
-          {{ '✅' if _task4_ok else '❌' }} Task 4: Analysis {{ 'completed' if _task4_ok else 'not yet done — run Solve or trigger analysis in MTA' }}
+          {{ '✅' if _task3_ok else '❌' }} Task 3: Customers app {{ 'has Git repo' if _task3_ok else 'missing Git repo — edit app in Application Inventory' }}
+          {{ '✅' if _task4_ok else '❌' }} Task 4: Analysis {{ 'completed' if _task4_ok else 'not done — run Solve or trigger analysis in MTA' }}
