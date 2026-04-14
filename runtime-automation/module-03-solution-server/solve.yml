@@ -1,8 +1,84 @@
 ---
-- name: module-03-solution-server Solve
+- name: Module 03 Solve — Solution Server with Company Policy Rules
   hosts: localhost
   connection: local
   gather_facts: false
   vars:
     student_user: "{{ user | default('') }}"
-  tasks: []
+    devworkspace_namespace: "{{ student_user }}-devworkspace"
+    mta_hub_url: "http://mta-hub.{{ student_user }}-mta.svc.cluster.local:8080"
+    gitea_url: "https://gitea.{{ openshift_cluster_ingress_domain | default('') }}"
+  tasks:
+    # -------------------------------------------------------
+    # Task 1 — Find DevSpaces workspace pod
+    # -------------------------------------------------------
+    - name: Find DevSpaces workspace pod
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        kind: Pod
+        namespace: "{{ devworkspace_namespace }}"
+      register: r_workspace_pods
+      ignore_errors: true
+
+    - name: Set workspace pod name
+      ansible.builtin.set_fact:
+        workspace_pod: "{{ (r_workspace_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | first).metadata.name }}"
+      when: r_workspace_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Task 2 — Switch to module3 git branch in workspace
+    # -------------------------------------------------------
+    - name: Stash any uncommitted changes in workspace
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ devworkspace_namespace }}"
+        pod: "{{ workspace_pod }}"
+        command: "sh -c 'cd /projects/kai-coolstore && git stash && echo stashed'"
+      register: r_git_stash
+      when: workspace_pod is defined
+      ignore_errors: true
+
+    - name: Switch to module3 git branch
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ devworkspace_namespace }}"
+        pod: "{{ workspace_pod }}"
+        command: "sh -c 'cd /projects/kai-coolstore && git checkout module3 && echo checked-out-module3'"
+      register: r_git_checkout
+      when: workspace_pod is defined
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Task 3 — Verify Solution Server (kai-solution-server) is reachable
+    # -------------------------------------------------------
+    - name: Verify kai-solution-server is reachable
+      ansible.builtin.uri:
+        url: "http://kai-solution-server.{{ student_user }}-mta.svc.cluster.local:8000/docs"
+        method: GET
+        timeout: 10
+      register: r_solution_server
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Task 4 — Verify MTA hub reachable (for Solution Server integration)
+    # -------------------------------------------------------
+    - name: Verify MTA hub is reachable
+      ansible.builtin.uri:
+        url: "{{ mta_hub_url }}/api/v1/applications"
+        method: GET
+        timeout: 10
+      register: r_mta_health
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Report
+    # -------------------------------------------------------
+    - name: Report solve status
+      ansible.builtin.debug:
+        msg: |
+          DevSpaces workspace: {{ workspace_pod | default('not found') }}
+          Git stash: {{ 'done' if (r_git_stash is defined and r_git_stash is not failed) else 'skipped' }}
+          Git checkout module3: {{ 'done — ' + (r_git_checkout.stdout | default('')) if (r_git_checkout is defined and r_git_checkout is not failed) else 'failed — workspace may not have module3 branch' }}
+          Solution Server: {{ 'reachable' if r_solution_server is not failed else 'not reachable (check MTA namespace)' }}
+          MTA hub: {{ 'reachable' if r_mta_health is not failed else 'NOT reachable' }}

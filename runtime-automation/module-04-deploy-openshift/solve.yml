@@ -1,8 +1,124 @@
 ---
-- name: module-04-deploy-openshift Solve
+- name: Module 04 Solve — Deploy to OpenShift
   hosts: localhost
   connection: local
   gather_facts: false
   vars:
     student_user: "{{ user | default('') }}"
-  tasks: []
+    devworkspace_namespace: "{{ student_user }}-devworkspace"
+    coolstore_namespace: "{{ student_user }}-coolstore"
+    openshift_api: "{{ openshift_api_url | default('') }}"
+    student_password: "{{ password | default('') }}"
+    ingress_domain: "{{ openshift_cluster_ingress_domain | default('') }}"
+  tasks:
+    # -------------------------------------------------------
+    # Task 1 — Find DevSpaces workspace pod
+    # -------------------------------------------------------
+    - name: Find DevSpaces workspace pod
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        kind: Pod
+        namespace: "{{ devworkspace_namespace }}"
+      register: r_workspace_pods
+      ignore_errors: true
+
+    - name: Set workspace pod name
+      ansible.builtin.set_fact:
+        workspace_pod: "{{ (r_workspace_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | first).metadata.name }}"
+      when: r_workspace_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Task 2 — Switch to module4 git branch
+    # -------------------------------------------------------
+    - name: Stash any uncommitted changes
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ devworkspace_namespace }}"
+        pod: "{{ workspace_pod }}"
+        command: "sh -c 'cd /projects/kai-coolstore && git stash && echo stashed'"
+      register: r_git_stash
+      when: workspace_pod is defined
+      ignore_errors: true
+
+    - name: Switch to module4 git branch
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ devworkspace_namespace }}"
+        pod: "{{ workspace_pod }}"
+        command: "sh -c 'cd /projects/kai-coolstore && git checkout module4 && echo checked-out-module4'"
+      register: r_git_checkout
+      when: workspace_pod is defined
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Task 3 — Verify coolstore namespace exists
+    # -------------------------------------------------------
+    - name: Verify coolstore namespace exists
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        kind: Namespace
+        name: "{{ coolstore_namespace }}"
+      register: r_coolstore_ns
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Task 4 — Deploy PostgreSQL database in coolstore namespace
+    # -------------------------------------------------------
+    - name: Deploy PostgreSQL database
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ devworkspace_namespace }}"
+        pod: "{{ workspace_pod }}"
+        command: "sh -c 'cd /projects/kai-coolstore && oc login --server={{ openshift_api }} --username={{ student_user }} --password={{ student_password }} --insecure-skip-tls-verify=true && oc project {{ coolstore_namespace }} && oc apply -f kubernetes/postgres.yml && echo postgres-deployed'"
+      register: r_deploy_postgres
+      when: workspace_pod is defined
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Task 5 — Build and deploy coolstore application
+    # -------------------------------------------------------
+    - name: Build and deploy coolstore application via Quarkus Maven plugin
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ devworkspace_namespace }}"
+        pod: "{{ workspace_pod }}"
+        command: "sh -c 'cd /projects/kai-coolstore && mvn clean package -DskipTests -Dquarkus.kubernetes.deploy=true -Dquarkus.openshift.route.expose=true -Dquarkus.kubernetes-client.api-server-url={{ openshift_api }} -Dquarkus.kubernetes-client.namespace={{ coolstore_namespace }} -Dquarkus.kubernetes-client.trust-certs=true 2>&1 | tail -20 && echo BUILD-DONE'"
+      register: r_mvn_deploy
+      when:
+        - workspace_pod is defined
+        - r_git_checkout is not failed
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Task 6 — Wait for coolstore deployment to be ready
+    # -------------------------------------------------------
+    - name: Wait for coolstore deployment to be ready
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        kind: Deployment
+        namespace: "{{ coolstore_namespace }}"
+        label_selectors:
+          - "app=customers"
+      register: r_coolstore_deploy
+      until: >
+        r_coolstore_deploy.resources | default([]) |
+        selectattr('status.readyReplicas', 'defined') |
+        selectattr('status.readyReplicas', 'equalto', 1) |
+        list | length > 0
+      retries: 18
+      delay: 10
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Report
+    # -------------------------------------------------------
+    - name: Report solve status
+      ansible.builtin.debug:
+        msg: |
+          DevSpaces workspace: {{ workspace_pod | default('not found') }}
+          Git checkout module4: {{ 'done' if (r_git_checkout is defined and r_git_checkout is not failed) else 'failed' }}
+          Coolstore namespace: {{ 'exists' if (r_coolstore_ns.resources | default([]) | length > 0) else 'NOT found' }}
+          PostgreSQL deployed: {{ 'done' if (r_deploy_postgres is defined and r_deploy_postgres is not failed) else 'failed/skipped' }}
+          App build+deploy: {{ 'done' if (r_mvn_deploy is defined and r_mvn_deploy is not failed) else 'failed/skipped — check mvn output' }}
+          App ready: {{ 'yes' if (r_coolstore_deploy.resources | default([]) | selectattr('status.readyReplicas', 'defined') | list | length > 0) else 'not yet ready' }}

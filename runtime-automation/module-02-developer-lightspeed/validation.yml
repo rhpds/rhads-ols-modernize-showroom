@@ -1,8 +1,74 @@
 ---
-- name: module-02-developer-lightspeed Validation
+- name: Module 02 Validation — AI-Assisted Code Modernization
   hosts: localhost
   connection: local
   gather_facts: false
   vars:
     student_user: "{{ user | default('') }}"
-  tasks: []
+    devworkspace_namespace: "{{ student_user }}-devworkspace"
+    litellm_key: "{{ litellm_virtual_key | default('') }}"
+    litellm_base_url: "{{ litellm_api_base_url | default('https://litellm-prod.apps.maas.redhatworkshops.io/v1') }}"
+  tasks:
+    # -------------------------------------------------------
+    # Check 1 — DevSpaces workspace pod is running
+    # -------------------------------------------------------
+    - name: Check DevSpaces workspace pod running
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        kind: Pod
+        namespace: "{{ devworkspace_namespace }}"
+      register: r_workspace_pods
+      ignore_errors: true
+
+    - name: Set workspace pod
+      ansible.builtin.set_fact:
+        workspace_pod: "{{ (r_workspace_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | first).metadata.name }}"
+      when: r_workspace_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Check 2 — provider-settings.yaml exists in workspace
+    # -------------------------------------------------------
+    - name: Check provider-settings.yaml exists in workspace
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ devworkspace_namespace }}"
+        pod: "{{ workspace_pod }}"
+        command: "sh -c 'test -f /home/user/.config/mta/provider-settings.yaml && echo exists || echo missing'"
+      register: r_provider_file
+      when: workspace_pod is defined
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Check 3 — LiteLLM endpoint reachable with student key
+    # -------------------------------------------------------
+    - name: Check LiteLLM endpoint is reachable
+      ansible.builtin.uri:
+        url: "{{ litellm_base_url | replace('/v1', '') }}/health"
+        method: GET
+        headers:
+          Authorization: "Bearer {{ litellm_key }}"
+        timeout: 10
+      register: r_litellm_health
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Build results
+    # -------------------------------------------------------
+    - name: Build task results
+      ansible.builtin.set_fact:
+        _task1_ok: "{{ r_workspace_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0 }}"
+        _task2_ok: "{{ r_provider_file is defined and r_provider_file is not failed and 'exists' in (r_provider_file.stdout | default('')) }}"
+        _task3_ok: "{{ r_litellm_health is not failed }}"
+
+    - name: Validate all tasks
+      validation_check:
+        check: "{{ _task1_ok and _task2_ok and _task3_ok }}"
+        pass_msg: |
+          ✅ Task 1: DevSpaces workspace is running in {{ devworkspace_namespace }}
+          ✅ Task 2: provider-settings.yaml configured with LiteLLM key
+          ✅ Task 3: LiteLLM AI endpoint is reachable
+        error_msg: |
+          {{ '✅' if _task1_ok else '❌' }} Task 1: DevSpaces workspace {{ 'is running' if _task1_ok else 'NOT running in ' + devworkspace_namespace }}
+          {{ '✅' if _task2_ok else '❌' }} Task 2: provider-settings.yaml {{ 'configured' if _task2_ok else 'missing — run Solve to write it, or configure manually in DevSpaces' }}
+          {{ '✅' if _task3_ok else '❌' }} Task 3: LiteLLM endpoint {{ 'reachable' if _task3_ok else 'NOT reachable — check litellm_virtual_key extravar' }}

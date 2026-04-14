@@ -1,8 +1,93 @@
 ---
-- name: module-01-mta-analysis Validation
+- name: Module 01 Validation — MTA Assessment and Analysis
   hosts: localhost
   connection: local
   gather_facts: false
   vars:
     student_user: "{{ user | default('') }}"
-  tasks: []
+    mta_hub_url: "http://mta-hub.{{ student_user }}-mta.svc.cluster.local:8080"
+  tasks:
+    # -------------------------------------------------------
+    # Check 1 — MTA hub is reachable
+    # -------------------------------------------------------
+    - name: Check MTA hub is reachable
+      ansible.builtin.uri:
+        url: "{{ mta_hub_url }}/api/v1/questionnaires"
+        method: GET
+        timeout: 10
+      register: r_mta_health
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Check 2 — Legacy Pathfinder questionnaire is required
+    # -------------------------------------------------------
+    - name: Check Legacy Pathfinder is enabled (required=true)
+      ansible.builtin.set_fact:
+        _pathfinder_required: "{{ (r_mta_health.json | default([]) | selectattr('name', 'search', 'Pathfinder') | selectattr('required', 'equalto', true) | list | length > 0) }}"
+      when: r_mta_health.json is defined
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Check 3 — Customers application has Git repo configured
+    # -------------------------------------------------------
+    - name: Get list of applications
+      ansible.builtin.uri:
+        url: "{{ mta_hub_url }}/api/v1/applications"
+        method: GET
+        timeout: 10
+      register: r_applications
+      ignore_errors: true
+
+    - name: Check Customers app has repository configured
+      ansible.builtin.set_fact:
+        _customers_repo_ok: >-
+          {{ (r_applications.json | default([]) |
+              selectattr('name', 'equalto', 'Customers') |
+              selectattr('repository', 'defined') |
+              list | length > 0) }}
+      when: r_applications.json is defined
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Check 4 — At least one analysis task exists
+    # -------------------------------------------------------
+    - name: Get analyses
+      ansible.builtin.uri:
+        url: "{{ mta_hub_url }}/api/v1/tasks?kind=analyzer"
+        method: GET
+        timeout: 10
+      register: r_analyses
+      ignore_errors: true
+
+    - name: Check analysis completed
+      ansible.builtin.set_fact:
+        _analysis_completed: >-
+          {{ (r_analyses.json | default([]) |
+              selectattr('state', 'in', ['Succeeded', 'Completed']) |
+              list | length > 0) }}
+      when: r_analyses.json is defined
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Build results
+    # -------------------------------------------------------
+    - name: Build task results
+      ansible.builtin.set_fact:
+        _task1_ok: "{{ r_mta_health is not failed }}"
+        _task2_ok: "{{ _pathfinder_required | default(false) | bool }}"
+        _task3_ok: "{{ _customers_repo_ok | default(false) | bool }}"
+        _task4_ok: "{{ _analysis_completed | default(false) | bool }}"
+
+    - name: Validate all tasks
+      validation_check:
+        check: "{{ _task1_ok and _task2_ok and _task3_ok and _task4_ok }}"
+        pass_msg: |
+          ✅ Task 1: MTA hub is reachable
+          ✅ Task 2: Legacy Pathfinder questionnaire is required
+          ✅ Task 3: Customers application has Git repository configured
+          ✅ Task 4: Analysis has completed
+        error_msg: |
+          {{ '✅' if _task1_ok else '❌' }} Task 1: MTA hub {{ 'is reachable' if _task1_ok else 'NOT reachable — check MTA namespace' }}
+          {{ '✅' if _task2_ok else '❌' }} Task 2: Legacy Pathfinder {{ 'is required' if _task2_ok else 'NOT enabled — Administration → Assessment Questionnaires → toggle required ON' }}
+          {{ '✅' if _task3_ok else '❌' }} Task 3: Customers app {{ 'has Git repo configured' if _task3_ok else 'missing Git repo — edit app in Application Inventory' }}
+          {{ '✅' if _task4_ok else '❌' }} Task 4: Analysis {{ 'completed' if _task4_ok else 'not yet done — run Solve or trigger analysis in MTA' }}

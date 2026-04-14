@@ -1,8 +1,195 @@
 ---
-- name: module-01-mta-analysis Solve
+- name: Module 01 Solve — MTA Assessment and Analysis
   hosts: localhost
   connection: local
   gather_facts: false
   vars:
     student_user: "{{ user | default('') }}"
-  tasks: []
+    mta_hub_url: "http://mta-hub.{{ student_user }}-mta.svc.cluster.local:8080"
+    gitea_url: "https://gitea.{{ openshift_cluster_ingress_domain | default('') }}"
+  tasks:
+    # -------------------------------------------------------
+    # Task 1 — Verify MTA hub is reachable
+    # -------------------------------------------------------
+    - name: Verify MTA hub is reachable
+      ansible.builtin.uri:
+        url: "{{ mta_hub_url }}/api/v1/questionnaires"
+        method: GET
+        timeout: 10
+      register: r_mta_health
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Task 2 — Enable insecure Git repositories
+    # -------------------------------------------------------
+    - name: Enable insecure Git repositories in MTA
+      ansible.builtin.uri:
+        url: "{{ mta_hub_url }}/api/v1/settings/git.insecure.enabled"
+        method: PUT
+        body_format: json
+        body: "true"
+        status_code: [200, 204]
+        timeout: 10
+      register: r_insecure_git
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Task 3 — Enable Legacy Pathfinder questionnaire
+    # -------------------------------------------------------
+    - name: Get list of questionnaires
+      ansible.builtin.uri:
+        url: "{{ mta_hub_url }}/api/v1/questionnaires"
+        method: GET
+        timeout: 10
+      register: r_questionnaires
+      ignore_errors: true
+
+    - name: Find Legacy Pathfinder questionnaire ID
+      ansible.builtin.set_fact:
+        pathfinder_id: "{{ (r_questionnaires.json | default([]) | selectattr('name', 'search', 'Pathfinder') | list | first).id | default('') }}"
+      when: r_questionnaires.json is defined
+      ignore_errors: true
+
+    - name: Enable Legacy Pathfinder questionnaire (required = true)
+      ansible.builtin.uri:
+        url: "{{ mta_hub_url }}/api/v1/questionnaires/{{ pathfinder_id }}"
+        method: PATCH
+        body_format: json
+        body:
+          required: true
+        status_code: [200, 204]
+        timeout: 10
+      when: pathfinder_id is defined and pathfinder_id | length > 0
+      register: r_enable_questionnaire
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Task 4 — Archetype assessment (Summer Framework)
+    # -------------------------------------------------------
+    - name: Get list of archetypes
+      ansible.builtin.uri:
+        url: "{{ mta_hub_url }}/api/v1/archetypes"
+        method: GET
+        timeout: 10
+      register: r_archetypes
+      ignore_errors: true
+
+    - name: Find Summer Framework archetype ID
+      ansible.builtin.set_fact:
+        archetype_id: "{{ (r_archetypes.json | default([]) | selectattr('name', 'search', 'Summer Framework') | list | first).id | default('') }}"
+      when: r_archetypes.json is defined
+      ignore_errors: true
+
+    - name: Submit archetype review (Refactor / Small effort)
+      ansible.builtin.uri:
+        url: "{{ mta_hub_url }}/api/v1/archetypes/{{ archetype_id }}/reviews"
+        method: POST
+        body_format: json
+        body:
+          proposedAction: Refactor
+          effortEstimate: Small
+          businessCriticality: 10
+          workPriority: 9
+        status_code: [200, 201]
+        timeout: 10
+      when: archetype_id is defined and archetype_id | length > 0
+      register: r_archetype_review
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Task 5 — Configure Customers application with Git repo
+    # -------------------------------------------------------
+    - name: Get list of applications
+      ansible.builtin.uri:
+        url: "{{ mta_hub_url }}/api/v1/applications"
+        method: GET
+        timeout: 10
+      register: r_applications
+      ignore_errors: true
+
+    - name: Find Customers application ID
+      ansible.builtin.set_fact:
+        customers_app_id: "{{ (r_applications.json | default([]) | selectattr('name', 'equalto', 'Customers') | list | first).id | default('') }}"
+      when: r_applications.json is defined
+      ignore_errors: true
+
+    - name: Configure Customers application with Git source repository
+      ansible.builtin.uri:
+        url: "{{ mta_hub_url }}/api/v1/applications/{{ customers_app_id }}"
+        method: PATCH
+        body_format: json
+        body:
+          repository:
+            kind: git
+            url: "{{ gitea_url }}/{{ student_user }}/kai-coolstore.git"
+            branch: mta-lab
+            path: customers-tomcat-legacy
+        status_code: [200, 204]
+        timeout: 10
+      when: customers_app_id is defined and customers_app_id | length > 0
+      register: r_configure_app
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Task 6 — Trigger MTA analysis
+    # -------------------------------------------------------
+    - name: Trigger analysis for Customers application
+      ansible.builtin.uri:
+        url: "{{ mta_hub_url }}/api/v1/tasks"
+        method: POST
+        body_format: json
+        body:
+          name: "Analyze Customers"
+          kind: analyzer
+          application:
+            id: "{{ customers_app_id | int }}"
+          data:
+            mode: source-code
+            targets:
+              - containerization
+              - linux
+              - openjdk
+            scope:
+              withDependencies: false
+            rules:
+              repository:
+                kind: git
+                url: "{{ gitea_url }}/{{ student_user }}/kai-coolstore.git"
+                branch: mta-lab
+                path: customrules
+        status_code: [200, 201, 202]
+        timeout: 30
+      when: customers_app_id is defined and customers_app_id | length > 0
+      register: r_analysis_task
+      ignore_errors: true
+
+    - name: Set analysis task ID
+      ansible.builtin.set_fact:
+        analysis_task_id: "{{ r_analysis_task.json.id | default('') }}"
+      when: r_analysis_task.json is defined
+      ignore_errors: true
+
+    - name: Wait for analysis to complete (up to 5 minutes)
+      ansible.builtin.uri:
+        url: "{{ mta_hub_url }}/api/v1/tasks/{{ analysis_task_id }}"
+        method: GET
+        timeout: 10
+      register: r_task_status
+      until: r_task_status.json.state | default('') in ['Succeeded', 'Failed', 'Canceled']
+      retries: 30
+      delay: 10
+      when: analysis_task_id is defined and analysis_task_id | length > 0
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Report
+    # -------------------------------------------------------
+    - name: Report solve status
+      ansible.builtin.debug:
+        msg: |
+          MTA hub: {{ 'reachable' if r_mta_health is not failed else 'NOT reachable' }}
+          Insecure Git repos: {{ 'enabled' if r_insecure_git is not failed else 'failed' }}
+          Legacy Pathfinder: {{ 'enabled (id=' + pathfinder_id | string + ')' if (pathfinder_id is defined and pathfinder_id | length > 0) else 'not found' }}
+          Archetype review: {{ 'submitted' if (r_archetype_review is defined and r_archetype_review is not failed) else 'skipped' }}
+          Customers app configured: {{ 'done (id=' + customers_app_id | string + ')' if (customers_app_id is defined and customers_app_id | length > 0 and r_configure_app is not failed) else 'skipped/failed' }}
+          Analysis: {{ 'state=' + (r_task_status.json.state | default('triggered')) if (r_task_status is defined and r_task_status.json is defined) else 'triggered (check MTA UI)' if (r_analysis_task is defined and r_analysis_task is not failed) else 'not triggered' }}

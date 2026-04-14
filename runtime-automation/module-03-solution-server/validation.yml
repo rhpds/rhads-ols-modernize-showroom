@@ -1,8 +1,85 @@
 ---
-- name: module-03-solution-server Validation
+- name: Module 03 Validation — Solution Server with Company Policy Rules
   hosts: localhost
   connection: local
   gather_facts: false
   vars:
     student_user: "{{ user | default('') }}"
-  tasks: []
+    devworkspace_namespace: "{{ student_user }}-devworkspace"
+    mta_hub_url: "http://mta-hub.{{ student_user }}-mta.svc.cluster.local:8080"
+  tasks:
+    # -------------------------------------------------------
+    # Check 1 — DevSpaces workspace pod running
+    # -------------------------------------------------------
+    - name: Check DevSpaces workspace pod running
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        kind: Pod
+        namespace: "{{ devworkspace_namespace }}"
+      register: r_workspace_pods
+      ignore_errors: true
+
+    - name: Set workspace pod
+      ansible.builtin.set_fact:
+        workspace_pod: "{{ (r_workspace_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | first).metadata.name }}"
+      when: r_workspace_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Check 2 — Workspace is on module3 branch
+    # -------------------------------------------------------
+    - name: Check current git branch in workspace
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ devworkspace_namespace }}"
+        pod: "{{ workspace_pod }}"
+        command: "sh -c 'cd /projects/kai-coolstore && git branch --show-current 2>/dev/null || git rev-parse --abbrev-ref HEAD'"
+      register: r_git_branch
+      when: workspace_pod is defined
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Check 3 — Solution Server (kai-solution-server) is reachable
+    # -------------------------------------------------------
+    - name: Check kai-solution-server reachable
+      ansible.builtin.uri:
+        url: "http://kai-solution-server.{{ student_user }}-mta.svc.cluster.local:8000/docs"
+        method: GET
+        timeout: 10
+      register: r_solution_server
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Check 4 — MTA hub reachable
+    # -------------------------------------------------------
+    - name: Check MTA hub reachable
+      ansible.builtin.uri:
+        url: "{{ mta_hub_url }}/api/v1/applications"
+        method: GET
+        timeout: 10
+      register: r_mta_health
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Build results
+    # -------------------------------------------------------
+    - name: Build task results
+      ansible.builtin.set_fact:
+        _task1_ok: "{{ r_workspace_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0 }}"
+        _task2_ok: "{{ r_git_branch is defined and r_git_branch is not failed and 'module3' in (r_git_branch.stdout | default('')) }}"
+        _task3_ok: "{{ r_solution_server is not failed }}"
+        _task4_ok: "{{ r_mta_health is not failed }}"
+
+    - name: Validate all tasks
+      validation_check:
+        check: "{{ _task1_ok and _task2_ok and _task3_ok and _task4_ok }}"
+        pass_msg: |
+          ✅ Task 1: DevSpaces workspace is running
+          ✅ Task 2: Workspace is on module3 git branch
+          ✅ Task 3: Solution Server (kai-solution-server) is reachable
+          ✅ Task 4: MTA hub is reachable
+        error_msg: |
+          {{ '✅' if _task1_ok else '❌' }} Task 1: DevSpaces workspace {{ 'running' if _task1_ok else 'NOT running in ' + devworkspace_namespace }}
+          {{ '✅' if _task2_ok else '❌' }} Task 2: Git branch {{ 'is module3' if _task2_ok else 'is NOT module3 (current: ' + (r_git_branch.stdout | default('unknown')) + ') — run: git checkout module3' }}
+          {{ '✅' if _task3_ok else '❌' }} Task 3: Solution Server {{ 'reachable' if _task3_ok else 'NOT reachable — check ' + student_user + '-mta namespace' }}
+          {{ '✅' if _task4_ok else '❌' }} Task 4: MTA hub {{ 'reachable' if _task4_ok else 'NOT reachable' }}
