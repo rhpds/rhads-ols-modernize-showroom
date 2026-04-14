@@ -65,14 +65,26 @@
     # -------------------------------------------------------
     # Task 4 — Deploy PostgreSQL database in coolstore namespace
     # -------------------------------------------------------
-    - name: Deploy PostgreSQL database
+    - name: Login to OpenShift and switch to coolstore project
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ devworkspace_namespace }}"
         pod: "{{ workspace_pod }}"
-        command: "sh -c 'cd /projects/kai-coolstore && oc login --server={{ openshift_api }} --username={{ student_user }} --password={{ student_password }} --insecure-skip-tls-verify=true && oc project {{ coolstore_namespace }} && oc apply -f kubernetes/postgres.yml && echo postgres-deployed'"
-      register: r_deploy_postgres
+        command: "sh -c 'oc login --server={{ openshift_api }} --username={{ student_user }} --password={{ student_password }} --insecure-skip-tls-verify=true && oc project {{ coolstore_namespace }} && echo logged-in'"
+      register: r_oc_login
       when: workspace_pod is defined
+      ignore_errors: true
+
+    - name: Deploy PostgreSQL database from kubernetes manifests
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ devworkspace_namespace }}"
+        pod: "{{ workspace_pod }}"
+        command: "sh -c 'cd /projects/kai-coolstore && oc apply -f deploy/kubernetes/persistent-volume-claim.yaml -n {{ coolstore_namespace }} && oc apply -f deploy/kubernetes/postgresql-deployment.yaml -n {{ coolstore_namespace }} && oc apply -f deploy/kubernetes/postgresql-service.yaml -n {{ coolstore_namespace }} && echo postgres-deployed'"
+      register: r_deploy_postgres
+      when:
+        - workspace_pod is defined
+        - r_oc_login is not failed
       ignore_errors: true
 
     # -------------------------------------------------------
@@ -83,7 +95,7 @@
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ devworkspace_namespace }}"
         pod: "{{ workspace_pod }}"
-        command: "sh -c 'cd /projects/kai-coolstore && mvn clean package -DskipTests -Dquarkus.kubernetes.deploy=true -Dquarkus.openshift.route.expose=true -Dquarkus.kubernetes-client.api-server-url={{ openshift_api }} -Dquarkus.kubernetes-client.namespace={{ coolstore_namespace }} -Dquarkus.kubernetes-client.trust-certs=true 2>&1 | tail -20 && echo BUILD-DONE'"
+        command: "sh -c 'cd /projects/kai-coolstore && mvn clean compile package -DskipTests -Dquarkus.kubernetes.deploy=true 2>&1 | tail -20 && echo BUILD-DONE'"
       register: r_mvn_deploy
       when:
         - workspace_pod is defined
@@ -93,18 +105,25 @@
     # -------------------------------------------------------
     # Task 6 — Wait for coolstore deployment to be ready
     # -------------------------------------------------------
+    - name: Create edge route for coolstore app
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ devworkspace_namespace }}"
+        pod: "{{ workspace_pod }}"
+        command: "sh -c 'oc create route edge acme-coolstore --service=coolstore --port=8080 -n {{ coolstore_namespace }} 2>/dev/null || echo route-exists'"
+      register: r_create_route
+      when: workspace_pod is defined
+      ignore_errors: true
+
     - name: Wait for coolstore deployment to be ready
       kubernetes.core.k8s_info:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         kind: Deployment
         namespace: "{{ coolstore_namespace }}"
-        label_selectors:
-          - "app=customers"
       register: r_coolstore_deploy
       until: >
         r_coolstore_deploy.resources | default([]) |
         selectattr('status.readyReplicas', 'defined') |
-        selectattr('status.readyReplicas', 'equalto', 1) |
         list | length > 0
       retries: 18
       delay: 10

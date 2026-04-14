@@ -29,12 +29,12 @@
     # -------------------------------------------------------
     # Check 2 — provider-settings.yaml exists in workspace
     # -------------------------------------------------------
-    - name: Check provider-settings.yaml exists in workspace
+    - name: Check provider-settings.yaml exists in workspace repo
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ devworkspace_namespace }}"
         pod: "{{ workspace_pod }}"
-        command: "sh -c 'test -f /home/user/.config/mta/provider-settings.yaml && echo exists || echo missing'"
+        command: "sh -c 'test -f /projects/kai-coolstore/settings/provider-settings.yaml && echo exists || echo missing'"
       register: r_provider_file
       when: workspace_pod is defined
       ignore_errors: true

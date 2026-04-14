@@ -50,7 +50,33 @@
       ignore_errors: true
 
     # -------------------------------------------------------
-    # Task 3 — Verify Solution Server (kai-solution-server) is reachable
+    # Task 3 — Re-write provider-settings.yaml for module3 branch
+    # (same config needed, branch switch may have reset settings/)
+    # -------------------------------------------------------
+    - name: Ensure provider-settings.yaml present for module3
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ devworkspace_namespace }}"
+        pod: "{{ workspace_pod }}"
+        command: "sh -c 'mkdir -p /projects/kai-coolstore/settings && test -f /projects/kai-coolstore/settings/provider-settings.yaml && echo already-exists || echo needs-writing'"
+      register: r_check_provider
+      when: workspace_pod is defined
+      ignore_errors: true
+
+    - name: Write provider-settings.yaml if missing after branch switch
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ devworkspace_namespace }}"
+        pod: "{{ workspace_pod }}"
+        command: "python3 -c \"import os; os.makedirs('/projects/kai-coolstore/settings',exist_ok=True); content='models:\\n  OpenAI: &active\\n    environment:\\n      OPENAI_API_KEY: \\\"{{ litellm_virtual_key | default(\\\"\\\")}}\\\",\\n    provider: ChatOpenAI\\n    args:\\n      model: llama-scout-17b\\n      configuration:\\n        baseURL: \\\"{{ litellm_api_base_url | default(\\\"\\\") }}\\\"\\n'; open('/projects/kai-coolstore/settings/provider-settings.yaml','w').write(content); print('written')\""
+      when:
+        - workspace_pod is defined
+        - r_check_provider is defined
+        - "'needs-writing' in (r_check_provider.stdout | default(''))"
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Task 4 — Verify Solution Server (kai-solution-server) is reachable
     # -------------------------------------------------------
     - name: Verify kai-solution-server is reachable
       ansible.builtin.uri:

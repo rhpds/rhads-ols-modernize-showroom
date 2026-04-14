@@ -30,6 +30,9 @@
     # -------------------------------------------------------
     # Task 2 — Write provider-settings.yaml with LiteLLM config
     # -------------------------------------------------------
+    # The MTA extension stores provider-settings.yaml at:
+    # <workspaceRepo>/settings/provider-settings.yaml
+    # i.e. /projects/kai-coolstore/settings/provider-settings.yaml
     - name: Build provider-settings.yaml content
       ansible.builtin.set_fact:
         provider_settings_content: |
@@ -44,12 +47,12 @@
                   baseURL: "{{ litellm_base_url }}"
       when: litellm_key | length > 0
 
-    - name: Write provider-settings.yaml into DevSpaces workspace
+    - name: Write provider-settings.yaml into workspace repo settings/ dir
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ devworkspace_namespace }}"
         pod: "{{ workspace_pod }}"
-        command: "python3 -c \"import base64,os; content=base64.b64decode('{{ provider_settings_content | b64encode }}').decode(); open('/home/user/.config/mta/provider-settings.yaml','w').write(content); print('written')\""
+        command: "python3 -c \"import base64,os; os.makedirs('/projects/kai-coolstore/settings',exist_ok=True); open('/projects/kai-coolstore/settings/provider-settings.yaml','w').write(base64.b64decode('{{ provider_settings_content | b64encode }}').decode()); print('written')\""
       register: r_provider_settings
       when:
         - workspace_pod is defined
