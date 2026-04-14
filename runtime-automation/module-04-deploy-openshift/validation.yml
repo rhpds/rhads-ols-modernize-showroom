@@ -1,0 +1,8 @@
+---
+- name: module-04-deploy-openshift Validation
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    student_user: "{{ user | default('') }}"
+  tasks: []

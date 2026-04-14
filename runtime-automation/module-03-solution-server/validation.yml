@@ -1,0 +1,8 @@
+---
+- name: module-03-solution-server Validation
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    student_user: "{{ user | default('') }}"
+  tasks: []
