@@ -1,0 +1,85 @@
+---
+- name: Module 02 Solve — AI-Assisted Code Modernization
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    student_user: "{{ user | default('') }}"
+    devworkspace_namespace: "{{ student_user }}-devworkspace"
+    mta_hub_url: "http://mta-hub.{{ student_user }}-mta.svc.cluster.local:8080"
+    litellm_key: "{{ litellm_virtual_key | default('') }}"
+    litellm_base_url: "{{ litellm_api_base_url | default('https://litellm-prod.apps.maas.redhatworkshops.io/v1') }}"
+  tasks:
+    # -------------------------------------------------------
+    # Task 1 — Find DevSpaces workspace pod
+    # -------------------------------------------------------
+    - name: Find DevSpaces workspace pod
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        kind: Pod
+        namespace: "{{ devworkspace_namespace }}"
+      register: r_workspace_pods
+      ignore_errors: true
+
+    - name: Set workspace pod name
+      ansible.builtin.set_fact:
+        workspace_pod: "{{ (r_workspace_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | first).metadata.name }}"
+      when: r_workspace_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Task 2 — Write provider-settings.yaml with LiteLLM config
+    # -------------------------------------------------------
+    # The MTA extension stores provider-settings.yaml at:
+    # <workspaceRepo>/settings/provider-settings.yaml
+    # i.e. /projects/kai-coolstore/settings/provider-settings.yaml
+    - name: Build provider-settings.yaml content
+      ansible.builtin.set_fact:
+        provider_settings_content: |
+          models:
+            OpenAI: &active
+              environment:
+                OPENAI_API_KEY: "{{ litellm_key }}"
+              provider: ChatOpenAI
+              args:
+                model: llama-scout-17b
+                configuration:
+                  baseURL: "{{ litellm_base_url }}"
+      when: litellm_key | length > 0
+
+    - name: Write provider-settings.yaml into workspace repo settings/ dir
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ devworkspace_namespace }}"
+        pod: "{{ workspace_pod }}"
+        command: "python3 -c \"import base64,os; os.makedirs('/projects/kai-coolstore/settings',exist_ok=True); open('/projects/kai-coolstore/settings/provider-settings.yaml','w').write(base64.b64decode('{{ provider_settings_content | b64encode }}').decode()); print('written')\""
+      register: r_provider_settings
+      when:
+        - workspace_pod is defined
+        - provider_settings_content is defined
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Task 3 — Verify MTA LiteLLM endpoint is reachable
+    # -------------------------------------------------------
+    - name: Verify LiteLLM endpoint is reachable
+      ansible.builtin.uri:
+        url: "{{ litellm_base_url | replace('/v1', '') }}/health"
+        method: GET
+        headers:
+          Authorization: "Bearer {{ litellm_key }}"
+        timeout: 10
+      register: r_litellm_health
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Report
+    # -------------------------------------------------------
+    - name: Report solve status
+      ansible.builtin.debug:
+        msg: |
+          DevSpaces workspace: {{ workspace_pod | default('not found') }}
+          provider-settings.yaml: {{ 'written' if (r_provider_settings is defined and r_provider_settings is not failed) else 'not written (workspace not found or key missing)' }}
+          LiteLLM endpoint: {{ 'reachable' if r_litellm_health is not failed else 'not reachable — check litellm_virtual_key' }}
+          LiteLLM key: {{ litellm_key[:10] + '...' if litellm_key | length > 10 else 'MISSING' }}
+          LiteLLM base URL: {{ litellm_base_url }}

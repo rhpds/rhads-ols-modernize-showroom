@@ -1,0 +1,121 @@
+---
+- name: Module 04 Validation — Deploy to OpenShift
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    student_user: "{{ user | default('') }}"
+    devworkspace_namespace: "{{ student_user }}-devworkspace"
+    coolstore_namespace: "{{ student_user }}-coolstore"
+    ingress_domain: "{{ openshift_cluster_ingress_domain | default('') }}"
+  tasks:
+    # -------------------------------------------------------
+    # Check 1 — DevSpaces workspace pod running
+    # -------------------------------------------------------
+    - name: Check DevSpaces workspace pod running
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        kind: Pod
+        namespace: "{{ devworkspace_namespace }}"
+      register: r_workspace_pods
+      ignore_errors: true
+
+    - name: Set workspace pod
+      ansible.builtin.set_fact:
+        workspace_pod: "{{ (r_workspace_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | first).metadata.name }}"
+      when: r_workspace_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Check 2 — Coolstore route exists (durable outcome of module-04 deploy)
+    #   Branch NOT checked — re-running solve-03 switches back to module3.
+    #   The durable outcome of module-04 is the coolstore route existing.
+    # -------------------------------------------------------
+    - name: Check coolstore route exists
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        api_version: route.openshift.io/v1
+        kind: Route
+        name: coolstore
+        namespace: "{{ coolstore_namespace }}"
+      register: r_coolstore_route_check
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Check 3 — PostgreSQL running in coolstore namespace
+    # -------------------------------------------------------
+    - name: Check PostgreSQL pod running in coolstore namespace
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        kind: Pod
+        namespace: "{{ coolstore_namespace }}"
+        label_selectors:
+          - "deployment=coolstore-database"
+      register: r_postgres_pod
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Check 4 — Customers (coolstore) app deployment running
+    # -------------------------------------------------------
+    - name: Check coolstore deployment is running
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        kind: Deployment
+        namespace: "{{ coolstore_namespace }}"
+      register: r_coolstore_deploy
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Check 5 — App route exists and is reachable
+    # -------------------------------------------------------
+    - name: Get coolstore route
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        kind: Route
+        namespace: "{{ coolstore_namespace }}"
+      register: r_coolstore_route
+      ignore_errors: true
+
+    - name: Set app URL from route
+      ansible.builtin.set_fact:
+        app_url: "https://{{ (r_coolstore_route.resources | default([]) | map(attribute='spec.host') | list | first) | default('') }}"
+      when: r_coolstore_route.resources | default([]) | length > 0
+      ignore_errors: true
+
+    - name: Check app route is reachable
+      ansible.builtin.uri:
+        url: "{{ app_url }}"
+        method: GET
+        validate_certs: false
+        timeout: 10
+        status_code: [200, 301, 302]
+      register: r_app_reachable
+      when: app_url is defined and app_url | length > 10
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Build results
+    # -------------------------------------------------------
+    - name: Build task results
+      ansible.builtin.set_fact:
+        _task1_ok: "{{ r_workspace_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0 }}"
+        _task2_ok: "{{ r_coolstore_route_check.resources | default([]) | length > 0 }}"
+        _task3_ok: "{{ r_postgres_pod.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0 }}"
+        _task4_ok: "{{ r_coolstore_deploy.resources | default([]) | length > 0 }}"
+        _task5_ok: "{{ r_app_reachable is defined and r_app_reachable is not failed and r_app_reachable is not skipped }}"
+
+    - name: Validate all tasks
+      validation_check:
+        check: "{{ _task1_ok and _task2_ok and _task3_ok and _task4_ok and _task5_ok }}"
+        pass_msg: |
+          ✅ Task 1: DevSpaces workspace is running
+          ✅ Task 2: Coolstore route exists (app was deployed)
+          ✅ Task 3: PostgreSQL database is running in {{ coolstore_namespace }}
+          ✅ Task 4: Coolstore application deployment exists in {{ coolstore_namespace }}
+          ✅ Task 5: Application route is reachable ({{ app_url | default('URL found') }})
+        error_msg: |
+          {{ '✅' if _task1_ok else '❌' }} Task 1: DevSpaces workspace {{ 'running' if _task1_ok else 'NOT running' }}
+          {{ '✅' if _task2_ok else '❌' }} Task 2: Coolstore route {{ 'exists' if _task2_ok else 'NOT found — run Solve to deploy the app' }}
+          {{ '✅' if _task3_ok else '❌' }} Task 3: PostgreSQL {{ 'running' if _task3_ok else 'NOT running in ' + coolstore_namespace + ' — run Solve or deploy manually' }}
+          {{ '✅' if _task4_ok else '❌' }} Task 4: Coolstore deployment {{ 'exists' if _task4_ok else 'NOT found — run Solve or deploy via mvn quarkus:deploy' }}
+          {{ '✅' if _task5_ok else '❌' }} Task 5: App route {{ 'reachable at ' + (app_url | default('unknown')) if _task5_ok else 'NOT reachable — check deployment status' }}

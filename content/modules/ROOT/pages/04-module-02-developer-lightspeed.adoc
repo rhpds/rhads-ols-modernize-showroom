@@ -425,3 +425,12 @@ You now have hands-on experience with AI-assisted code modernization and underst
 **Next steps:**
 
 Module 3 will show you how to incorporate ACME's specific coding standards and best practices into AI's generative code migration, by using Developer Lightspeed Solution Server, ensuring consistency across all developers from senior developer to junior contractor, and across all migration waves.
+
+
+++++
+<div class="solve-button-placeholder" data-module="module-02-developer-lightspeed"></div>
+++++
+
+++++
+<div class="validate-button-placeholder" data-module="module-02-developer-lightspeed"></div>
+++++

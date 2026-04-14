@@ -1,0 +1,103 @@
+---
+- name: Module 01 Validation — MTA Assessment and Analysis
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    student_user: "{{ user | default('') }}"
+    mta_namespace: "{{ student_user }}-mta"
+  tasks:
+    # -------------------------------------------------------
+    # Find mta-hub pod (NetworkPolicy blocks cross-ns HTTP — use k8s_exec)
+    # -------------------------------------------------------
+    - name: Find mta-hub pod
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        kind: Pod
+        namespace: "{{ mta_namespace }}"
+        label_selectors:
+          - "role=mta-hub"
+      register: r_mta_pods
+      ignore_errors: true
+
+    - name: Set mta-hub pod name
+      ansible.builtin.set_fact:
+        mta_hub_pod: "{{ (r_mta_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | first).metadata.name }}"
+      when: r_mta_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Check 1 — MTA hub is reachable
+    # -------------------------------------------------------
+    - name: Check MTA hub reachable (returns 200)
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ mta_namespace }}"
+        pod: "{{ mta_hub_pod }}"
+        command: "sh -c 'curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/questionnaires'"
+      register: r_mta_health
+      when: mta_hub_pod is defined
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Check 2 — Legacy Pathfinder questionnaire is required
+    # -------------------------------------------------------
+    - name: Check Legacy Pathfinder required (python3 parse in pod)
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ mta_namespace }}"
+        pod: "{{ mta_hub_pod }}"
+        command: "sh -c 'curl -s http://localhost:8080/questionnaires | python3 -c \"import json,sys; qs=json.load(sys.stdin); print(any(\\\"Pathfinder\\\" in q.get(\\\"name\\\",\\\"\\\") and q.get(\\\"required\\\") for q in qs))\"'"
+      register: r_pathfinder_check
+      when: mta_hub_pod is defined
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Check 3 — Customers app has Git repo configured
+    # -------------------------------------------------------
+    - name: Check Customers app has repository (python3 parse in pod)
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ mta_namespace }}"
+        pod: "{{ mta_hub_pod }}"
+        command: "sh -c 'curl -s http://localhost:8080/applications | python3 -c \"import json,sys; apps=json.load(sys.stdin); print(any(a.get(\\\"name\\\")==\\\"Customers\\\" and a.get(\\\"repository\\\") for a in apps))\"'"
+      register: r_customers_check
+      when: mta_hub_pod is defined
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Check 4 — At least one analysis task completed
+    # -------------------------------------------------------
+    - name: Check analysis completed (python3 parse in pod)
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ mta_namespace }}"
+        pod: "{{ mta_hub_pod }}"
+        command: "sh -c 'curl -s \"http://localhost:8080/tasks?kind=analyzer\" | python3 -c \"import json,sys; tasks=json.load(sys.stdin); print(any(t.get(\\\"state\\\") in [\\\"Succeeded\\\",\\\"Completed\\\"] for t in tasks))\"'"
+      register: r_analysis_check
+      when: mta_hub_pod is defined
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Build results
+    # -------------------------------------------------------
+    - name: Build task results
+      ansible.builtin.set_fact:
+        _task1_ok: "{{ mta_hub_pod is defined and r_mta_health is defined and r_mta_health is not failed and '200' in (r_mta_health.stdout | default('')) }}"
+        _task2_ok: "{{ r_pathfinder_check is defined and r_pathfinder_check is not failed and 'True' in (r_pathfinder_check.stdout | default('')) }}"
+        _task3_ok: "{{ r_customers_check is defined and r_customers_check is not failed and 'True' in (r_customers_check.stdout | default('')) }}"
+        _task4_ok: "{{ r_analysis_check is defined and r_analysis_check is not failed and 'True' in (r_analysis_check.stdout | default('')) }}"
+
+    - name: Validate all tasks
+      validation_check:
+        check: "{{ _task1_ok and _task2_ok and _task3_ok and _task4_ok }}"
+        pass_msg: |
+          ✅ Task 1: MTA hub is reachable (pod: {{ mta_hub_pod | default('?') }})
+          ✅ Task 2: Legacy Pathfinder questionnaire is required
+          ✅ Task 3: Customers application has Git repository configured
+          ✅ Task 4: Analysis has completed
+        error_msg: |
+          {{ '✅' if _task1_ok else '❌' }} Task 1: MTA hub {{ 'reachable' if _task1_ok else 'NOT reachable — pod=' + (mta_hub_pod | default('not found')) }}
+          {{ '✅' if _task2_ok else '❌' }} Task 2: Legacy Pathfinder {{ 'is required' if _task2_ok else 'NOT enabled — Administration → Assessment Questionnaires → toggle required ON' }}
+          {{ '✅' if _task3_ok else '❌' }} Task 3: Customers app {{ 'has Git repo' if _task3_ok else 'missing Git repo — edit app in Application Inventory' }}
+          {{ '✅' if _task4_ok else '❌' }} Task 4: Analysis {{ 'completed' if _task4_ok else 'not done — run Solve or trigger analysis in MTA' }}

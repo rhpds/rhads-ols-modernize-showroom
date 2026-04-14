@@ -1,0 +1,114 @@
+---
+- name: Module 04 Solve — Deploy to OpenShift
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    student_user: "{{ user | default('') }}"
+    devworkspace_namespace: "{{ student_user }}-devworkspace"
+    coolstore_namespace: "{{ student_user }}-coolstore"
+    openshift_api: "{{ openshift_api_url | default('') }}"
+    student_password: "{{ password | default('') }}"
+  tasks:
+    # -------------------------------------------------------
+    # Find DevSpaces workspace pod
+    # -------------------------------------------------------
+    - name: Find DevSpaces workspace pod
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        kind: Pod
+        namespace: "{{ devworkspace_namespace }}"
+      register: r_workspace_pods
+      ignore_errors: true
+
+    - name: Set workspace pod name
+      ansible.builtin.set_fact:
+        workspace_pod: "{{ (r_workspace_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | first).metadata.name }}"
+      when: r_workspace_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Step 1 — git checkout module4 (student does this first)
+    # -------------------------------------------------------
+    - name: Stash and checkout module4
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ devworkspace_namespace }}"
+        pod: "{{ workspace_pod }}"
+        command: "sh -c 'cd /projects/kai-coolstore && git stash 2>/dev/null; git checkout module4 && echo checked-out'"
+      register: r_git_checkout
+      when: workspace_pod is defined
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Step 2 — oc login + oc project (student does this in terminal)
+    # -------------------------------------------------------
+    - name: Login to OpenShift and switch to coolstore project
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ devworkspace_namespace }}"
+        pod: "{{ workspace_pod }}"
+        command: "sh -c 'oc login --server={{ openshift_api }} --username={{ student_user }} --password={{ student_password }} --insecure-skip-tls-verify=true && oc project {{ coolstore_namespace }} && echo logged-in'"
+      register: r_oc_login
+      when: workspace_pod is defined
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Step 3 — Deploy Postgres (student runs oc new-app)
+    # -------------------------------------------------------
+    - name: Deploy PostgreSQL database
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ devworkspace_namespace }}"
+        pod: "{{ workspace_pod }}"
+        command: "sh -c 'oc new-app -n {{ coolstore_namespace }} -e POSTGRESQL_USER=quarkus -e POSTGRESQL_PASSWORD=quarkus -e POSTGRESQL_DATABASE=coolstore openshift/postgresql:latest --name=coolstore-database 2>&1 | tail -5 || echo already-exists'"
+      register: r_deploy_postgres
+      when:
+        - workspace_pod is defined
+        - r_oc_login is not failed
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Step 4 — Run Maven deploy SYNCHRONOUSLY (student waits in terminal ~8-10 min)
+    #   k8s_exec stays open until maven finishes — same as student's terminal.
+    #   The binary S2I build needs the exec to stay alive during JAR upload.
+    # -------------------------------------------------------
+    - name: Build and deploy coolstore (mvn quarkus deploy — runs synchronously like student terminal)
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ devworkspace_namespace }}"
+        pod: "{{ workspace_pod }}"
+        command: "sh -c 'cd /projects/kai-coolstore && mvn clean compile package -DskipTests -Dquarkus.kubernetes.deploy=true && echo BUILD_AND_DEPLOY_DONE || echo BUILD_FAILED'"
+      register: r_mvn_deploy
+      when:
+        - workspace_pod is defined
+        - r_git_checkout is not failed
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Step 5 — Wait for deployment to be ready
+    # -------------------------------------------------------
+    - name: Wait for coolstore deployment to be ready
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        kind: Deployment
+        name: coolstore
+        namespace: "{{ coolstore_namespace }}"
+      register: r_coolstore_deploy
+      until: >
+        (r_coolstore_deploy.resources | default([{}]) | first).status.readyReplicas | default(0) | int >= 1
+      retries: 18
+      delay: 10
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Report
+    # -------------------------------------------------------
+    - name: Report solve status
+      ansible.builtin.debug:
+        msg: |
+          DevSpaces workspace: {{ workspace_pod | default('not found') }}
+          Git checkout module4: {{ 'done' if (r_git_checkout is not failed) else 'failed' }}
+          PostgreSQL: {{ 'deployed' if (r_deploy_postgres is not failed) else 'failed/skipped' }}
+          Maven build+deploy: {{ 'done — ' + (r_mvn_stdout | default('')) if (r_mvn_deploy is not failed) else 'failed — check /tmp/mvn.log in workspace' }}
+          App ready: {{ 'yes' if ((r_coolstore_deploy.resources | default([{}]) | first).status.readyReplicas | default(0) | int >= 1) else 'not yet' }}

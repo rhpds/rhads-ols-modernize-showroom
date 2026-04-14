@@ -1,0 +1,178 @@
+---
+- name: Module 01 Solve — MTA Assessment and Analysis
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    student_user: "{{ user | default('') }}"
+    mta_namespace: "{{ student_user }}-mta"
+    gitea_url: "https://gitea.{{ openshift_cluster_ingress_domain | default('') }}"
+    # Source code and custom rules are in modern-app-dev repo (main branch)
+    source_repo_url: "https://gitea.{{ openshift_cluster_ingress_domain | default('') }}/{{ student_user }}/modern-app-dev.git"
+    source_repo_branch: "main"
+    source_repo_path: "customers-tomcat-legacy"
+    rules_repo_path: "customrules"
+  tasks:
+    # -------------------------------------------------------
+    # Task 1 — Find MTA hub pod (NetworkPolicy blocks cross-ns HTTP)
+    # -------------------------------------------------------
+    - name: Find mta-hub pod
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        kind: Pod
+        namespace: "{{ mta_namespace }}"
+        label_selectors:
+          - "role=mta-hub"
+      register: r_mta_pods
+      ignore_errors: true
+
+    - name: Set mta-hub pod name
+      ansible.builtin.set_fact:
+        mta_hub_pod: "{{ (r_mta_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | first).metadata.name }}"
+      when: r_mta_pods.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Task 2 — Enable insecure Git repositories
+    # -------------------------------------------------------
+    - name: Enable insecure Git repositories in MTA
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ mta_namespace }}"
+        pod: "{{ mta_hub_pod }}"
+        command: "sh -c 'curl -s -X PUT http://localhost:8080/settings/git.insecure.enabled -H \"Content-Type: application/json\" -d true && echo ok'"
+      register: r_insecure_git
+      when: mta_hub_pod is defined
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Task 3 — Enable Legacy Pathfinder questionnaire
+    # -------------------------------------------------------
+    - name: Get Legacy Pathfinder questionnaire ID
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ mta_namespace }}"
+        pod: "{{ mta_hub_pod }}"
+        command: "sh -c 'curl -s http://localhost:8080/questionnaires | python3 -c \"import json,sys; qs=json.load(sys.stdin); found=[q for q in qs if \\\"Pathfinder\\\" in q.get(\\\"name\\\",\\\"\\\")]; print(found[0][\\\"id\\\"] if found else \\\"\\\")\"'"
+      register: r_pathfinder_id_raw
+      when: mta_hub_pod is defined
+      ignore_errors: true
+
+    - name: Set pathfinder ID
+      ansible.builtin.set_fact:
+        pathfinder_id: "{{ r_pathfinder_id_raw.stdout | default('') | trim }}"
+      when: r_pathfinder_id_raw.stdout is defined
+      ignore_errors: true
+
+    - name: Enable Legacy Pathfinder questionnaire (GET full object then PUT with required=true)
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ mta_namespace }}"
+        pod: "{{ mta_hub_pod }}"
+        command: "python3 -c \"import json,urllib.request; url='http://localhost:8080/questionnaires/{{ pathfinder_id }}'; q=json.loads(urllib.request.urlopen(url).read()); q['required']=True; req=urllib.request.Request(url,data=json.dumps(q).encode(),headers={'Content-Type':'application/json'},method='PUT'); urllib.request.urlopen(req); print('enabled')\""
+      when: pathfinder_id is defined and pathfinder_id | length > 0
+      register: r_enable_questionnaire
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Task 4 — Archetype assessment + review (Summer Framework)
+    # -------------------------------------------------------
+    - name: Get Summer Framework archetype ID
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ mta_namespace }}"
+        pod: "{{ mta_hub_pod }}"
+        command: "sh -c 'curl -s http://localhost:8080/archetypes | python3 -c \"import json,sys; archs=json.load(sys.stdin); found=[a for a in archs if \\\"Summer Framework\\\" in a.get(\\\"name\\\",\\\"\\\")]; print(found[0][\\\"id\\\"] if found else \\\"\\\")\"'"
+      register: r_archetype_id_raw
+      when: mta_hub_pod is defined
+      ignore_errors: true
+
+    - name: Set archetype ID
+      ansible.builtin.set_fact:
+        archetype_id: "{{ r_archetype_id_raw.stdout | default('') | trim }}"
+      when: r_archetype_id_raw.stdout is defined
+      ignore_errors: true
+
+    - name: Submit archetype review (Refactor / Small / criticality=10 / priority=9)
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ mta_namespace }}"
+        pod: "{{ mta_hub_pod }}"
+        command: "sh -c 'curl -s -X POST http://localhost:8080/archetypes/{{ archetype_id }}/reviews -H \"Content-Type: application/json\" -d \"{\\\"proposedAction\\\":\\\"Refactor\\\",\\\"effortEstimate\\\":\\\"Small\\\",\\\"businessCriticality\\\":10,\\\"workPriority\\\":9}\" && echo ok'"
+      when: archetype_id is defined and archetype_id | length > 0
+      register: r_archetype_review
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Task 5 — Configure Customers application with Git repo
+    # -------------------------------------------------------
+    - name: Get Customers application ID
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ mta_namespace }}"
+        pod: "{{ mta_hub_pod }}"
+        command: "sh -c 'curl -s http://localhost:8080/applications | python3 -c \"import json,sys; apps=json.load(sys.stdin); found=[a for a in apps if a.get(\\\"name\\\")==\\\"Customers\\\"]; print(found[0][\\\"id\\\"] if found else \\\"\\\")\"'"
+      register: r_customers_id_raw
+      when: mta_hub_pod is defined
+      ignore_errors: true
+
+    - name: Set customers app ID
+      ansible.builtin.set_fact:
+        customers_app_id: "{{ r_customers_id_raw.stdout | default('') | trim }}"
+      when: r_customers_id_raw.stdout is defined
+      ignore_errors: true
+
+    - name: Configure Customers application with Git repo (modern-app-dev, main branch)
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ mta_namespace }}"
+        pod: "{{ mta_hub_pod }}"
+        command: "python3 -c \"import json,urllib.request; url='http://localhost:8080/applications/{{ customers_app_id }}'; a=json.loads(urllib.request.urlopen(url).read()); a['repository']={'kind':'git','url':'{{ source_repo_url }}','branch':'{{ source_repo_branch }}','path':'{{ source_repo_path }}'}; req=urllib.request.Request(url,data=json.dumps(a).encode(),headers={'Content-Type':'application/json'},method='PUT'); urllib.request.urlopen(req); print('configured')\""
+      when: customers_app_id is defined and customers_app_id | length > 0
+      register: r_configure_app
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Task 6 — Trigger MTA analysis (source: modern-app-dev, rules: modern-app-dev/customrules)
+    # -------------------------------------------------------
+    - name: Trigger analysis for Customers application
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ mta_namespace }}"
+        pod: "{{ mta_hub_pod }}"
+        command: "python3 -c \"import json,urllib.request; payload={'name':'Analyze Customers','kind':'analyzer','application':{'id':{{ customers_app_id | int }}},'data':{'mode':'source-code','targets':['containerization','linux','openjdk'],'scope':{'withDependencies':False},'rules':{'repository':{'kind':'git','url':'{{ source_repo_url }}','branch':'{{ source_repo_branch }}','path':'{{ rules_repo_path }}'}}}}; req=urllib.request.Request('http://localhost:8080/tasks',data=json.dumps(payload).encode(),headers={'Content-Type':'application/json'},method='POST'); r=urllib.request.urlopen(req); t=json.loads(r.read()); print(t.get('id',''))\""
+      when: customers_app_id is defined and customers_app_id | length > 0
+      register: r_analysis_id_raw
+      ignore_errors: true
+
+    - name: Set analysis task ID
+      ansible.builtin.set_fact:
+        analysis_task_id: "{{ r_analysis_id_raw.stdout | default('') | trim }}"
+      when: r_analysis_id_raw.stdout is defined
+      ignore_errors: true
+
+    - name: Wait for analysis to complete (up to 5 minutes)
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ mta_namespace }}"
+        pod: "{{ mta_hub_pod }}"
+        command: "sh -c 'curl -s http://localhost:8080/tasks/{{ analysis_task_id }} | python3 -c \"import json,sys; t=json.load(sys.stdin); print(t.get(\\\"state\\\",\\\"\\\"))\"'"
+      register: r_task_status_raw
+      until: r_task_status_raw.stdout | default('') | trim in ['Succeeded', 'Failed', 'Canceled']
+      retries: 30
+      delay: 10
+      when: analysis_task_id is defined and analysis_task_id | length > 0
+      ignore_errors: true
+
+    # -------------------------------------------------------
+    # Report
+    # -------------------------------------------------------
+    - name: Report solve status
+      ansible.builtin.debug:
+        msg: |
+          MTA hub pod: {{ mta_hub_pod | default('NOT FOUND') }}
+          Insecure Git: {{ 'enabled' if (r_insecure_git is defined and r_insecure_git is not failed) else 'skipped' }}
+          Legacy Pathfinder (id={{ pathfinder_id | default('?') }}): {{ 'enabled' if (r_enable_questionnaire is defined and r_enable_questionnaire is not failed) else 'skipped' }}
+          Archetype review (id={{ archetype_id | default('?') }}): {{ 'submitted' if (r_archetype_review is defined and r_archetype_review is not failed) else 'skipped' }}
+          Customers app (id={{ customers_app_id | default('?') }}): {{ 'configured' if (r_configure_app is defined and r_configure_app is not failed) else 'skipped/failed' }}
+          Analysis (id={{ analysis_task_id | default('?') }}): {{ 'state=' + (r_task_status_raw.stdout | default('triggered') | trim) if (r_task_status_raw is defined) else 'triggered' if (r_analysis_id_raw is defined and r_analysis_id_raw is not failed) else 'not triggered' }}
