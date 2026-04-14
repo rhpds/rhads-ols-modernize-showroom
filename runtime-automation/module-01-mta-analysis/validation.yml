@@ -6,7 +6,6 @@
   vars:
     student_user: "{{ user | default('') }}"
     mta_namespace: "{{ student_user }}-mta"
-    gitea_url: "https://gitea.{{ openshift_cluster_ingress_domain | default('') }}"
   tasks:
     # -------------------------------------------------------
     # Find mta-hub pod (NetworkPolicy blocks cross-ns HTTP — use k8s_exec)
@@ -28,14 +27,14 @@
       ignore_errors: true
 
     # -------------------------------------------------------
-    # Check 1 — MTA hub pod is running
+    # Check 1 — MTA hub is reachable
     # -------------------------------------------------------
-    - name: Check 1 — MTA hub is reachable via exec
+    - name: Check MTA hub reachable (returns 200)
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
-        command: "curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/v1/questionnaires"
+        command: "sh -c 'curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/api/v1/questionnaires'"
       register: r_mta_health
       when: mta_hub_pod is defined
       ignore_errors: true
@@ -43,65 +42,40 @@
     # -------------------------------------------------------
     # Check 2 — Legacy Pathfinder questionnaire is required
     # -------------------------------------------------------
-    - name: Get questionnaires
+    - name: Check Legacy Pathfinder required (python3 parse in pod)
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
-        command: "curl -s http://localhost:8080/api/v1/questionnaires"
-      register: r_questionnaires_raw
+        command: "sh -c 'curl -s http://localhost:8080/api/v1/questionnaires | python3 -c \"import json,sys; qs=json.load(sys.stdin); print(any(\\\"Pathfinder\\\" in q.get(\\\"name\\\",\\\"\\\") and q.get(\\\"required\\\") for q in qs))\"'"
+      register: r_pathfinder_check
       when: mta_hub_pod is defined
-      ignore_errors: true
-
-    - name: Check Legacy Pathfinder is required
-      ansible.builtin.set_fact:
-        _pathfinder_required: "{{ (r_questionnaires_raw.stdout | default('[]') | from_json | selectattr('name', 'search', 'Pathfinder') | selectattr('required', 'equalto', true) | list | length > 0) }}"
-      when: r_questionnaires_raw.stdout is defined
       ignore_errors: true
 
     # -------------------------------------------------------
     # Check 3 — Customers app has Git repo configured
     # -------------------------------------------------------
-    - name: Get applications
+    - name: Check Customers app has repository (python3 parse in pod)
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
-        command: "curl -s http://localhost:8080/api/v1/applications"
-      register: r_applications_raw
+        command: "sh -c 'curl -s http://localhost:8080/api/v1/applications | python3 -c \"import json,sys; apps=json.load(sys.stdin); print(any(a.get(\\\"name\\\")==\\\"Customers\\\" and a.get(\\\"repository\\\") for a in apps))\"'"
+      register: r_customers_check
       when: mta_hub_pod is defined
-      ignore_errors: true
-
-    - name: Check Customers app has repository configured
-      ansible.builtin.set_fact:
-        _customers_repo_ok: >-
-          {{ (r_applications_raw.stdout | default('[]') | from_json |
-              selectattr('name', 'equalto', 'Customers') |
-              selectattr('repository', 'defined') |
-              list | length > 0) }}
-      when: r_applications_raw.stdout is defined
       ignore_errors: true
 
     # -------------------------------------------------------
     # Check 4 — At least one analysis task completed
     # -------------------------------------------------------
-    - name: Get analysis tasks
+    - name: Check analysis completed (python3 parse in pod)
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
-        command: "curl -s 'http://localhost:8080/api/v1/tasks?kind=analyzer'"
-      register: r_analyses_raw
+        command: "sh -c 'curl -s \"http://localhost:8080/api/v1/tasks?kind=analyzer\" | python3 -c \"import json,sys; tasks=json.load(sys.stdin); print(any(t.get(\\\"state\\\") in [\\\"Succeeded\\\",\\\"Completed\\\"] for t in tasks))\"'"
+      register: r_analysis_check
       when: mta_hub_pod is defined
-      ignore_errors: true
-
-    - name: Check analysis completed
-      ansible.builtin.set_fact:
-        _analysis_completed: >-
-          {{ (r_analyses_raw.stdout | default('[]') | from_json |
-              selectattr('state', 'in', ['Succeeded', 'Completed']) |
-              list | length > 0) }}
-      when: r_analyses_raw.stdout is defined
       ignore_errors: true
 
     # -------------------------------------------------------
@@ -109,10 +83,10 @@
     # -------------------------------------------------------
     - name: Build task results
       ansible.builtin.set_fact:
-        _task1_ok: "{{ mta_hub_pod is defined and r_mta_health is not failed and '200' in (r_mta_health.stdout | default('')) }}"
-        _task2_ok: "{{ _pathfinder_required | default(false) | bool }}"
-        _task3_ok: "{{ _customers_repo_ok | default(false) | bool }}"
-        _task4_ok: "{{ _analysis_completed | default(false) | bool }}"
+        _task1_ok: "{{ mta_hub_pod is defined and r_mta_health is defined and r_mta_health is not failed and '200' in (r_mta_health.stdout | default('')) }}"
+        _task2_ok: "{{ r_pathfinder_check is defined and r_pathfinder_check is not failed and 'True' in (r_pathfinder_check.stdout | default('')) }}"
+        _task3_ok: "{{ r_customers_check is defined and r_customers_check is not failed and 'True' in (r_customers_check.stdout | default('')) }}"
+        _task4_ok: "{{ r_analysis_check is defined and r_analysis_check is not failed and 'True' in (r_analysis_check.stdout | default('')) }}"
 
     - name: Validate all tasks
       validation_check:
