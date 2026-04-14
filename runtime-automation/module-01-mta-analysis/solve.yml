@@ -7,9 +7,10 @@
     student_user: "{{ user | default('') }}"
     mta_namespace: "{{ student_user }}-mta"
     gitea_url: "https://gitea.{{ openshift_cluster_ingress_domain | default('') }}"
-    # Source code and custom rules are in modern-app-dev repo (main branch)
+    # Source code and custom rules are in modern-app-dev repo, mta-lab branch
+    # (lab instructions specify branch=mta-lab, path=customers-tomcat-legacy for source)
     source_repo_url: "https://gitea.{{ openshift_cluster_ingress_domain | default('') }}/{{ student_user }}/modern-app-dev.git"
-    source_repo_branch: "main"
+    source_repo_branch: "mta-lab"
     source_repo_path: "customers-tomcat-legacy"
     rules_repo_path: "customrules"
   tasks:
