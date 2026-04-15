@@ -175,4 +175,4 @@
           Legacy Pathfinder (id={{ pathfinder_id | default('?') }}): {{ 'enabled' if (r_enable_questionnaire is defined and r_enable_questionnaire is not failed) else 'skipped' }}
           Archetype review (id={{ archetype_id | default('?') }}): {{ 'submitted' if (r_archetype_review is defined and r_archetype_review is not failed) else 'skipped' }}
           Customers app (id={{ customers_app_id | default('?') }}): {{ 'configured' if (r_configure_app is defined and r_configure_app is not failed) else 'skipped/failed' }}
-          Analysis (id={{ analysis_task_id | default('?') }}): {{ 'triggered (state=' + (r_task_status_raw.stdout | default('') | trim) + ') — click Validate once MTA shows Complete' if (r_analysis_id_raw is defined and r_analysis_id_raw is not failed) else 'not triggered' }}
+          Analysis: {{ 'TRIGGERED ✓ — MTA analysis is now running. Come back in a few minutes and click Validate.' if (r_analysis_id_raw is defined and r_analysis_id_raw is not failed) else 'NOT triggered — check MTA hub connection' }}

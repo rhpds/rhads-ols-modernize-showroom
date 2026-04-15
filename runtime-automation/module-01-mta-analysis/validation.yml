@@ -101,4 +101,4 @@
           {{ '✅' if _task1_ok else '❌' }} Task 1: MTA hub {{ 'reachable' if _task1_ok else 'NOT reachable — pod=' + (mta_hub_pod | default('not found')) }}
           {{ '✅' if _task2_ok else '❌' }} Task 2: Legacy Pathfinder {{ 'is required' if _task2_ok else 'NOT enabled — Administration → Assessment Questionnaires → toggle required ON' }}
           {{ '✅' if _task3_ok else '❌' }} Task 3: Customers app {{ 'has Git repo' if _task3_ok else 'missing Git repo — edit app in Application Inventory' }}
-          {{ '✅' if _task4_ok else '❌' }} Task 4: Analysis {{ 'ran successfully' if _task4_ok else 'in progress — wait for MTA to show "Completed" in Application Inventory, then click Validate again' }}
+          {{ '✅' if _task4_ok else '❌' }} Task 4: Analysis {{ 'ran successfully' if _task4_ok else 'still running — come back in a few minutes and click Validate again' }}
