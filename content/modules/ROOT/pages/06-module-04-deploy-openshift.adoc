@@ -100,7 +100,7 @@ oc login --server={openshift_api_url} \
   --password={password} \
   --insecure-skip-tls-verify=true
 ----
-
++
 . Switch to the Coolstore project 
 +
 This OpenShift namespace is where the application will be built and deployed
@@ -113,7 +113,9 @@ oc project {user}-coolstore
 # Verify you're in the correct project
 oc project
 ----
-
++
+image::module-04/Cluster-Login-Project.png[Cluster Login and Set Project,link=self,window=blank,title="Cluster Login and Set Project"]
++
 . Deploy a Postgres Database
 +
 The Coolstore application needs a database to connect to for managing shopping cart choices
@@ -129,13 +131,22 @@ oc new-app -e POSTGRESQL_USER=quarkus \
             --name=coolstore-database
 ----
 
+
 === Verify
 
-Need to verify access to OpenShift
+.Confirm the database deployed and is running
 
-Verify running Postgres Database instance
+* Enter the following
++
+[source,bash,role="execute"]
+----
+oc get pods
+----
++
+* You should see a pod running that has the name prefixed with **coolstore-database-xxxxxxxxx**
++
+image::module-04/Confirm-Database-Running.png[Confirm Database Running,link=self,window=blank,title="Confirm Database Running"]
 
-Confirm in the correct OpenShift namespace
 
 == Exercise 2: Build, Containerize, and Deploy the modernized application
 
@@ -150,10 +161,46 @@ As explained above we take a rapid developer environment approach for this that 
 ----
 mvn clean compile package -Dquarkus.kubernetes.deploy=true
 ----
++
+image::module-04/Build-Deploy-Coolstore.png[Build And Deploy Coolstore,link=self,window=blank,title="Build and Deploy Coolstore"]
++
+* Switch to the **OpenShift Consle Tab** and see the {user} projects used in this lab
+* Click on the {user}-coolstore project link
++
+image::module-04/Project-Listing.png[User Projects,link=self,window=blank,title="User Projects"]
++
+* View the {user}-coolstore __Project details__ page
+* Click the down arrow **>** next to **Workloads** and click on __Topology__
++
+image::module-04/User-Coolstore-Project.png[User Coolstore Project,link=self,window=blank,title="User Coolstore Project"]
++
+* View the project layout of the deployed **database**, **coolstore** application, and a helper task to load the initial database
++
+image::module-04/Deployments.png[Topology,link=self,window=blank,title="Topology"]
++
+* Hover over the **Coolstore** Deployment and click where indicated by the **Open URL** pop up
++
+image::module-04/Closeup-Deployments.png[Deployed Services ,link=self,window=blank,title="Deployed Services"]
++
+* View the **Coolstore** website
++
+image::module-04/Coolstore-Webpage.png[Coolstore Webpage,link=self,window=blank,title="Coolstore Webpage"]
+
+Congratulations you just built and deployed a Quarkus application and it's supporting database!
+
+Overall...
+* You just used the command line to load the migrated application code, which is now implemented as a Quarkus Java, and you built and deployed it.
+* You also deployed a backend database used by the application.
+* You then walked through the OpenShift Console screens to get a better perspective of how the deployed application sits in OpenShift
+* Finally you opened up and viewed the applications main webpage
+
 
 === Verify
 
-Confirm the application is running successfully on OpenShift:
+
+Many times users of OpenShift may want to confirm the application is running successfully on OpenShift through mostly cli calls.
+
+Here are some examples.
 
 . Get the application URL:
 +

@@ -170,7 +170,13 @@ image::module-03/Analysis-Config.png[Analysis Configuration,300,300,link=self,wi
 * Click on **Configure Hub Settings**
 * The __MTA Hub Configuration__ tab will open
 * In __General Settings__ , click the slider to Enable connection to Konveyor Hub  (MTA Hub)
-* In __Hub URL__ enter `\{mta_url}`
+* In __Hub URL__ enter the following URL
++
+[source,bash, subs="attributes"]
+----
+{mta_url}
+----
++
 * Click the Slider/Turn on __Skip SSL certificate verification__
 * Under **Features** towards the bottom Enable **Solution Server**
 * Click **Save**
