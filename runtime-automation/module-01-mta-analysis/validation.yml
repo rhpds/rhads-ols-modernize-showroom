@@ -95,7 +95,7 @@
           ✅ Task 1: MTA hub is reachable (pod: {{ mta_hub_pod | default('?') }})
           ✅ Task 2: Legacy Pathfinder questionnaire is required
           ✅ Task 3: Customers application has Git repository configured
-          ✅ Task 4: Analysis has completed
+          ✅ Task 4: MTA analysis ran successfully — results available in Application Inventory
         error_msg: |
           {{ '✅' if _task1_ok else '❌' }} Task 1: MTA hub {{ 'reachable' if _task1_ok else 'NOT reachable — pod=' + (mta_hub_pod | default('not found')) }}
           {{ '✅' if _task2_ok else '❌' }} Task 2: Legacy Pathfinder {{ 'is required' if _task2_ok else 'NOT enabled — Administration → Assessment Questionnaires → toggle required ON' }}
