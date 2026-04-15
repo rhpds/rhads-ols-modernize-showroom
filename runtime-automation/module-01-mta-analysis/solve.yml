@@ -141,7 +141,7 @@
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
-        command: "python3 -c \"import json,urllib.request; payload={'name':'Analyze Customers','kind':'analyzer','application':{'id':{{ customers_app_id | int }}},'data':{'mode':'source-code','targets':['containerization','linux','openjdk'],'scope':{'withDependencies':False},'rules':{'repository':{'kind':'git','url':'{{ source_repo_url }}','branch':'{{ source_repo_branch }}','path':'{{ rules_repo_path }}'}}}}; req=urllib.request.Request('http://localhost:8080/tasks',data=json.dumps(payload).encode(),headers={'Content-Type':'application/json'},method='POST'); r=urllib.request.urlopen(req); t=json.loads(r.read()); print(t.get('id',''))\""
+        command: "python3 -c \"import json,urllib.request; payload={'name':'Analyze Customers','kind':'analyzer','addon':'analyzer','application':{'id':{{ customers_app_id | int }}},'data':{'mode':'source-code','targets':['containerization','linux','openjdk'],'scope':{'withDependencies':False},'rules':{'repository':{'kind':'git','url':'{{ source_repo_url }}','branch':'{{ source_repo_branch }}','path':'{{ rules_repo_path }}'}}}}; req=urllib.request.Request('http://localhost:8080/tasks',data=json.dumps(payload).encode(),headers={'Content-Type':'application/json'},method='POST'); r=urllib.request.urlopen(req); t=json.loads(r.read()); print(t.get('id',''))\""
       when: customers_app_id is defined and customers_app_id | length > 0
       register: r_analysis_id_raw
       ignore_errors: true
