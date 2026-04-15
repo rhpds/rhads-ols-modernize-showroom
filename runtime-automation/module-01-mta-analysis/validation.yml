@@ -74,7 +74,7 @@
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ mta_namespace }}"
         pod: "{{ mta_hub_pod }}"
-        command: "sh -c 'curl -s \"http://localhost:8080/tasks?kind=analyzer\" | python3 -c \"import json,sys; tasks=json.load(sys.stdin); latest=max(tasks,key=lambda t:t[\\\"id\\\"]) if tasks else {}; print(latest.get(\\\"state\\\") in [\\\"Succeeded\\\",\\\"Completed\\\"])\"'"
+        command: "sh -c 'curl -s \"http://localhost:8080/tasks?kind=analyzer\" | python3 -c \"import json,sys; tasks=json.load(sys.stdin); print(any(t.get(\\\"state\\\") in [\\\"Succeeded\\\",\\\"Completed\\\"] for t in tasks if t.get(\\\"addon\\\")==\\\"analyzer\\\"))\"'"
       register: r_analysis_check
       when: mta_hub_pod is defined
       ignore_errors: true
