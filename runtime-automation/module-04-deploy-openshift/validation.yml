@@ -94,6 +94,34 @@
       ignore_errors: true
 
     # -------------------------------------------------------
+    # Check 6 — Playwright: coolstore UI loads and title matches
+    #   Runs directly in the runner pod (Playwright + Chromium installed).
+    #   Takes a screenshot to /tmp/playwright-evidence-module04.png.
+    # -------------------------------------------------------
+    - name: Playwright — verify coolstore UI loads (screenshot evidence)
+      ansible.builtin.command:
+        argv:
+          - node
+          - -e
+          - |
+            const {chromium} = require('playwright');
+            (async () => {
+              const b = await chromium.launch({headless: true, args: ['--no-sandbox', '--disable-dev-shm-usage']});
+              const p = await b.newPage();
+              await p.goto('{{ app_url }}', {waitUntil: 'domcontentloaded', timeout: 20000});
+              const title = await p.title();
+              if (!title.toLowerCase().includes('cool store')) {
+                throw new Error('Unexpected page title: ' + title);
+              }
+              await p.screenshot({path: '/tmp/playwright-evidence-module04.png', fullPage: false});
+              console.log('TITLE:' + title);
+              await b.close();
+            })().catch(e => { console.error(e.message); process.exit(1); });
+      register: r_playwright
+      when: app_url is defined and app_url | length > 10
+      ignore_errors: true
+
+    # -------------------------------------------------------
     # Build results
     # -------------------------------------------------------
     - name: Build task results
@@ -103,19 +131,22 @@
         _task3_ok: "{{ r_postgres_pod.resources | default([]) | selectattr('status.phase', 'equalto', 'Running') | list | length > 0 }}"
         _task4_ok: "{{ r_coolstore_deploy.resources | default([]) | length > 0 }}"
         _task5_ok: "{{ r_app_reachable is defined and r_app_reachable is not failed and r_app_reachable is not skipped }}"
+        _task6_ok: "{{ r_playwright is defined and r_playwright is not failed and r_playwright is not skipped and r_playwright.rc | default(1) == 0 }}"
 
     - name: Validate all tasks
       validation_check:
-        check: "{{ _task1_ok and _task2_ok and _task3_ok and _task4_ok and _task5_ok }}"
+        check: "{{ _task1_ok and _task2_ok and _task3_ok and _task4_ok and _task5_ok and _task6_ok }}"
         pass_msg: |
           ✅ Task 1: DevSpaces workspace is running
           ✅ Task 2: Coolstore route exists (app was deployed)
           ✅ Task 3: PostgreSQL database is running in {{ coolstore_namespace }}
           ✅ Task 4: Coolstore application deployment exists in {{ coolstore_namespace }}
           ✅ Task 5: Application route is reachable ({{ app_url | default('URL found') }})
+          ✅ Task 6: Playwright — coolstore UI loaded with correct title (screenshot saved)
         error_msg: |
           {{ '✅' if _task1_ok else '❌' }} Task 1: DevSpaces workspace {{ 'running' if _task1_ok else 'NOT running' }}
           {{ '✅' if _task2_ok else '❌' }} Task 2: Coolstore route {{ 'exists' if _task2_ok else 'NOT found — run Solve to deploy the app' }}
           {{ '✅' if _task3_ok else '❌' }} Task 3: PostgreSQL {{ 'running' if _task3_ok else 'NOT running in ' + coolstore_namespace + ' — run Solve or deploy manually' }}
           {{ '✅' if _task4_ok else '❌' }} Task 4: Coolstore deployment {{ 'exists' if _task4_ok else 'NOT found — run Solve or deploy via mvn quarkus:deploy' }}
           {{ '✅' if _task5_ok else '❌' }} Task 5: App route {{ 'reachable at ' + (app_url | default('unknown')) if _task5_ok else 'NOT reachable — check deployment status' }}
+          {{ '✅' if _task6_ok else '❌' }} Task 6: Playwright UI check {{ 'passed — coolstore title confirmed' if _task6_ok else 'FAILED — UI did not load or title mismatch' }}
