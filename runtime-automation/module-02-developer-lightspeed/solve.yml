@@ -47,7 +47,17 @@
                   baseURL: "{{ litellm_base_url }}"
       when: litellm_key | length > 0
 
-    - name: Write provider-settings.yaml into workspace repo settings/ dir
+    - name: Check if provider-settings.yaml already exists (may be in global extension cache)
+      kubernetes.core.k8s_exec:
+        kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+        namespace: "{{ devworkspace_namespace }}"
+        pod: "{{ workspace_pod }}"
+        command: "sh -c 'test -f /projects/kai-coolstore/settings/provider-settings.yaml && echo exists || echo missing'"
+      register: r_check_provider
+      when: workspace_pod is defined
+      ignore_errors: true
+
+    - name: Write provider-settings.yaml (only if missing — extension may have pre-created it)
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
         namespace: "{{ devworkspace_namespace }}"
@@ -57,6 +67,7 @@
       when:
         - workspace_pod is defined
         - provider_settings_content is defined
+        - r_check_provider.stdout is not defined or 'missing' in (r_check_provider.stdout | default('missing'))
       ignore_errors: true
 
     # -------------------------------------------------------
