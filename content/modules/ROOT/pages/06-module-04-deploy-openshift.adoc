@@ -242,41 +242,25 @@ Click the application URL or use the browser to:
 * Navigate through the Coolstore interface
 * Test different features (Products, Descriptions, Ordering etc.)
 * Verify all functionality works in the containerized environment
-
-
++
 [source,bash,role="execute", subs="attributes"]
 ----
 # Check pod health
 oc get pods -l app=coolstore
-
++
 # Verify readiness and liveness probes
 oc describe pod -l app=coolstore | grep -A 5 "Liveness\|Readiness"
-
++
 # Test health endpoint
 curl -k https://$APP_URL/q/health | jq .
 ----
 
-Expected output:
-
-----
-{
-  "status": "UP",
-  "groups": ["liveness", "readiness"]
-}
-----
 
 ✓ Deployment shows 2/2 replicas ready
 ✓ Pods are in "Running" status
 ✓ Health checks pass successfully
 ✓ Application is accessible via HTTPS route
 ✓ Application functionality works correctly
-
-image::openshift-deployment.png[OpenShift Deployment,link=self,window=blank,width=700]
-
-// TODO: Capture screenshot of OpenShift console showing running application
-
-
-
 
 
 == Exercise 3:  Additional Checks (Optional Exercise)
@@ -291,16 +275,16 @@ image::openshift-deployment.png[OpenShift Deployment,link=self,window=blank,widt
 oc get imagestream
 ----
 
-Confirm the image is available in OpenShift:
-
+. Confirm the image is available in OpenShift:
++
 [source,bash,role="execute", subs="attributes"]
 ----
 # Check imagestream details
 oc describe imagestream coolstore
 ----
-
++
 Expected output:
-
++
 ----
 Name:               coolstore
 Namespace:          user-{user}-coolstore
@@ -312,36 +296,6 @@ latest
 ✓ Image successfully pushed to OpenShift registry
 ✓ ImageStream created in project namespace
 ✓ Image is accessible for deployment
-
-. Get the OpenShift internal registry URL:
-+
-[source,bash,role="execute", subs="attributes"]
-----
-# Get internal registry route
-REGISTRY=$(oc get route default-route -n openshift-image-registry \
-  --template='{{ .spec.host }}')
-
-echo "Registry URL: $REGISTRY"
-----
-
-
-[source,bash,role="execute", subs="attributes"]
-----
-# Get OpenShift token for registry authentication
-TOKEN=$(oc whoami -t)
-
-# Login to registry using Podman
-podman login -u {user} -p $TOKEN $REGISTRY --tls-verify=false
-----
-
-. Confirm the image in the OpenShift registry:
-+
-[source,bash,role="execute", subs="attributes"]
-----
-# Search for images
-podman search $REGISTRY/user-{user}-coolstore/coolstore:1.0.0-SNAPSHOT --tls-verify=false
-----
-
 
 
 

@@ -23,7 +23,9 @@ By the end of this module, you'll be able to:
 
 [IMPORTANT]
 ====
-The next 2 modules make use of the Developer Lightspeed MTA extension running in a DevSpaces environment that provides a VSCode based GUI env.
+The next 2 modules make use of the Developer Lightspeed for MTA extension running in a DevSpaces environment that provides a VSCode based GUI env.
+
+Developer Lightspeed is a feature of MTA. The extension is called the MTA Extension because it includes a static code analysis engine and an AI integrated code generation capability commonly referred to as Developer Lightspeed.
 
 You may notice that the Developer Lightspeed MTA extension is sometimes referred to as just Developer Lightspeed, Migration Toolkit for Applications extension, or just the MTA extension  -- In all cases it is referring to the same thing.
 ====
@@ -200,6 +202,10 @@ TIP:  If you ever accidently close the MTA Analysis View panel, just click on th
 ** Click the **Start** button if it isn't and wait till the Server Status is **Running**
 
 . Invoke Developer Lightspeed Analysis:
++
+When you invoke the __Analysis__ engine, Developer Lightspeed runs sets of static rules against the entire codebase of the application that look for potential issues in the code to be migrated. As will be discussed a bit later these rules are tied to known issues with source and target technologies, and many times customers will create additional custom rules to be added to the analysis.
++
+The __Analysis Runs__ create a scrollable list of issues that are present in the code and developers/architects can then invoke the AI driven Developer Lightspeed solution code fix generation functionality, as you will see in the following exercises.
 +
 * In the right side of the screen click on the **Run Analysis** button.
 +
@@ -378,13 +384,6 @@ curl -k {litellm_api_endpoint}/health
 ----
 If endpoint is down, check with workshop instructor. If accessible, try restarting the extension or workspace.
 
-**Issue**: AI generates incorrect code that breaks tests
-**Solution**: Review the AI-generated changes carefully. Use git to revert specific changes:
-[source,bash]
-----
-# Revert to previous version
-git checkout -- <file-name>
-----
 
 == Learning outcomes checkpoint
 
