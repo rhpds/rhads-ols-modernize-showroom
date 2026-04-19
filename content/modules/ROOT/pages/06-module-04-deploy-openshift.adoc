@@ -164,7 +164,7 @@ mvn clean compile package -Dquarkus.kubernetes.deploy=true
 +
 image::module-04/Build-Deploy-Coolstore.png[Build And Deploy Coolstore,link=self,window=blank,title="Build and Deploy Coolstore"]
 +
-* Switch to the **OpenShift Consle Tab** and see the {user} projects used in this lab
+* Switch to the **OpenShift Console Tab** and see the {user} projects used in this lab
 * Click on the {user}-coolstore project link
 +
 image::module-04/Project-Listing.png[User Projects,link=self,window=blank,title="User Projects"]

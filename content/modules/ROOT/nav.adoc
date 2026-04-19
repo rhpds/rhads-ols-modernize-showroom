@@ -9,3 +9,6 @@
 * xref:04-module-02-developer-lightspeed.adoc[Module 2: AI-Assisted Code Modernization]
 * xref:05-module-03-solution-server.adoc[Module 3: Incorporating Policy and Tribal Knowledge]
 * xref:06-module-04-deploy-openshift.adoc[Module 4: Deploying to OpenShift]
+
+.Wrap Up
+* xref:07-conclusion.adoc[Conclusion]
