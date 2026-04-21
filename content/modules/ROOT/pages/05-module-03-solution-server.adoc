@@ -140,6 +140,8 @@ git stash
 git checkout module3
 ----
 ====
++
+NOTE:  You can close the terminal window pane now if you want to because we won’t be using it anymore in this lab. 
 
 . Confirm and open MTA VSCode extension (Developer Lightspeed for MTA)
 +
@@ -212,10 +214,13 @@ models:
 ----
 +
 * Close the **provider-settings.yaml** file.
+* Ensure the **Get Ready to Analyze** panel is closed
+* Close the **MTA Hub Configuration Tab/Pane**
 * Navigate to the **MTA Analysis View** tab
 * Ensure that the **Server Status** shows __Running__
-* If it doesn't, click on the **Start** button
-* Do NOT turn on Agent Mode
+** If it doesn't, click on the **Start** button
+* Do **NOT** turn on Agent Mode
+** If **Agent Mode** is on (blue), click the slider to turn it off.
 +
 image::module-03/Server-Status.png[Server Status,300,300,link=self,window=blank,title="Correct Server Status"]
 
@@ -232,18 +237,20 @@ NOTE: In this scenario we are working with the same Module 2 monolithic legacy J
 [IMPORTANT]  
 ====
 Ensure **Agent Mode** is NOT switched on to speed movement through this module. +
+There isn't enough time in this workshop lab to move through a full migration with explanations. +
 Also ensure **Server Status** is __Running__ +
 
 image::module-03/Server-Status.png[Server Status,250,250,link=self,window=blank,title="Server Status"]
 ====
 +
 * Click on the **down arrow** in the dropdown box showing the __Solution Server__ profile
+* If you completed Lab 2 you will see 2 listed
 * Click on **Manage Profiles**
 +
 image::module-03/Open-Profiles.png[Open Profiles,link=self,window=blank,title="Open Profiles"]
 +
-* Notice that an active profile named **Solution Server** has been created for you
-* Click on it
+* Notice a profile named **Solution Server** has been created for you
+* Click on it, and ensure it is the __Active Profile__
 +
 image::module-03/Active-Profile.png[Active-Profile,link=self,window=blank,title="Active Profile"]
 +
@@ -315,6 +322,7 @@ However, this AI generated code fix still seems to allow hardcoded __Host__ and 
 +
 * As the Architect/Lead Developer you recognize that new ACME cloud native coding policies and best practices need to be added into this fix.
 * You will now add in the ACME prescribed coding approach for this logging fix, and get rid of hardcoded environment variables.
+** You may need to scroll the code window down.
 * To visualize the suggested updates best, __Add a couple open lines after the green generated code fix__
 +
 image::module-03/Order-Service-Fix1.png[Insert ACME Policy Approach,link=self,window=blank,title="Insert ACME Policy Approach"]
@@ -331,7 +339,11 @@ image::module-03/Order-Service-Fix1.png[Insert ACME Policy Approach,link=self,wi
 ----
 +
 * Notice the differing approach, switching to using environment variables as the primary way to set the configuration for the runtime mode of the application.
-* Delete the original **green** highlighted code snippet. (The **red** areas marked for deletion will disappear in the next step)
+* Delete the original **green** highlighted code snippet. (Don't delete the **red** areas marked for deletion, as they will disappear in the next step)
++
+image::module-03/Remove-Original-Lines.png[Remove Initial Fix,600,600,link=self,window=blank,title="Remove Initial Fix"]
++
+* It should look like the following, when you are done.
 +
 image::module-03/Order-Service-Fix2.png[Final Fix View,link=self,window=blank,title="Final Fix View"]
 +
@@ -354,7 +366,8 @@ Overtime ACME's best practices, patterns, and metrics, will be available through
 
 Going forward Solution Server will pass hints into the LLM for what future fixes should take into account.  Thus both static rules pinpointing areas of concern and enhanced hints from Solution Server will be incorporated into AI Generated code fixes.
 ====
-
++
+* Ensure you close any code files, and the MTA Resolution Details Pane
 
 
 == Exercise 4: Apply learned patterns to code generation
@@ -419,9 +432,12 @@ The level of completion includes:
 * Removal of legacy company coding approaches
 * Removal of hard coded environment variables + 
 
-You can can now scroll to the fop of the file, accept changes, and close the file and Resolution Pane. 
-
+. You can can now scroll to the fop of the file, accept changes, and close the file and Resolution Pane. 
++
 image::module-03/ProductService-AcceptChanges.png[Accept Changes,link=self,window=blank,title="Accept Changes"]
++
+* Ensure you close any code files, and the MTA Resolution Details Pane
+
 
 
 
