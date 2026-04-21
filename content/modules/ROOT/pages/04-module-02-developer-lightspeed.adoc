@@ -59,7 +59,7 @@ CAUTION: If you see a message that says you need to authenticate again, just Cli
 
 . Open the user-{user}-workspace 
 +
-* After logging in he workspace listing will open up and show the user-{user}-workspace entry
+* After logging into the workspace listing will open up and show the user-{user}-workspace entry
 * Click on the **Open** link on the right side of workspace listing
 +
 image::module-02/workspace-listing.png[Open Workspace,link=self,window=blank,title="Open Workspace"]
@@ -356,7 +356,7 @@ In ACME'S scenario the lead developer is very concerned about a major Java frame
 image::module-02/Quarkus-plugin.png[Need To Insert Quarkus Plugin,link=self,window=blank,title="Need To Insert Quarkus Plugin"]
 +
 * Developer Lightspeed extension will scroll through the __Generative AI Results__, which was covered in detail previously
-* Click **Accept All** suggested changes for the Plugin Issue
+* Click **Accept** to suggested changes for the Plugin Issue
 * Developer Lightspeed fixes the issue, and **Agent Mode** continues to look for all impacted code across the project that are affected by this fix.
 * Agent Mode offers to __continue fixing them__
 +

@@ -1,5 +1,23 @@
 name: modules
-title: Showroom Collection
+title: Accelerating Application Modernization With AI - Red Hat Developer Lightspeed
 version: ~
+start_page: index.adoc
 nav:
   - modules/ROOT/nav.adoc
+
+asciidoc:
+  attributes:
+    mta_url: https://mta-mta.{openshift_cluster_ingress_domain}
+    devspaces_url: https://devspaces.{openshift_cluster_ingress_domain}
+    gitea_url: https://gitea.{openshift_cluster_ingress_domain}
+    user: user1
+    password: openshift
+    ocp_version: 4.18
+    mta_version: 7.1
+    rhdls_version: 1.0
+    mta_api_url: https://mta-mta.{openshift_cluster_ingress_domain}/hub/api
+    litellm_virtual_key: sk-1234
+    litellm_api_base_url: https://litellm.{openshift_cluster_ingress_domain}
+    litellm_api_endpoint: https://litellm.{openshift_cluster_ingress_domain}/chat/completions
+    openshift_api_url: https://api.{openshift_cluster_ingress_domain}:6443
+    openshift_cluster_ingress_domain: apps.cluster-abc123.abc123.rhdp.net

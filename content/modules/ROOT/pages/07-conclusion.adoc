@@ -1,0 +1,110 @@
+= Conclusion
+:toc:
+:icons: font
+
+== What You've Learned
+
+Congratulations! You've completed the AI-assisted application modernization workshop with Red Hat Developer Lightspeed for MTA.
+
+Throughout this workshop, you've gained hands-on experience with the complete modernization workflow:
+
+**Module 1: Analyzing Legacy Applications with MTA**
+
+* Used Migration Toolkit for Applications to assess and analyze legacy Java applications
+* Identified migration risks and opportunities using AI-powered analysis
+* Configured archetypes and questionnaires to categorize applications for modernization
+
+**Module 2: AI-Assisted Code Modernization**
+
+* Leveraged Red Hat Developer Lightspeed to generate code fixes for migration issues
+* Applied AI-powered recommendations to transform legacy code into cloud-native patterns
+* Validated AI-generated changes and understood the review workflow
+
+**Module 3: Incorporating Policy and Tribal Knowledge**
+
+* Configured Solution Server to capture organizational best practices
+* Integrated company-specific policies and patterns into AI-assisted code generation
+* Ensured consistent application of ACME Corp standards across migration waves
+
+**Module 4: Deploying to OpenShift**
+
+* Containerized modernized applications using Quarkus
+* Created and deployed applications to OpenShift clusters
+* Verified end-to-end migration from legacy to cloud-native deployment
+
+== Key Takeaways
+
+**For ACME Corp's modernization initiative**, you've demonstrated:
+
+* AI-assisted tools can significantly reduce migration time from weeks to days
+* Organizational knowledge can be codified and systematically applied
+* The complete workflow from legacy assessment to OpenShift deployment is achievable
+* Developer Lightspeed for MTA provides the tooling needed for large-scale portfolio migrations
+
+**Technical skills acquired**:
+
+* Application assessment and analysis with MTA
+* AI-assisted code modernization workflows
+* Solution Server configuration for organizational patterns
+* Cloud-native deployment to OpenShift
+
+**Business impact**:
+
+* Faster migration velocity supports business expansion timelines
+* Consistent code quality reduces technical debt
+* Knowledge capture improves team scalability
+* Proven approach can be presented to stakeholders for portfolio-wide adoption
+
+== Next Steps
+
+**Continue your AI-assisted modernization journey**:
+
+1. **Apply to your applications**: Use the techniques from this workshop on your organization's legacy applications
+2. **Capture your patterns**: Document your team's best practices in Solution Server
+3. **Scale the approach**: Extend the workflow to additional applications in your portfolio
+4. **Measure impact**: Track migration time and quality improvements to demonstrate ROI
+
+**Explore related Red Hat technologies**:
+
+* Red Hat OpenShift GitOps for automated deployments
+* Red Hat OpenShift Pipelines for CI/CD automation
+* Red Hat Advanced Cluster Security for runtime security
+* Red Hat Developer Hub for developer productivity
+
+== References
+
+**Red Hat Developer Lightspeed**
+
+* https://developers.redhat.com/products/red-hat-developer-lightspeed[Red Hat Developer Lightspeed Product Page^]
+* https://access.redhat.com/documentation/en-us/red_hat_developer_lightspeed[Red Hat Developer Lightspeed Documentation^]
+
+**Migration Toolkit for Applications**
+
+* https://developers.redhat.com/products/mta/overview[Migration Toolkit for Applications Overview^]
+* https://access.redhat.com/documentation/en-us/migration_toolkit_for_applications[MTA Documentation^]
+
+**Red Hat OpenShift**
+
+* https://developers.redhat.com/products/openshift/overview[Red Hat OpenShift Product Page^]
+* https://docs.openshift.com/[OpenShift Documentation^]
+
+**Quarkus**
+
+* https://quarkus.io/[Quarkus Framework^]
+* https://developers.redhat.com/products/quarkus/overview[Red Hat Build of Quarkus^]
+
+**AI and Application Modernization**
+
+* https://www.redhat.com/en/blog/application-modernization[Red Hat Application Modernization Blog^]
+* https://developers.redhat.com/topics/ai-ml[Red Hat AI/ML Resources^]
+
+**Community and Support**
+
+* https://developers.redhat.com/[Red Hat Developer Portal^]
+* https://access.redhat.com/support[Red Hat Customer Portal^]
+
+== Thank You
+
+Thank you for participating in this workshop. We hope the hands-on experience with Red Hat Developer Lightspeed for MTA has provided valuable insights for your application modernization journey.
+
+For questions, feedback, or to share your modernization success stories, connect with the Red Hat Developer community.
