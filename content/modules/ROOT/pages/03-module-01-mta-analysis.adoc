@@ -64,12 +64,21 @@ image:module-01/mta-submit-review.png[submit review]
 . Set *Repository type* to *Git*.
 . Enter the *Source Repository* URL, set *Branch* to `mta-lab`, and *Root path* to `customers-tomcat-legacy`.
 . Click *Save*.
+
+
+image:module-01/mta-app-inventory-gitrepo-set-up.png[git repo modern app dev]
+
+
+image:module-01/mta-modern-app-dev-gip.png[git repo modern app dev]
+
+
 * **Run Analysis:**
 . Select the *Customers* checkbox and click *Analyze*.
 . **Mode:** Select *Source code*.
 . **Targets:** Select *Containerization*, *Linux*, and *OracleJDK to OpenJDK*.
 . **Scope:** Select *Application and internal dependencies only*.
 . **Custom Rules:** Select the *Repository* tab and enter the Gitea URL, Branch `mta-lab`, and Root path `customrules`.
+https://gitea.apps.cluster-ks5qt.dynamic.redhatworkshops.io/user-2qmzf/modern-app-dev.git
 . **Execute:** Click *Next* through advanced options and click *Run*.
 
 ---
