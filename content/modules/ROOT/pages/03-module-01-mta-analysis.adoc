@@ -1,6 +1,8 @@
-= MTA Assessment and Analysis: Quick-Start Guide
-:toc: left
-:icons: font
+= Module 1: MTA Assessment and Analysis
+:source-highlighter: rouge
+:toc: macro
+:toclevels: 1
+
 
 == 1. Goals of this lab
 
