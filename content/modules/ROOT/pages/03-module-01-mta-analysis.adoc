@@ -29,7 +29,7 @@ image:module-01/mta-inventory-profile.png[application inventory]
 . Toggle the *Required* switch for *Legacy Pathfinder* to *ON*.
 . Switch the perspective back to *Migration*.
 
-image:module-01/mta-assesment-questionnaire.png[git repo set up]
+image:module-01/mta-assesment-questionnaire.png[mta questionnaire on]
 
 * **Enable Insecure Repositories:** In the *Administration* perspective, go to *Repositories > Git* and toggle *Consume insecure Git repositories* to the right.
 
@@ -40,6 +40,10 @@ image:module-01/mta-git-insecure-repo.png[git repo set up]
 == 4. Archetype Assessment
 
 * **Start Assessment:** Navigate to *Archetypes* on the left menu, click the *three-dot menu* for the *Summer Framework* archetype, and select *Assess*.
+
+image:module-01/mta-migration-reasses.png[migration reasses]
+
+mta-migration-reasses
 * **Retake & Navigate:** Click *Retake*, then click *Next* through the Stakeholders and initial sections (Details, Dependencies, Observability).
 * **Update Configuration:** In the *Application cross-cutting concerns* section, find "How is the application configured?" and select: *Multiple configuration files in multiple file system locations*.
 * **Submit Review:**
