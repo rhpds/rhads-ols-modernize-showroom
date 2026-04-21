@@ -4,11 +4,11 @@
 :toclevels: 1
 
 
-The digital transformation initiative at ACME Corp is officially underway. As a lead developer, you've been tasked with moving the aging siloed services—starting with the `Customers` application—off legacy virtual machines and into a cloud-native architecture[cite: 1, 4]. Your team knows that moving blindly is a recipe for project delays, and "guessing" the effort required won't satisfy the stakeholders[cite: 2, 13].
+The digital transformation initiative at ACME Corp is officially underway. As a lead developer, you've been tasked with moving the aging siloed services—starting with the `Customers` application—off legacy virtual machines and into a cloud-native architecture. Your team knows that moving blindly is a recipe for project delays, and "guessing" the effort required won't satisfy the stakeholders.
 
-To succeed, you need a holistic view of the application portfolio[cite: 9]. You've turned to the **Migration Toolkit for Applications (MTA)** to provide the data-driven insights necessary to identify risks, estimate migration effort, and map out a clear modernization path[cite: 3, 12].
+To succeed, you need a holistic view of the application portfolio. You've turned to the **Migration Toolkit for Applications (MTA)** to provide the data-driven insights necessary to identify risks, estimate migration effort, and map out a clear modernization path.
 
-In this module, you will step into the role of a migration architect to evaluate the existing infrastructure, classify applications at scale using archetypes, and perform a deep-dive analysis of the source code to uncover hidden technical debt[cite: 21, 94, 97].
+In this module, you will step into the role of a migration architect to evaluate the existing infrastructure, classify applications at scale using archetypes, and perform a deep-dive analysis of the source code to uncover hidden technical debt.
 
 === Learning objectives
 
@@ -22,13 +22,7 @@ By the end of this module, you’ll be able to:
 
 ---
 
-== 1. Goals of this lab
-
-As part of the digital transformation and cloud adoption initiative of a large organization, the _Development_ and _DevOps_ teams embarked upon a journey to modernize their existing siloed services running on virtual machines.
-
-The goal of this lab is to assess and analyze the current application portfolio and identify potential issues and risks for implementing advanced cloud-native architectures with application modernization.
-
-== 2. Introduction to Migration Toolkit for Applications
+== 1. Introduction to Migration Toolkit for Applications
 
 To work on the migration of the existing applications in our portfolio we will use the https://developers.redhat.com/products/mta/overview[Migration Toolkit for Applications (MTA)^]. _MTA_ will be used to assess, analyze and finally migrate the `Customers` application, currently running on a _Tomcat_ server on a VM.
 
@@ -41,7 +35,7 @@ You will see existing application in the inventory such as *Customers*, *Orders*
 
 image:module-01/mta-inventory-profile.png[application inventory]
 
-== 3. Environment Setup
+== 2. Environment Setup
 
 * **Access the Console:** Open the *MTA Web Console*.
 * **Enable Questionnaires:**
@@ -58,7 +52,7 @@ image:module-01/mta-git-insecure-repo.png[git repo set up]
 
 ---
 
-== 4. Archetype Assessment
+== 3. Archetype Assessment
 
 * **Start Assessment:** Navigate to *Archetypes* on the left menu, click the *three-dot menu* for the *Summer Framework* archetype, and select *Assess*.
 
@@ -78,7 +72,7 @@ image:module-01/mta-submit-review.png[submit review]
 
 ---
 
-== 5. Application Analysis
+== 4. Application Analysis
 
 * **Configure Customers App:**
 . In *Application inventory*, click the *pencil (edit) icon* for the *Customers* application.
@@ -104,7 +98,7 @@ https://gitea.apps.cluster-ks5qt.dynamic.redhatworkshops.io/user-2qmzf/modern-ap
 
 ---
 
-== 6. Results Review
+== 5. Results Review
 
 * **Status:** Wait for the analysis status to change from *Scheduled* to *Completed*.
 * **View Issues:** Click on the *Customers* application row to open the *Application Profile* and select the *Issues* link.
