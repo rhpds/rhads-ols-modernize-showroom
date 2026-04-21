@@ -59,25 +59,13 @@ xref:common/login-devspaces.adoc[Initially login or reestablish DevSpaces worksp
 
 . Switch to the __Module 4__ Git branch
 +
-* Create a new terminal window
-* Click on the hamburger icon on the left sidebar, Click on the **Terminal** menu item, click on **New Terminal** 
-* A new terminal window will open at the bottom of the screen
+* Create a new terminal window (unless you already have one open from the previous module)
+** Click on the hamburger icon on the left sidebar, Click on the **Terminal** menu item, click on **New Terminal** 
+** A new terminal window will open at the bottom of the screen
 // may need to confirm correct working directory before git checkout
 // may need to stash prior branch effort before git checkout
 * Enter the following into the terminal prompt and hit Enter:
 +
-[source,bash,role="execute", subs="attributes"]
-----
-git checkout module4
-----
-+
-image::module-04/Git-Checkout-Module4.png[Checkout Module 4,link=self,window=blank,title="Checkout Module 4"]
-+
-[NOTE]
-====
-If you get an error similar to +
-__error: Your local changes to the following files would be overwritten by checkout:__ +
-Then enter the following in the terminal prompt:
 [source,bash,role="execute", subs="attributes"]
 ----
 # Do a save of uncommitted work from the previous module
@@ -86,8 +74,10 @@ git stash
 # Switch to branch for this module
 git checkout module4
 ----
-====
 +
+image::module-04/Git-Checkout-Module4.png[Checkout Module 4,link=self,window=blank,title="Checkout Module 4"]
+
+
 . Log into your OpenShift Cluster from the terminal:
 +
 * Enter the following into the terminal prompt and hit Enter/Return:
@@ -100,7 +90,8 @@ oc login --server={openshift_api_url} \
   --password={password} \
   --insecure-skip-tls-verify=true
 ----
-+
+
+
 . Switch to the Coolstore project 
 +
 This OpenShift namespace is where the application will be built and deployed
@@ -115,7 +106,8 @@ oc project
 ----
 +
 image::module-04/Cluster-Login-Project.png[Cluster Login and Set Project,link=self,window=blank,title="Cluster Login and Set Project"]
-+
+
+
 . Deploy a Postgres Database
 +
 The Coolstore application needs a database to connect to for managing shopping cart choices
@@ -130,7 +122,8 @@ oc new-app -e POSTGRESQL_USER=quarkus \
             openshift/postgresql:latest \
             --name=coolstore-database
 ----
-
++
+* It may take a minute for the database to install, start up, and run
 
 === Verify
 
@@ -162,6 +155,8 @@ As explained above we take a rapid developer environment approach for this that 
 mvn clean compile package -Dquarkus.kubernetes.deploy=true
 ----
 +
+* Build and deploy will take a couple minutes, wait till it finishes
++
 image::module-04/Build-Deploy-Coolstore.png[Build And Deploy Coolstore,link=self,window=blank,title="Build and Deploy Coolstore"]
 +
 * Switch to the **OpenShift Console Tab** and see the {user} projects used in this lab
@@ -170,9 +165,12 @@ image::module-04/Build-Deploy-Coolstore.png[Build And Deploy Coolstore,link=self
 image::module-04/Project-Listing.png[User Projects,link=self,window=blank,title="User Projects"]
 +
 * View the {user}-coolstore __Project details__ page
-* Click the down arrow **>** next to **Workloads** and click on __Topology__
 +
 image::module-04/User-Coolstore-Project.png[User Coolstore Project,link=self,window=blank,title="User Coolstore Project"]
++
+* Click the down arrow **>** next to **Workloads** and click on __Topology__
+** If you are in split view and the menu is collapsed you can open via the following approach +
+image:module-04/Open-OCP-Menu.png[Open Menu,link=self,window=blank,title="Open Menu"]
 +
 * View the project layout of the deployed **database**, **coolstore** application, and a helper task to load the initial database
 +
@@ -183,12 +181,18 @@ image::module-04/Deployments.png[Topology,link=self,window=blank,title="Topology
 image::module-04/Closeup-Deployments.png[Deployed Services ,link=self,window=blank,title="Deployed Services"]
 +
 * View the **Coolstore** website
+** It will take a minute for the data to load in the background and for the __Cool Store__ to show.
 +
 image::module-04/Coolstore-Webpage.png[Coolstore Webpage,link=self,window=blank,title="Coolstore Webpage"]
 
+. Test application functionality:
++
+* Navigate through the Coolstore interface
+* Test different features (Products, Descriptions, Ordering etc.)
+* Verify all functionality works in the containerized environment
 Congratulations you just built and deployed a Quarkus application and it's supporting database!
 
-Overall...
+. Overall...
 * You just used the command line to load the migrated application code, which is now implemented as a Quarkus Java, and you built and deployed it.
 * You also deployed a backend database used by the application.
 * You then walked through the OpenShift Console screens to get a better perspective of how the deployed application sits in OpenShift
@@ -234,14 +238,6 @@ curl -k https://$APP_URL/
 # Get logs from the application pods
 oc logs -l app.kubernetes.io/name=coolstore --tail=50
 ----
-
-. Test application functionality:
-+
-Click the application URL or use the browser to:
-+
-* Navigate through the Coolstore interface
-* Test different features (Products, Descriptions, Ordering etc.)
-* Verify all functionality works in the containerized environment
 +
 [source,bash,role="execute", subs="attributes"]
 ----
@@ -256,7 +252,7 @@ curl -k https://$APP_URL/q/health | jq .
 ----
 
 
-✓ Deployment shows 2/2 replicas ready
+✓ Deployment shows replicas ready
 ✓ Pods are in "Running" status
 ✓ Health checks pass successfully
 ✓ Application is accessible via HTTPS route
@@ -297,31 +293,6 @@ latest
 ✓ ImageStream created in project namespace
 ✓ Image is accessible for deployment
 
-
-
-== Exercise 4: Review modernization results
-
-You've completed the end-to-end modernization journey. Now review what ACME has accomplished and the business value delivered.
-
-=== Steps
-
-. View the complete application topology in OpenShift console:
-+
-* Click the **OpenShift Console** tab
-* Navigate to **Topology** view
-* Select project: `user-{user}-coolstore`
-* View the application components (Deployment, Pods, Service, Route)
-
-. Review the deployment metrics:
-+
-[source,bash,role="execute", subs="attributes"]
-----
-# Check resource usage
-oc adm top pods -l app=coolstore
-
-# View deployment statistics
-oc get deployment coolstore -o wide
-----
 
 
 == Learning outcomes checkpoint

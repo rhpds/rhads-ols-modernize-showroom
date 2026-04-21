@@ -200,6 +200,9 @@ TIP:  If you ever accidently close the MTA Analysis View panel, just click on th
 * In the center of the screen make sure the profile selected is the **{user} coolstore**
 * At the top right of the screen, ensure the __Server Status__ is **Running**
 ** Click the **Start** button if it isn't and wait till the Server Status is **Running**
++
+image::module-02/Turn-On-Server.png[Turn on GenAI Server,550,550,link=self,window=blank,title="Turn on GenAI Server"]
+
 
 . Invoke Developer Lightspeed Analysis:
 +
@@ -332,7 +335,7 @@ However, to speed migration and modernization, once they have checked how effect
 +
 * Switch to the **MTA Analysis View** tab in the Developer Lightspeed for MTA extension
 * Ensure in the uppper right __Server Status__ is **Running**
-* Click **Agent Mode** toggle to turn it on
+* Click **Agent Mode** toggle to turn it on (it will turn blue)
 +
 image::module-02/Server-running-Agent-Mode.png[Ensure Server and Agent Mode are On,300,300,link=self,window=blank,title="Ensure Server and Agent Mode are On"]
 +
@@ -342,7 +345,6 @@ This Analysis run will use Agent Mode
 +
 * Click the **Run Analysis** button, which is to the right side partway down the view
 * The Analyis will run again
-* __At this point in the exercises one can choose to see how Agent Mode can migrate a cascading fix across a code base by doing the following optional step OR move to the **Let the Agent work** Step and watch it fix all the issues.__
 
 . Selectively focus on a specific issue Theme
 +
@@ -358,6 +360,9 @@ image::module-02/Quarkus-plugin.png[Need To Insert Quarkus Plugin,link=self,wind
 * Developer Lightspeed extension will scroll through the __Generative AI Results__, which was covered in detail previously
 * Click **Accept** to suggested changes for the Plugin Issue
 * Developer Lightspeed fixes the issue, and **Agent Mode** continues to look for all impacted code across the project that are affected by this fix.
++
+NOTE: At this point the LLM in the background may not always approach locating and suggesting fixes to files in the same order, so screenshots may not match what you see exactly, and because this workshop and other workshops running simultaneously may be really stretching the GPU's assigned to this model, the Agent process may run into some performance and latency delays. This is only due to potential resource bottlenecks during the workshop.
++
 * Agent Mode offers to __continue fixing them__
 +
 image::module-02/Stop-Agent-fixes.png[Agent Mode Search Results,link=self,window=blank,title="Agent Mode Locates Other Impacted Code"]
@@ -365,6 +370,9 @@ image::module-02/Stop-Agent-fixes.png[Agent Mode Search Results,link=self,window
 * Choose **NO**
 +
 IMPORTANT: We are choosing NO, because this workshop doesn't allow enough time and shared resources to simultaneously fully fix all cascading issues across the project, for all participants.
++
+* Close MTA Hub Configuration Tab/Pane
+* If any code files remain open, close them.
 
 This **Agent Exercise** provided a strong case for using Developer Lightspeed for MTA to not only fix specific issues but also be able to use AI capabilities to look across a codebase for all impacted code as the initial change has a ripple effect across the project.  Agent mode can then provide fixes along the way and further speed the migration, and scale the effort in a safe consistent way that ensures complete migration.
 
@@ -376,8 +384,9 @@ This **Agent Exercise** provided a strong case for using Developer Lightspeed fo
 
 == Troubleshooting
 
-**Issue**: Developer Lightspeed extension not responding
-**Solution**: Verify AI model endpoint is accessible:
+**Issue**: Developer Lightspeed extension not responding +
+**Solution**: Verify AI model endpoint is accessible: +
+Ask instructor to assist getting a terminal open and run the following
 [source,bash,role="execute", subs="attributes"]
 ----
 curl -k {litellm_api_endpoint}/health
