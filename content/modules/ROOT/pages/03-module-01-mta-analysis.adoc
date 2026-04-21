@@ -1,8 +1,26 @@
-= Module 1: MTA Assessment and Analysis
+= Module 1: Assessing the Landscape
 :source-highlighter: rouge
 :toc: macro
 :toclevels: 1
 
+
+The digital transformation initiative at ACME Corp is officially underway. As a lead developer, you've been tasked with moving the aging siloed services—starting with the `Customers` application—off legacy virtual machines and into a cloud-native architecture[cite: 1, 4]. Your team knows that moving blindly is a recipe for project delays, and "guessing" the effort required won't satisfy the stakeholders[cite: 2, 13].
+
+To succeed, you need a holistic view of the application portfolio[cite: 9]. You've turned to the **Migration Toolkit for Applications (MTA)** to provide the data-driven insights necessary to identify risks, estimate migration effort, and map out a clear modernization path[cite: 3, 12].
+
+In this module, you will step into the role of a migration architect to evaluate the existing infrastructure, classify applications at scale using archetypes, and perform a deep-dive analysis of the source code to uncover hidden technical debt[cite: 21, 94, 97].
+
+=== Learning objectives
+
+By the end of this module, you’ll be able to:
+
+* [cite_start]**Navigate the MTA Web Console** to manage application inventories and business services.
+* **Utilize Archetypes and Tagging** to automatically classify and manage large portfolios of similar applications.
+* **Perform a Containerization Assessment** to identify high-level architectural risks and migration strategies.
+* **Execute Static Code Analysis** against legacy Java source code to find specific technical issues.
+* [cite_start]**Interpret Analysis Reports** to understand story points, effort estimates, and required code modifications.
+
+---
 
 == 1. Goals of this lab
 
