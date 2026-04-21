@@ -43,7 +43,7 @@ image:module-01/mta-git-insecure-repo.png[git repo set up]
 
 image:module-01/mta-migration-reasses.png[migration reasses]
 
-mta-migration-reasses
+
 * **Retake & Navigate:** Click *Retake*, then click *Next* through the Stakeholders and initial sections (Details, Dependencies, Observability).
 * **Update Configuration:** In the *Application cross-cutting concerns* section, find "How is the application configured?" and select: *Multiple configuration files in multiple file system locations*.
 * **Submit Review:**
