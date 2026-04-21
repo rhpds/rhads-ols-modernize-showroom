@@ -30,6 +30,8 @@ image:module-01/mta-inventory-profile.png[application inventory]
 . Switch the perspective back to *Migration*.
 * [cite_start]**Enable Insecure Repositories:** In the *Administration* perspective, go to *Repositories > Git* and toggle *Consume insecure Git repositories* to the right.
 
+image:module-01/mta-git-insecure-repo.png[git repo set up]
+
 ---
 
 == 4. Archetype Assessment
