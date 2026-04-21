@@ -84,7 +84,7 @@ image:module-01/mta-submit-review.png[submit review]
 image:module-01/mta-app-inventory-gitrepo-set-up.png[git repo modern app dev]
 
 
-image:module-01/mta-modern-app-dev-gip.png[git repo modern app dev]
+image:module-01/mta-modern-app-dev-git.png[git repo modern app dev]
 
 
 * **Run Analysis:**
