@@ -53,6 +53,8 @@ mta-migration-reasses
 . Set *Business criticality* to *10* and *Work priority* to *9*.
 . Click *Submit Review*.
 
+image:module-01/mta-submit-review.png[submit review]
+
 ---
 
 == 5. Application Analysis
