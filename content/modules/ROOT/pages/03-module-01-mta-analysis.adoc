@@ -14,7 +14,8 @@ The goal of this lab is to assess and analyze the current application portfolio 
 
 To work on the migration of the existing applications in our portfolio we will use the https://developers.redhat.com/products/mta/overview[Migration Toolkit for Applications (MTA)^]. _MTA_ will be used to assess, analyze and finally migrate the `Customers` application, currently running on a _Tomcat_ server on a VM.
 
-Open a new browser to access the {mta_url}[MTA Web Console^].
+
+Switch to Red Hat OpenShift MTA Console by clicking the MTA Web Console tab in the workshop interface.
 
 NOTE: For this lab the MTA Web Console is readily available at that URL. In a production-ready environment the console would be secured by Red Hat Single Sign On and require you to log in with valid credentials.
 
