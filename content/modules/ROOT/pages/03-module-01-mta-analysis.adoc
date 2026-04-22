@@ -53,6 +53,7 @@ image:module-01/mta-git-insecure-repo.png[git repo set up]
 
 == 3. Archetype Assessment
 
+* **Switch** the top-left perspective selector to *Migration*.
 * **Start Assessment:** Navigate to *Archetypes* on the left menu, click the *three-dot menu* for the *Summer Framework* archetype, and select *Assess*.
 
 image:module-01/mta-migration-reasses.png[migration reasses]
