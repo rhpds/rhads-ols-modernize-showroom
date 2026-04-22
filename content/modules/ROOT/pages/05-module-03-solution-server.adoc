@@ -115,8 +115,8 @@ xref:common/login-devspaces.adoc[Initially login or reestablish DevSpaces worksp
 . Switch to the __Module 3__ Git branch
 +
 * Create a new terminal window
-* Click on the hamburger icon on the left sidebar, Click on the **Terminal** menu item, click on **New Terminal** 
-* A new terminal window will open at the bottom of the screen
+** Click on the hamburger icon on the left sidebar, Click on the **Terminal** menu item, click on **New Terminal** 
+** A new terminal window will open at the bottom of the screen
 * Enter the following into the terminal prompt and hit Enter:
 +
 [source,bash,role="execute", subs="attributes"]
@@ -188,7 +188,7 @@ image::module-03/Hub-Config1.png[Hub Configuration,link=self,window=blank,title=
 +
 image::module-03/Hub-Config2.png[Hub Configuration,link=self,window=blank,title="Hub Configuration"]
 +
-**If** the **Configure GenAI** setting is __not configured__
+**If** the **Configure GenAI** setting is __**not configured**__
 +
 * Click on __Configure GenAI Settings__
 +

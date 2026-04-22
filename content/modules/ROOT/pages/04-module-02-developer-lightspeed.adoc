@@ -371,7 +371,7 @@ image::module-02/Stop-Agent-fixes.png[Agent Mode Search Results,link=self,window
 +
 IMPORTANT: We are choosing NO, because this workshop doesn't allow enough time and shared resources to simultaneously fully fix all cascading issues across the project, for all participants.
 +
-* Close MTA Hub Configuration Tab/Pane
+* Close the MTA Resolution Details Tab/Pane
 * If any code files remain open, close them.
 
 This **Agent Exercise** provided a strong case for using Developer Lightspeed for MTA to not only fix specific issues but also be able to use AI capabilities to look across a codebase for all impacted code as the initial change has a ripple effect across the project.  Agent mode can then provide fixes along the way and further speed the migration, and scale the effort in a safe consistent way that ensures complete migration.
