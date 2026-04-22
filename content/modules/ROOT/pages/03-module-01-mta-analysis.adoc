@@ -122,6 +122,3 @@ You have now successfully analyzed the legacy application to gather insight abou
 ++++
 <div class="validate-button-placeholder" data-module="module-01-mta-analysis"></div>
 ++++
-
-
-flutter run --dart-define=SUPABASE_URL=https://ownlaqhulijffdrcovpe.supabase.co --dart-define=SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93bmxhcWh1bGlqZmZkcmNvdnBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3ODgzMTMsImV4cCI6MjA5MjM2NDMxM30.vWFcPJ-eJEn0G8YaX3aBe6WeI_WiAmYYIsw3fojmQG8
