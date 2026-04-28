@@ -6,7 +6,7 @@
 == Timing and schedule
 
 === Full workshop (90 minutes)
-* **Module 1**: Analyzing Legacy Applications with MTA (20-25 minutes)
+* **Module 1**: Analyzing Legacy Applications with MTA (15-20 minutes)
 * **Module 2**: AI-Assisted Code Modernization (25-30 minutes)
 * **Module 3**: Incorporating Policy and Tribal Knowledge with Solution Server (20-25 minutes)
 * **Module 4**: Deploying to OpenShift (15-20 minutes)
@@ -48,39 +48,6 @@ Participants need access to:
 □ **Dev Spaces workspace created** - Confirm Developer Lightspeed extension installed
 □ **Gitea repository accessible** - Test repository clone and push
 □ **AI model endpoint configured** - Verify LiteLLM connectivity
-
-=== Setup validation
-Participants should verify access to these resources:
-
-```bash
-# Verify OpenShift CLI access
-oc whoami
-
-# Verify cluster connectivity
-oc version
-
-# Check MTA API endpoint
-curl -k {mta_api_url}/hub
-
-# Test Gitea access
-curl -k {gitea_url}
-```
-
-== Troubleshooting guide
-
-=== Common setup issues
-
-**Problem**: "Cannot access OpenShift console"
-→ **Solution**: Verify you're using the correct URL from the workshop environment: {openshift_console_url}
-
-**Problem**: "MTA console shows authentication error"
-→ **Solution**: Use OpenShift credentials to log in to MTA. Username: {user}, Password: {password}
-
-**Problem**: "Dev Spaces workspace won't start"
-→ **Solution**: Check OpenShift resource quotas and verify Dev Spaces operator is running
-
-**Problem**: "Developer Lightspeed extension not responding"
-→ **Solution**: Verify LiteLLM endpoint is accessible and API key is configured correctly
 
 === During workshop support
 * Encourage participants to help each other

@@ -9,7 +9,7 @@ You're a senior developer at ACME Corp, and you've been assigned to evaluate AI-
 
 ACME Corp is expanding their product portfolio and needs to quickly migrate a large number of legacy applications onto more scalable and secure Red Hat OpenShift clusters. Your manager has explained: "We have dozens of legacy Java applications that need to be containerized and deployed to OpenShift within the next quarter to support our expansion plans."
 
-**Your assignment**: Evaluate Red Hat Developer Lightspeed for MTA and determine if AI-powered tools can accelerate the migration process while maintaining code quality and incorporating company best practices.
+**Your assignment**: Evaluate Red Hat Developer Lightspeed for MTA and determine if AI-powered tools can accelerate the migration process while maintaining code quality and incorporating company best practices.  Your starting point will be working with a team consisting of the project owner, yourself, and a platform engineering representative to first create categories of similar legacy applications and move through analyzing risks and concerns with migration.  Then you will take the lead and work with Developer Lightspeed for MTA to analyze and use AI generated fixes to migrate a representative application.
 
 **The objective**: Demonstrate whether AI-assisted modernization can reduce migration time from weeks to days while ensuring code quality meets ACME's standards.
 
