@@ -139,7 +139,7 @@ image::module-02/provider-settings.png[AI Model Settings,link=self,window=blank,
 +
 CAUTION: This is yaml syntax so ensure to keep the indentions - just copy and paste over existing source
 +
-[source,yaml,role="execute", subs="attributes"]
+[source,yaml,subs="attributes"]
 ----
 models:
   OpenAI: &active

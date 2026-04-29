@@ -119,7 +119,7 @@ xref:common/login-devspaces.adoc[Initially login or reestablish DevSpaces worksp
 ** A new terminal window will open at the bottom of the screen
 * Enter the following into the terminal prompt and hit Enter:
 +
-[source,bash,role="execute", subs="attributes"]
+[source,bash,subs="attributes"]
 ----
 git checkout module3
 ----
@@ -131,7 +131,7 @@ image::module-03/git-checkout-module3.png[Checkout Module 3,link=self,window=bla
 If you get an error similar to +
 __error: Your local changes to the following files would be overwritten by checkout:__ +
 Then enter the following in the terminal prompt:
-[source,bash,role="execute", subs="attributes"]
+[source,bash,subs="attributes"]
 ----
 # Do a save of uncommitted work from the previous module
 git stash
@@ -200,7 +200,7 @@ image::module-03/provider-settings.png[AI Model Settings,link=self,window=blank,
 +
 CAUTION: This is yaml syntax so ensure to keep the indentions - just copy and paste over existing source
 +
-[source,yaml,role="execute", subs="attributes"]
+[source,yaml,subs="attributes"]
 ----
 models:
   OpenAI: &active
@@ -220,7 +220,7 @@ models:
 * Ensure that the **Server Status** shows __Running__
 ** If it doesn't, click on the **Start** button
 * Do **NOT** turn on Agent Mode
-** If **Agent Mode** is on (blue), click the slider to turn it off.
+** If **Agent Mode** is on (blue), click the slider to turn it **off**.
 +
 image::module-03/Server-Status.png[Server Status,300,300,link=self,window=blank,title="Correct Server Status"]
 
@@ -329,7 +329,7 @@ image::module-03/Order-Service-Fix1.png[Insert ACME Policy Approach,link=self,wi
 +
 * Copy in the following enhanced fix.
 +
-[source,java,role="execute", subs="attributes"]
+[source,java,subs="attributes"]
 ----
         config.setStreamHost(System.getenv().getOrDefault("AUDIT_STREAM_HOST","localhost"));
         config.setStreamPort(Integer.parseInt(System.getenv().getOrDefault("AUDIT_STREAM_PORT","5000")));

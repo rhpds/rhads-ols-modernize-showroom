@@ -11,12 +11,6 @@
 * **Module 3**: Incorporating Policy and Tribal Knowledge with Solution Server (20-25 minutes)
 * **Module 4**: Deploying to OpenShift (15-20 minutes)
 
-=== Abbreviated workshop (60 minutes)
-* **Module 1**: Analyzing Legacy Applications with MTA (15 minutes)
-* **Module 2**: AI-Assisted Code Modernization (20 minutes)
-* **Module 3**: Incorporating Policy and Tribal Knowledge with Solution Server (15 minutes)
-* **Module 4**: Deploying to OpenShift (10 minutes)
-
 == Technical requirements
 
 === Software versions
