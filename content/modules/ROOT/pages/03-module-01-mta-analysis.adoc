@@ -114,11 +114,3 @@ image:module-01/mta-analysis-report.png[git repo modern app dev]
 == Summary
 
 You have now successfully analyzed the legacy application to gather insight about technologies, dependencies and potential issues that need to be addressed for the application to run in OpenShift.
-
-++++
-<div class="solve-button-placeholder" data-module="module-01-mta-analysis"></div>
-++++
-
-++++
-<div class="validate-button-placeholder" data-module="module-01-mta-analysis"></div>
-++++

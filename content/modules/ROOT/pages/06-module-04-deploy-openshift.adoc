@@ -347,12 +347,3 @@ You've demonstrated mastery of AI-assisted application modernization using Red H
 * Investigate Developer Lightspeed custom models
 * Learn OpenShift GitOps for automated deployments
 * Study OpenShift Pipelines for CI/CD integration
-
-
-++++
-<div class="solve-button-placeholder" data-module="module-04-deploy-openshift"></div>
-++++
-
-++++
-<div class="validate-button-placeholder" data-module="module-04-deploy-openshift"></div>
-++++
