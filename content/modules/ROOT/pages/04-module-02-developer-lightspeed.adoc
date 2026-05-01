@@ -393,6 +393,30 @@ curl -k {litellm_api_endpoint}/health
 ----
 If endpoint is down, check with workshop instructor. If accessible, try restarting the extension or workspace.
 
+**Issue**:  The The **provider-settings.yaml** file with the LLM settings needs to be fixed + 
+Open the file as described above in the __Configure the AI model connection for MTA Developer Lightspeed:__ task +
+Completely replace the **Entire** file contents with the following: +
+[source,yaml,subs="attributes"]
+----
+environment:
+  ALWAYS_APPLIED_KEY: "envvar to be set regardless of which model is active"
+  # CA_BUNDLE: "" # optional
+  # ALLOW_INSECURE: "false" # optional
+models:
+  OpenAI: &active
+    environment:
+      OPENAI_API_KEY: "{litellm_virtual_key}" # Required
+    provider: ChatOpenAI
+    args:
+      model: llama-scout-17b # Required
+      configuration:
+        baseURL: "{litellm_api_base_url}"
+# This is the node used for configuring the server.  A simple anchor/reference
+# pair is an easy way to to select a configuration.  To change configs, move the
+# `&active` anchor to the desired block and restart the server.
+active: *active
+----
+
 
 == Learning outcomes checkpoint
 
