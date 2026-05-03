@@ -166,9 +166,9 @@ image::module-03/Analysis-panel-initial.png[Open Configuration,link=self,window=
 +
 * A side panel will open **Get Ready to Analyze**
 +
-image::module-03/Analysis-Config.png[Analysis Configuration,300,300,link=self,window=blank,title="Analysis Configuration"]
+image::module-03/Analysis-Config2.png[Analysis Configuration,link=self,window=blank,title="Analysis Configuration"]
 +
-* Notice __Hub Configuration__ is not yet configured and __Configure GenAI__ may not be configured yet
+* Notice __Hub Configuration__ is not yet configured
 * Click on **Configure Hub Settings**
 * The __MTA Hub Configuration__ tab will open
 * In __General Settings__ , click the slider to Enable connection to Konveyor Hub  (MTA Hub)
@@ -187,8 +187,8 @@ image::module-03/Analysis-Config.png[Analysis Configuration,300,300,link=self,wi
 image::module-03/Hub-Config1.png[Hub Configuration,link=self,window=blank,title="Hub Configuration"]
 +
 image::module-03/Hub-Config2.png[Hub Configuration,link=self,window=blank,title="Hub Configuration"]
-+
-**If** the **Configure GenAI** setting is __**not configured**__
+
+. **If** the **Configure GenAI** setting is __**not configured**__
 +
 * Click on __Configure GenAI Settings__
 +
@@ -214,8 +214,11 @@ models:
 ----
 +
 * Close the **provider-settings.yaml** file.
+
+. Return focus to **MTA Analysis View**
++
 * Ensure the **Get Ready to Analyze** panel is closed
-* Close the **MTA Hub Configuration Tab/Pane**
+* Ensure the **MTA Hub Configuration Tab/Pane** is closed
 * Navigate to the **MTA Analysis View** tab
 * Ensure that the **Server Status** shows __Running__
 ** If it doesn't, click on the **Start** button

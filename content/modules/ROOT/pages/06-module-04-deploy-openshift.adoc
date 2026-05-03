@@ -66,7 +66,7 @@ xref:common/login-devspaces.adoc[Initially login or reestablish DevSpaces worksp
 // may need to stash prior branch effort before git checkout
 * Enter the following into the terminal prompt and hit Enter:
 +
-[source,bash,role="execute", subs="attributes"]
+[source,bash,subs="attributes"]
 ----
 # Do a save of uncommitted work from the previous module
 git stash
@@ -82,7 +82,7 @@ image::module-04/Git-Checkout-Module4.png[Checkout Module 4,link=self,window=bla
 +
 * Enter the following into the terminal prompt and hit Enter/Return:
 +
-[source,bash,role="execute", subs="attributes"]
+[source,bash,subs="attributes"]
 ----
 # Login to OpenShift cluster
 oc login --server={openshift_api_url} \
@@ -96,7 +96,7 @@ oc login --server={openshift_api_url} \
 +
 This OpenShift namespace is where the application will be built and deployed
 +
-[source,bash,role="execute", subs="attributes"]
+[source,bash,subs="attributes"]
 ----
 # Switch to the new application project namespace
 oc project {user}-coolstore
@@ -114,7 +114,7 @@ The Coolstore application needs a database to connect to for managing shopping c
 +
 * Enter the following in the terminal window and hit Enter/Return
 +
-[source,bash,role="execute", subs="attributes"]
+[source,bash,subs="attributes"]
 ----
 oc new-app -e POSTGRESQL_USER=quarkus \
             -e POSTGRESQL_PASSWORD=quarkus \
@@ -131,7 +131,7 @@ oc new-app -e POSTGRESQL_USER=quarkus \
 
 * Enter the following
 +
-[source,bash,role="execute"]
+[source,bash,subs="attributes"]
 ----
 oc get pods
 ----
@@ -150,7 +150,7 @@ As explained above we take a rapid developer environment approach for this that 
 . Build and Deploy the Coolstore Application 
 * Enter the following in the terminal window and hit Enter/Return
 +
-[source,bash,role="execute", subs="attributes"]
+[source,bash,subs="attributes"]
 ----
 mvn clean compile package -Dquarkus.kubernetes.deploy=true
 ----
@@ -208,7 +208,7 @@ Here are some examples.
 
 . Get the application URL:
 +
-[source,bash,role="execute", subs="attributes"]
+[source,bash,subs="attributes"]
 ----
 # Get the external route URL
 oc get route coolstore -o jsonpath='{.spec.host}'
@@ -222,7 +222,7 @@ echo "Application URL: https://$APP_URL"
 +
 Open the URL in your browser or test via curl:
 +
-[source,bash,role="execute", subs="attributes"]
+[source,bash,subs="attributes"]
 ----
 # Test the application endpoint
 curl -k https://$APP_URL/q/health
@@ -233,13 +233,13 @@ curl -k https://$APP_URL/
 
 . View application logs:
 +
-[source,bash,role="execute", subs="attributes"]
+[source,bash,subs="attributes"]
 ----
 # Get logs from the application pods
 oc logs -l app.kubernetes.io/name=coolstore --tail=50
 ----
 +
-[source,bash,role="execute", subs="attributes"]
+[source,bash,subs="attributes"]
 ----
 # Check pod health
 oc get pods -l app=coolstore
@@ -265,7 +265,7 @@ curl -k https://$APP_URL/q/health | jq .
 
 . Verify the image is in the registry:
 +
-[source,bash,role="execute", subs="attributes"]
+[source,bash,subs="attributes"]
 ----
 # List images in OpenShift registry
 oc get imagestream
@@ -273,7 +273,7 @@ oc get imagestream
 
 . Confirm the image is available in OpenShift:
 +
-[source,bash,role="execute", subs="attributes"]
+[source,bash,subs="attributes"]
 ----
 # Check imagestream details
 oc describe imagestream coolstore
